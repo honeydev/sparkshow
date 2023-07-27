@@ -6,7 +6,8 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
 import Json.Encode as Encode exposing (Value)
-import Login
+import Login as LoginPage
+import Route exposing (Route)
 import Session exposing (..)
 import Url
 
@@ -30,29 +31,38 @@ main =
 
 -- MODEL
 
+type Page = Default Session
+    | Login LoginPage.Model
 
-type Model
-    = Default Session
-    | Login Login.Model
+type alias Model = {
+    pageModel: Page
+    , route: Route
+    , navKey: Nav.Key
+    }
+
 
 
 getSession : Model -> Session
 getSession model =
-    case model of
+    case model.pageModel of
         Default s ->
             s
 
         Login m ->
             m.session
 
-
 init : Maybe String -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url key =
     let
+        -- FIXME: remove this
         store =
             storeSession { token = "abc" }
+        route = Route.parseUrl url
+        page  = case route of
+            Route.Default -> Default Unauthenticated
+            Route.Login   -> LoginPage.init Unauthenticated |> Login
     in
-    ( Default Unauthenticated
+    ( { pageModel = page, route = route, navKey = key }
     , store
     )
 
@@ -64,7 +74,7 @@ init flags url key =
 type Msg
     = LinkClicked Browser.UrlRequest
     | UrlChanged Url.Url
-    | GotLoginMessage Login.Msg
+    | LoginMessage LoginPage.Msg
 
 
 authHook msg model =
@@ -72,7 +82,7 @@ authHook msg model =
         Default session ->
             case session of
                 Unauthenticated ->
-                    GotLoginMessage Login.PageOpened
+                    LoginMessage LoginPage.PageOpened
 
                 _ ->
                     msg
@@ -85,21 +95,32 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     let
         hookedMsg =
-            authHook msg model
-
+            authHook msg model.pageModel
         _ =
             Debug.toString hookedMsg |> Debug.log "Hooked"
     in
     case hookedMsg of
-        GotLoginMessage subMsg ->
+        LinkClicked urlRequest ->
+            case urlRequest of
+                Browser.Internal url -> ( model, Nav.pushUrl model.navKey (Url.toString url) )
+                Browser.External url -> ( model, Nav.pushUrl model.navKey url )
+
+
+        LoginMessage subMsg ->
             let
                 ( m, cmd ) =
-                    Login.update subMsg (Login.init (getSession model))
+                    LoginPage.update subMsg (LoginPage.init (getSession model))
             in
-            ( Login m, Cmd.map GotLoginMessage cmd )
+            (
+            { pageModel = Login m, route = Route.Login, navKey = model.navKey },
+            Cmd.map LoginMessage cmd
+            )
 
         _ ->
-            ( Default Unauthenticated, Cmd.none )
+            (
+                { pageModel = Default Unauthenticated, route = Route.Default, navKey = model.navKey },
+                Cmd.none
+                )
 
 
 
@@ -121,11 +142,10 @@ view model =
     , body =
         [ text "The current URL is: "
         , ul []
-            [ button [ onClick (GotLoginMessage Login.PageOpened) ] [ text "login" ]
-            ]
-        , case model of
+            [ a [ href "/login" ] [ button [ ] [ text "login" ] ]]
+        , case model.pageModel of
             Login loginModel ->
-                Html.map GotLoginMessage (Login.view loginModel)
+                Html.map LoginMessage (LoginPage.view loginModel)
 
             Default s ->
                 div [] [ text "Default" ]
