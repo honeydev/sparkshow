@@ -61,6 +61,7 @@ init flags url key =
         page  = case route of
             Route.Default -> Default Unauthenticated
             Route.Login   -> LoginPage.init Unauthenticated |> Login
+        _ = Debug.toString page |> Debug.log "Page"
     in
     ( { pageModel = page, route = route, navKey = key }
     , store
@@ -81,8 +82,8 @@ authHook msg model =
     case model of
         Default session ->
             case session of
-                Unauthenticated ->
-                    LoginMessage LoginPage.PageOpened
+                --Unauthenticated ->
+                --    LoginMessage LoginPage.PageOpened
 
                 _ ->
                     msg
@@ -100,10 +101,18 @@ update msg model =
             Debug.toString hookedMsg |> Debug.log "Hooked"
     in
     case hookedMsg of
+        UrlChanged url ->
+            let
+                    route = Route.parseUrl url
+                    page  = case route of
+                        Route.Default -> Default Unauthenticated
+                        Route.Login   -> LoginPage.init Unauthenticated |> Login
+                    _ = Debug.toString page |> Debug.log "Page"
+            in ({ pageModel = page, route = route, navKey = model.navKey }, Cmd.none)
         LinkClicked urlRequest ->
             case urlRequest of
                 Browser.Internal url -> ( model, Nav.pushUrl model.navKey (Url.toString url) )
-                Browser.External url -> ( model, Nav.pushUrl model.navKey url )
+                Browser.External url -> ( model, Nav.load url )
 
 
         LoginMessage subMsg ->
@@ -115,13 +124,6 @@ update msg model =
             { pageModel = Login m, route = Route.Login, navKey = model.navKey },
             Cmd.map LoginMessage cmd
             )
-
-        _ ->
-            (
-                { pageModel = Default Unauthenticated, route = Route.Default, navKey = model.navKey },
-                Cmd.none
-                )
-
 
 
 -- SUBSCRIPTIONS
@@ -142,7 +144,7 @@ view model =
     , body =
         [ text "The current URL is: "
         , ul []
-            [ a [ href "/login" ] [ button [ ] [ text "login" ] ]]
+            [ a [ href "login" ] [ button [] [ text "login" ] ]]
         , case model.pageModel of
             Login loginModel ->
                 Html.map LoginMessage (LoginPage.view loginModel)
