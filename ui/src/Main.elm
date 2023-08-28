@@ -1,7 +1,8 @@
-module Main exposing (Model, Msg(..), init, main, subscriptions, update, view, viewLink)
+module Main exposing (..)
 
 import Browser
 import Browser.Navigation as Nav
+import Components.Navbar as Navbar
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
@@ -31,15 +32,17 @@ main =
 
 -- MODEL
 
-type Page = Default Session
+
+type Page
+    = Default Session
     | Login LoginPage.Model
 
-type alias Model = {
-    pageModel: Page
-    , route: Route
-    , navKey: Nav.Key
-    }
 
+type alias Model =
+    { pageModel : Page
+    , route : Route
+    , navKey : Nav.Key
+    }
 
 
 getSession : Model -> Session
@@ -51,17 +54,27 @@ getSession model =
         Login m ->
             m.session
 
+
 init : Maybe String -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url key =
     let
         -- FIXME: remove this
         store =
             storeSession { token = "abc" }
-        route = Route.parseUrl url
-        page  = case route of
-            Route.Default -> Default Unauthenticated
-            Route.Login   -> LoginPage.init Unauthenticated |> Login
-        _ = Debug.toString page |> Debug.log "Page"
+
+        route =
+            Route.parseUrl url
+
+        page =
+            case route of
+                Route.Default ->
+                    Default Unauthenticated
+
+                Route.Login ->
+                    LoginPage.init Unauthenticated |> Login
+
+        _ =
+            Debug.toString page |> Debug.log "Page"
     in
     ( { pageModel = page, route = route, navKey = key }
     , store
@@ -84,7 +97,6 @@ authHook msg model =
             case session of
                 --Unauthenticated ->
                 --    LoginMessage LoginPage.PageOpened
-
                 _ ->
                     msg
 
@@ -97,33 +109,46 @@ update msg model =
     let
         hookedMsg =
             authHook msg model.pageModel
+
         _ =
             Debug.toString hookedMsg |> Debug.log "Hooked"
     in
     case hookedMsg of
         UrlChanged url ->
             let
-                    route = Route.parseUrl url
-                    page  = case route of
-                        Route.Default -> Default Unauthenticated
-                        Route.Login   -> LoginPage.init Unauthenticated |> Login
-                    _ = Debug.toString page |> Debug.log "Page"
-            in ({ pageModel = page, route = route, navKey = model.navKey }, Cmd.none)
+                route =
+                    Route.parseUrl url
+
+                page =
+                    case route of
+                        Route.Default ->
+                            Default Unauthenticated
+
+                        Route.Login ->
+                            LoginPage.init Unauthenticated |> Login
+
+                _ =
+                    Debug.toString page |> Debug.log "Page"
+            in
+            ( { pageModel = page, route = route, navKey = model.navKey }, Cmd.none )
+
         LinkClicked urlRequest ->
             case urlRequest of
-                Browser.Internal url -> ( model, Nav.pushUrl model.navKey (Url.toString url) )
-                Browser.External url -> ( model, Nav.load url )
+                Browser.Internal url ->
+                    ( model, Nav.pushUrl model.navKey (Url.toString url) )
 
+                Browser.External url ->
+                    ( model, Nav.load url )
 
         LoginMessage subMsg ->
             let
                 ( m, cmd ) =
                     LoginPage.update subMsg (LoginPage.init (getSession model))
             in
-            (
-            { pageModel = Login m, route = Route.Login, navKey = model.navKey },
-            Cmd.map LoginMessage cmd
+            ( { pageModel = Login m, route = Route.Login, navKey = model.navKey }
+            , Cmd.map LoginMessage cmd
             )
+
 
 
 -- SUBSCRIPTIONS
@@ -142,9 +167,14 @@ view : Model -> Browser.Document Msg
 view model =
     { title = "URL Interceptor"
     , body =
-        [ text "The current URL is: "
-        , ul []
-            [ a [ href "login" ] [ button [] [ text "login" ] ]]
+        [ ul []
+            [ Navbar.build
+                [ Navbar.Link "Query" "query"
+                , Navbar.Link "Profile" "profile"
+                , Navbar.Link "Sign out" "sign-out"
+                ]
+            , a [ href "login" ] [ button [] [ text "login" ] ]
+            ]
         , case model.pageModel of
             Login loginModel ->
                 Html.map LoginMessage (LoginPage.view loginModel)

@@ -19,6 +19,7 @@ import org.http4s.server.AuthMiddleware
 import sparkshow.conf.{AppConf, DBConf}
 import sparkshow.db.PG
 import sparkshow.db.web.data.LoginRequest
+import org.flywaydb.core.Flyway
 
 case class User(id: Long)
 
@@ -39,8 +40,8 @@ object App extends IOApp {
   }
 
   def run(args: List[String]): IO[ExitCode] = {
-    PG.initTransactor(config.db) { transactor =>
-      val authRoutes = HttpRoutes.of[IO] {
+    PG.initTransactor(config.db) { transactor => 
+     val authRoutes = HttpRoutes.of[IO] {
         case req@POST -> Root / "auth" / "login" => req
           .as[LoginRequest]
           .flatMap(v => {
@@ -59,14 +60,23 @@ object App extends IOApp {
 
       val httpApp = middleware(authenticatedRoutes) <+> authRoutes
 
-      EmberServerBuilder
-        .default[IO]
-        .withHost(ipv4"0.0.0.0")
-        .withPort(port"8081")
-        .withHttpApp(httpApp.orNotFound)
-        .build
-        .use(_ => IO.never)
-        .as(ExitCode.Success)
+      for {
+        _ <- transactor.configure { ds => IO { 
+          Flyway
+            .configure()
+            .dataSource(ds)
+            .load()
+            .migrate()
+        }}
+        ecode <- EmberServerBuilder
+          .default[IO]
+          .withHost(ipv4"0.0.0.0")
+          .withPort(port"8081")
+          .withHttpApp(httpApp.orNotFound)
+          .build
+          .use(_ => IO.never)
+          .as(ExitCode.Success)
+      } yield ecode
     }
   }
 }

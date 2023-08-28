@@ -13,8 +13,10 @@ parseUrl url =
     case parse matchRoute url of
         Just route ->
             route
+
         Nothing ->
             Default
+
 
 matchRoute : Parser (Route -> a) a
 matchRoute =
