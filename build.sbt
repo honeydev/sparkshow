@@ -33,7 +33,8 @@ libraryDependencies ++= Seq(
   "org.typelevel" %% "log4cats-slf4j" % log4CatsVersion,
   "ch.qos.logback" % "logback-classic" % "1.2.11",
   "org.scalameta" %% "munit" % "0.7.29" % Test,
-  "com.github.pureconfig" %% "pureconfig" % pureConfigVersion
+  "com.github.pureconfig" %% "pureconfig" % pureConfigVersion,
+  "org.mindrot" % "jbcrypt" % "0.4"
 )
 
 addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.13.2" cross CrossVersion.full)

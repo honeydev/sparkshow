@@ -9,4 +9,6 @@ class UserRepository(val transactor: Transactor[IO]) {
   def getOne(id: Long): User = {
     ???
   }
+
+  def createOne(user: User) = ???
 }

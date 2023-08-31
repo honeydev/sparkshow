@@ -41,7 +41,7 @@ object App extends IOApp {
 
   def run(args: List[String]): IO[ExitCode] = {
     PG.initTransactor(config.db) { transactor => 
-     val authRoutes = HttpRoutes.of[IO] {
+      val authRoutes = HttpRoutes.of[IO] {
         case req@POST -> Root / "auth" / "login" => req
           .as[LoginRequest]
           .flatMap(v => {
