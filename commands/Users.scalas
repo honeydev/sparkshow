@@ -1,0 +1,28 @@
+import sparkshow.conf.{AppConf, DBConf}
+import sparkshow.db.PG
+import cats.effect._
+import scala.concurrent.ExecutionContext
+import scala.concurrent.duration._
+import cats.effect.unsafe.implicits.global
+import doobie.hikari.HikariTransactor
+import doobie.implicits._
+import doobie.util.ExecutionContexts
+
+object UsersCommand {
+
+  def create = {
+    val conf = AppConf.load
+    print(conf)
+    PG.initTransactor(conf.db) { transactor => 
+      println(transactor)
+      val r = for {
+        res <- sql"select 42".query[Int].unique.transact(transactor)
+        _ = println(res)
+        ecode <- IO(ExitCode.Success)
+      } yield ecode
+      r
+    }.unsafeRunSync()
+  }
+}
+
+UsersCommand.create

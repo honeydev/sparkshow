@@ -25,14 +25,16 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-generic" % "0.14.5",
   // Optional for string interpolation to JSON model
   "io.circe" %% "circe-literal" % "0.14.5",
+  "org.flywaydb" % "flyway-core" % "9.21.2",
   "org.tpolecat" %% "doobie-core" % doobieVersion,
   "org.tpolecat" %% "doobie-postgres" % doobieVersion,
   "org.tpolecat" %% "doobie-specs2" % doobieVersion,
   "org.tpolecat" %% "doobie-hikari" % doobieVersion,
   "org.typelevel" %% "log4cats-slf4j" % log4CatsVersion,
-  "ch.qos.logback" %% "logback-classic" % logbackVersion,
+  "ch.qos.logback" % "logback-classic" % "1.2.11",
   "org.scalameta" %% "munit" % "0.7.29" % Test,
-  "com.github.pureconfig" %% "pureconfig" % pureConfigVersion
+  "com.github.pureconfig" %% "pureconfig" % pureConfigVersion,
+  "org.mindrot" % "jbcrypt" % "0.4"
 )
 
 addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.13.2" cross CrossVersion.full)

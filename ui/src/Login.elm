@@ -4,7 +4,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
-import Json.Decode exposing (Decoder, field, int, map2, string)
+import Json.Decode exposing (Decoder, field, map2, string)
 import Session exposing (..)
 import Url
 
