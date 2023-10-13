@@ -6,7 +6,8 @@ import Url.Parser exposing (..)
 
 type Route
     = Login
-    | Default
+    | NotFound
+    | Index
 
 
 parseUrl url =
@@ -15,12 +16,12 @@ parseUrl url =
             route
 
         Nothing ->
-            Default
+            NotFound
 
 
 matchRoute : Parser (Route -> a) a
 matchRoute =
     oneOf
-        [ map Default top
+        [ map Index top
         , map Login (s "login")
         ]

@@ -20,11 +20,11 @@ linkToHtml : Link -> Html msg
 linkToHtml link =
     case link of
         Link name path ->
-            li [ class "list-group" ] [ a [ href path ] [ text name ] ]
+            li [ class "nav-item" ] [ a [ class "nav-link", href path ] [ text name ] ]
 
 
 build : List Link -> Html msg
 build elements =
-    nav [ class "nav" ]
-        [ List.map linkToHtml elements |> ul [ class "list-group" ]
+    nav [ class "navbar navbar-light bg-light" ]
+        [ List.map linkToHtml elements |> ul [ class "navbar-nav" ]
         ]

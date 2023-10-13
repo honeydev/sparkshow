@@ -6,8 +6,10 @@ import Components.Navbar as Navbar
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
+import IndexPage exposing (..)
 import Json.Encode as Encode exposing (Value)
 import Login as LoginPage
+import NotFound exposing (..)
 import Route exposing (Route)
 import Session exposing (..)
 import Url
@@ -34,8 +36,9 @@ main =
 
 
 type Page
-    = Default Session
-    | Login LoginPage.Model
+    = IndexPage IndexPage.Model
+    | LoginPage LoginPage.Model
+    | NotFoundPage
 
 
 type alias Model =
@@ -48,10 +51,13 @@ type alias Model =
 getSession : Model -> Session
 getSession model =
     case model.pageModel of
-        Default s ->
-            s
+        IndexPage m ->
+            m.session
 
-        Login m ->
+        NotFoundPage ->
+            Unauthenticated
+
+        LoginPage m ->
             m.session
 
 
@@ -67,11 +73,14 @@ init flags url key =
 
         page =
             case route of
-                Route.Default ->
-                    Default Unauthenticated
+                Route.Index ->
+                    IndexPage { session = Unauthenticated }
 
                 Route.Login ->
-                    LoginPage.init Unauthenticated |> Login
+                    LoginPage.init Unauthenticated |> LoginPage
+
+                Route.NotFound ->
+                    NotFoundPage
 
         _ =
             Debug.toString page |> Debug.log "Page"
@@ -93,14 +102,17 @@ type Msg
 
 authHook msg model =
     case model of
-        Default session ->
+        IndexPage session ->
             case session of
                 --Unauthenticated ->
                 --    LoginMessage LoginPage.PageOpened
                 _ ->
                     msg
 
-        Login subpageModel ->
+        NotFoundPage ->
+            msg
+
+        LoginPage subpageModel ->
             msg
 
 
@@ -121,11 +133,14 @@ update msg model =
 
                 page =
                     case route of
-                        Route.Default ->
-                            Default Unauthenticated
+                        Route.Index ->
+                            IndexPage { session = Unauthenticated }
 
                         Route.Login ->
-                            LoginPage.init Unauthenticated |> Login
+                            LoginPage.init Unauthenticated |> LoginPage
+
+                        Route.NotFound ->
+                            NotFoundPage
 
                 _ =
                     Debug.toString page |> Debug.log "Page"
@@ -145,7 +160,7 @@ update msg model =
                 ( m, cmd ) =
                     LoginPage.update subMsg (LoginPage.init (getSession model))
             in
-            ( { pageModel = Login m, route = Route.Login, navKey = model.navKey }
+            ( { pageModel = LoginPage m, route = Route.Login, navKey = model.navKey }
             , Cmd.map LoginMessage cmd
             )
 
@@ -172,15 +187,18 @@ view model =
                 [ Navbar.Link "Query" "query"
                 , Navbar.Link "Profile" "profile"
                 , Navbar.Link "Sign out" "sign-out"
+                , Navbar.Link "Login" "login"
                 ]
-            , a [ href "login" ] [ button [] [ text "login" ] ]
             ]
         , case model.pageModel of
-            Login loginModel ->
-                Html.map LoginMessage (LoginPage.view loginModel)
+            LoginPage m ->
+                Html.map LoginMessage (LoginPage.view m)
 
-            Default s ->
-                div [] [ text "Default" ]
+            NotFoundPage ->
+                NotFound.view
+
+            IndexPage m ->
+                IndexPage.view m
         ]
     }
 
