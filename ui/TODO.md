@@ -1,0 +1,1 @@
+1. Do authorization hook for pages, realise session state save and usage

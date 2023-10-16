@@ -64,9 +64,15 @@ getSession model =
 init : Maybe String -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url key =
     let
-        -- FIXME: remove this
-        store =
-            storeSession { token = "abc" }
+        -- FIXME: store session example, fix when impl login
+       --  store =
+       --      storeSession { token = "abc" } |> Debug.toString |> Debug.log
+
+
+        session = extractSession flags
+
+        _ =
+            Debug.toString (extractSession flags) |> Debug.log "Flags"
 
         route =
             Route.parseUrl url
@@ -74,10 +80,10 @@ init flags url key =
         page =
             case route of
                 Route.Index ->
-                    IndexPage { session = Unauthenticated }
+                    IndexPage { session = session }
 
                 Route.Login ->
-                    LoginPage.init Unauthenticated |> LoginPage
+                    LoginPage.init session |> LoginPage
 
                 Route.NotFound ->
                     NotFoundPage
@@ -86,7 +92,7 @@ init flags url key =
             Debug.toString page |> Debug.log "Page"
     in
     ( { pageModel = page, route = route, navKey = key }
-    , store
+    , Cmd.none
     )
 
 

@@ -1,4 +1,4 @@
-module Unathorized exposing (..)
+module Unauthorized exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
