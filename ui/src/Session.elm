@@ -15,7 +15,7 @@ type alias SessionData =
     }
 
 
-sessionEncoder : { a | token : String } -> Encode.Value
+sessionEncoder : SessionData -> Encode.Value
 sessionEncoder sessionData =
     Encode.object
         [ ( "token", Encode.string sessionData.token )
