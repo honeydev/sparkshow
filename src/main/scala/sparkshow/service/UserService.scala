@@ -4,7 +4,7 @@ import org.mindrot.jbcrypt.BCrypt
 import sparkshow.db.model.User
 import sparkshow.db.repository.UserRepository
 
-class UserService(userRepo: UserRepository) {
+class UserService(implicit val userRepo: UserRepository) {
   def createUser(username: String, password: String): User = {
     val passwordHash = BCrypt.hashpw(password, BCrypt.gensalt())
     val newUser = User(username=username, passwordHash=passwordHash)

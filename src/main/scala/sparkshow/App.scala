@@ -20,45 +20,64 @@ import sparkshow.conf.{AppConf, DBConf}
 import sparkshow.db.PG
 import sparkshow.db.web.data.LoginRequest
 import org.flywaydb.core.Flyway
+import sparkshow.db.repository.UserRepository
+import cats.effect.unsafe.IORuntime
+import sparkshow.service.AuthService
+import sparkshow.service.UserService
 
-case class User(id: Long)
+case class User(id: Long, username: String)
 
-case class Resources(transactor: HikariTransactor[IO])
 
-object App extends IOApp {
+trait HttpApp {
 
   private implicit val loginReqDecoder = LoginRequest.decoder
   private implicit val encodeImportance: Encoder[String] = Encoder.encodeString
 
   val config = AppConf.load
 
-  val authUser: Kleisli[OptionT[IO, *], Request[IO], User] =
-    Kleisli(_ => OptionT.liftF(IO(User(id=1))))
+  val authUser: Kleisli[OptionT[IO, *], Request[IO], User] = {
+    // TODO: Implement
+    Kleisli(_ => OptionT.liftF(IO(User(id=1, username="test"))))
+  }
 
   val middleware: AuthMiddleware[IO, User] = {
     AuthMiddleware(authUser)
   }
 
-  def run(args: List[String]): IO[ExitCode] = {
-    PG.initTransactor(config.db) { transactor => 
+  protected def buildHttpApp(implicit transactor: HikariTransactor[IO]) = {
+      val userRepository = new UserRepository
+      val authService = new AuthService(userRepository)
       val authRoutes = HttpRoutes.of[IO] {
-        case req@POST -> Root / "auth" / "login" => req
+        case req@POST -> Root / "auth"  => req
           .as[LoginRequest]
-          .flatMap(v => {
-            Ok(v.username)
+          .flatMap(loginRequest => {
+            val res = authService.authenticate(loginRequest)
+            Ok(res)
           })
       }
 
       val authenticatedRoutes: AuthedRoutes[User, IO] =
         AuthedRoutes.of {
           case GET -> Root / "auth" as user =>
-            for {
-              result <- sql"select 42".query[Int].unique.transact(transactor)
-              r <- Ok(result)
-            } yield r
+            val resp = sql"select id, username from users".query[User].stream.transact(transactor)
+            Ok(resp)
+            // for {
+            //   result <- sql"select id from users".query[User].stream.transact(transactor).map(_.toString).intersperse(",")
+            //   r <- Ok(result)
+            // } yield r
         }
 
-      val httpApp = middleware(authenticatedRoutes) <+> authRoutes
+      middleware(authenticatedRoutes) <+> authRoutes
+  }
+}
+
+object App extends IOApp with HttpApp {
+
+
+  def run(args: List[String]): IO[ExitCode] = {
+    PG.initTransactor(config.db) { implicit transactor: HikariTransactor[IO] =>
+      def lift[A,B](f: A => B): Option[A] => Option[B] = a => a map f
+      val httpApp = buildHttpApp
 
       for {
         _ <- transactor.configure { ds => IO { 

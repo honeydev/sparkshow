@@ -13,10 +13,10 @@ case class PG(transactor: Resource[IO, HikariTransactor[IO]]) {
 
 
 object PG {
-  val ThreadPoolSize = 4
+  val  ThreadPoolSize = 4
 
   def initTransactor(config: DBConf)(f: HikariTransactor[IO] => IO[ExitCode]): IO[ExitCode] = {
-    val tr: Resource[IO, HikariTransactor[IO]] = for {
+    val transcatorResoruce: Resource[IO, HikariTransactor[IO]] = for {
       ec <- ExecutionContexts.fixedThreadPool[IO](ThreadPoolSize)
       t <- HikariTransactor.newHikariTransactor[IO](
         driverClassName = "org.postgresql.Driver", // JDBC driver classname
@@ -26,6 +26,6 @@ object PG {
         connectEC = ec
       )
     } yield (t)
-    tr.use(f)
+    transcatorResoruce.use(f)
   }
 }
