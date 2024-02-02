@@ -1,3 +1,9 @@
 package sparkshow.db.model
 
-case class User(username: String, passwordHash: String, id: Option[Long] = None)
+case class User(
+    username: String,
+    email: Option[
+      String
+    ],
+    passwordHash: String
+)
