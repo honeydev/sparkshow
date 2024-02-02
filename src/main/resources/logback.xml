@@ -41,6 +41,9 @@
 
     <root level="INFO">
         <appender-ref ref="STDOUT" />
-        <appender-ref ref="FILE" />
     </root>
+
+    <logger name="com.zaxxer.hikari" level="ALL" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
 </configuration>

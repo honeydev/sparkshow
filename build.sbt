@@ -1,5 +1,4 @@
 ThisBuild / version := "0.1.0-SNAPSHOT"
-
 ThisBuild / scalaVersion := "2.13.10"
 
 lazy val root = (project in file("."))
@@ -10,7 +9,7 @@ lazy val root = (project in file("."))
 val http4sVersion = "0.23.22"
 val doobieVersion = "1.0.0-RC2"
 val pureConfigVersion = "0.17.4"
-val logbackVersion = "1.2.11"
+val logbackVersion = "1.2.3"
 val log4CatsVersion = "2.5.0"
 
 libraryDependencies ++= Seq(
@@ -30,12 +29,19 @@ libraryDependencies ++= Seq(
   "org.tpolecat" %% "doobie-postgres" % doobieVersion,
   "org.tpolecat" %% "doobie-specs2" % doobieVersion,
   "org.tpolecat" %% "doobie-hikari" % doobieVersion,
-  "org.typelevel" %% "log4cats-slf4j" % log4CatsVersion,
-  "ch.qos.logback" % "logback-classic" % "1.2.11",
+//  "org.typelevel" %% "log4cats-slf4j" % log4CatsVersion,
+  "ch.qos.logback" % "logback-classic" % logbackVersion,
   "org.scalameta" %% "munit" % "0.7.29" % Test,
   "com.github.pureconfig" %% "pureconfig" % pureConfigVersion,
   "org.mindrot" % "jbcrypt" % "0.4"
 )
 
+libraryDependencies += "org.scalactic" %% "scalactic" % "3.2.17"
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.17" % "test"
+libraryDependencies += "org.scalamock" %% "scalamock" % "5.1.0" % Test
+
 addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.13.2" cross CrossVersion.full)
 addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "1.9.2")
+addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.11.1")
+
