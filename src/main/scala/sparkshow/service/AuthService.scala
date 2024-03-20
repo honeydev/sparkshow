@@ -14,10 +14,7 @@ class AuthService(
         loginReq: LoginRequest
     ) = {
         for {
-            targetUser <- userRepository
-                .getOne(
-                  loginReq.username
-                )
+            targetUser <- userRepository.getOne(loginReq.username)
             authenticatedUser = {
                 targetUser.flatMap(u => {
                     val isValid = BCrypt
