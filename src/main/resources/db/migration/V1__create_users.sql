@@ -34,7 +34,8 @@ INSERT INTO permissions (id, name) VALUES
 
 INSERT INTO roles (id, name) VALUES
     (1, 'ADMIN'),
-    (2, 'USER');
+    (2, 'USER'),
+    (3, 'MANAGER');
 
 INSERT INTO roles_permissions (role_id, permission_id) VALUES
     (1, 1),

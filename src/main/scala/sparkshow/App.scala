@@ -23,34 +23,17 @@ import sparkshow.db.repository.UserRepository
 import sparkshow.db.web.data.LoginRequest
 import sparkshow.service.AuthService
 
-case class User(
-    id: Long,
-    username: String,
-    passwordHash: String
-)
+case class User(id: Long, username: String, passwordHash: String)
 
 trait HttpApp {
 
-    private implicit val loginReqDecoder =
-        LoginRequest.decoder
-    private implicit val encodeImportance: Encoder[
-      String
-    ] =
+    private implicit val loginReqDecoder = LoginRequest.decoder
+    private implicit val encodeImportance: Encoder[String] =
         Encoder.encodeString
 
-    val config =
-        AppConf.load
+    val config = AppConf.load
 
-    val authUser: Kleisli[
-      OptionT[
-        IO,
-        *
-      ],
-      Request[
-        IO
-      ],
-      User
-    ] = {
+    val authUser: Kleisli[OptionT[IO, *], Request[IO], User] = {
         // TODO: Implement
         Kleisli(_ =>
             OptionT.liftF(
@@ -65,24 +48,13 @@ trait HttpApp {
         )
     }
 
-    val middleware: AuthMiddleware[
-      IO,
-      User
-    ] = {
-        AuthMiddleware(
-          authUser
-        )
-    }
+    val middleware: AuthMiddleware[IO, User] = 
+        AuthMiddleware(authUser)
+   
 
-    protected def buildHttpApp(implicit
-        transactor: HikariTransactor[
-          IO
-        ]
-    ) = {
-        val userRepository =
-            new UserRepository
-        val authService =
-            new AuthService(
+    protected def buildHttpApp(implicit transactor: HikariTransactor[IO]) = {
+        val userRepository = new UserRepository
+        val authService = new AuthService(
               userRepository
             )
         val authRoutes = HttpRoutes
@@ -128,28 +100,16 @@ trait HttpApp {
 
 object App extends IOApp with HttpApp {
 
-    def run(
-        args: List[
-          String
-        ]
-    ): IO[
-      ExitCode
-    ] = {
-        PG.initTransactor(
-          config.db
-        ) {
-            implicit transactor: HikariTransactor[
-              IO
-            ] =>
-                val httpApp =
-                    buildHttpApp
+    def run(args: List[String]): IO[ExitCode] = {
+        PG.initTransactor(config.db) {
+            implicit transactor: HikariTransactor[IO] =>
+                val httpApp = buildHttpApp
 
-                val errorRoute = HttpRoutes.of[
-                  IO
-                ] { case req @ GET -> Root / "err" =>
-                    throw new Exception(
-                      "Hex don't swallow me"
-                    )
+                val errorRoute = HttpRoutes.of[IO] {
+                    case req @ GET -> Root / "err" =>
+                        throw new Exception(
+                          "Hex don't swallow me"
+                        )
                 }
 
                 def errorHandler(

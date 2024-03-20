@@ -5,4 +5,4 @@ dev-up:
 	docker compose up
 
 format:
-	sbt scalafmtOnly
+	sbt scalafmtAll

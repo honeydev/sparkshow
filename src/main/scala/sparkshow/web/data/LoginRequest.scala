@@ -12,11 +12,5 @@ case class LoginRequest(
 
 object LoginRequest {
 
-    def decoder: EntityDecoder[
-      IO,
-      LoginRequest
-    ] = jsonOf[
-      IO,
-      LoginRequest
-    ]
+    def decoder: EntityDecoder[IO, LoginRequest] = jsonOf[IO, LoginRequest]
 }

@@ -39,9 +39,9 @@ libraryDependencies ++= Seq(
 libraryDependencies += "org.scalactic" %% "scalactic" % "3.2.17"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.17" % "test"
 libraryDependencies += "org.scalamock" %% "scalamock" % "5.1.0" % Test
+libraryDependencies += "com.github.scopt" %% "scopt" % "4.1.0"
+
 
 addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.13.2" cross CrossVersion.full)
 addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
-addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "1.9.2")
-addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.11.1")
 
