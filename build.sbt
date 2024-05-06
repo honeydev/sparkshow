@@ -31,9 +31,12 @@ libraryDependencies ++= Seq(
   "org.tpolecat" %% "doobie-hikari" % doobieVersion,
 //  "org.typelevel" %% "log4cats-slf4j" % log4CatsVersion,
   "ch.qos.logback" % "logback-classic" % logbackVersion,
+  "io.7mind.izumi" %% "distage-core" % "1.2.5",
+  "io.7mind.izumi" %% "distage-framework" % "1.2.5",
   "org.scalameta" %% "munit" % "0.7.29" % Test,
   "com.github.pureconfig" %% "pureconfig" % pureConfigVersion,
-  "org.mindrot" % "jbcrypt" % "0.4"
+  "org.mindrot" % "jbcrypt" % "0.4",
+  "com.lihaoyi" % "ammonite" % "3.0.0-M1" cross CrossVersion.full
 )
 
 libraryDependencies += "org.scalactic" %% "scalactic" % "3.2.17"

@@ -1,15 +1,12 @@
 package sparkshow.db.repository
 
 import cats.effect.IO
-import doobie.Transactor
-import sparkshow.db.model.{Role, User}
+import doobie.hikari.HikariTransactor
 import doobie.implicits._
-import cats.effect
-import cats.syntax._
-import cats._
 import doobie.util.update.Update
+import sparkshow.db.model.{Role, User}
 
-class UserRepository(implicit val transactor: Transactor[IO]) {
+class UserRepository(implicit val transactor: HikariTransactor[IO]) {
 
     private val TableName = "users"
 
@@ -20,8 +17,8 @@ class UserRepository(implicit val transactor: Transactor[IO]) {
             .transact(transactor)
     }
 
-    def getOne(username: String) = {
-        sql"SELECT id, username FROM users WHERE username = ${username}"
+    def getOne(username: String): IO[Option[User]] = {
+        sql"SELECT id, username FROM users WHERE username = \"$username\""
             .query[Option[User]]
             .unique
             .transact(transactor)
