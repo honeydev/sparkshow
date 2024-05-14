@@ -1,12 +1,18 @@
 package sparkshow.commands
 
 import cats.effect._
+import distage.{Injector, ModuleDef, Roots}
 import doobie.hikari.HikariTransactor
+import izumi.reflect.TagK
+import org.flywaydb.core.FlywayExecutor.Command
 import scopt.OParser
+import sparkshow.Bootstrapper
+import sparkshow.DiApp.module
 import sparkshow.conf.AppConf
-import sparkshow.db.PG
+import sparkshow.db.PGTransactorResource
 import sparkshow.db.repository.{RoleRepository, UserRepository}
-import sparkshow.service.UserService
+import sparkshow.service.{AuthService, UserService}
+import sparkshow.web.routes.{AuthRoutes, QueryRoutes, RoutesFacade}
 
 case class Args(
     username: String = "",
@@ -15,11 +21,40 @@ case class Args(
     roles: Seq[String] = List()
 )
 
-object CreateUser extends IOApp {
+trait Command {
 
-    val config = AppConf.load
+    def run(args: List[String]): IO[ExitCode]
+}
 
-    def run(args: List[String]) = {
+// FIXME ошибка izumi при запуске
+trait CommandRunner[C <: Command] extends IOApp {
+
+    val module: ModuleDef
+
+    def run(args: List[String]): IO[ExitCode] = {
+        val objectGraphResource = Injector[IO]()
+            .produce(module, Roots.target[C])
+
+        objectGraphResource
+            .use(_.get[C].run(args))
+            .as(ExitCode.Success)
+    }
+}
+
+object CreateUserRunner extends CommandRunner[CreateUser] {
+
+    val module: ModuleDef = new ModuleDef {
+        make[AppConf].from(AppConf.load)
+        make[HikariTransactor[IO]].fromResource[PGTransactorResource]
+        make[UserRepository]
+        make[AuthService]
+        make[CreateUser]
+    }
+}
+
+class CreateUser(transactor: HikariTransactor[IO]) extends Command {
+
+    override def run(args: List[String]): IO[ExitCode] = {
         val builder = OParser.builder[Args]
         val parser = {
             import builder._
@@ -45,19 +80,22 @@ object CreateUser extends IOApp {
         }
 
             OParser.parse(parser, args, Args()) match {
-                case Some(parsed) =>
-                    PG.initTransactor(config.db) {
-                        implicit transactor: HikariTransactor[IO] =>
-                            implicit val roleRepo = new RoleRepository
-                            implicit val userRepo = new UserRepository
-                            val userService = new UserService
-                            (for {
-                                user <- userService
-                                .createUser(username = parsed.username, password = parsed.password, parsed.email)
-                                roles <- roleRepo.getMany(user.id)
-                                _ <- IO.println(s"Success create user: $user with roles: $roles")
-                            } yield ()).as(ExitCode.Success)
-                    }
+                case Some(parsed) => {
+                    IO.print("X")
+                }.as(ExitCode.Success)
+
+                    // PG.initTransactor(config.db) {
+                    //     implicit transactor: HikariTransactor[IO] =>
+                    //         implicit val roleRepo = new RoleRepository
+                    //         implicit val userRepo = new UserRepository
+                    //         val userService = new UserService
+                    //         (for {
+                    //             user <- userService
+                    //             .createUser(username = parsed.username, password = parsed.password, parsed.email)
+                    //             roles <- roleRepo.getMany(user.id)
+                    //             _ <- IO.println(s"Success create user: $user with roles: $roles")
+                    //         } yield ()).as(ExitCode.Success)
+                    // }
             }
     }
 }

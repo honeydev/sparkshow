@@ -15,7 +15,7 @@ import sparkshow.web.routes.{AuthRoutes, QueryRoutes, RoutesFacade}
 
 
 class Bootstrapper(transactor: HikariTransactor[IO], routesFacade: RoutesFacade) {
-    val run = for {
+    val run: IO[ExitCode] = for {
         _ <- transactor
             .configure { ds =>
                 IO {
