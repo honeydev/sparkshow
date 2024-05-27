@@ -6,3 +6,7 @@ dev-up:
 
 format:
 	sbt scalafmtAll
+
+create-user:
+	./launcher :create-user
+
