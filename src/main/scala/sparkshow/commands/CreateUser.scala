@@ -51,10 +51,6 @@ class CreateUserTask(appConf: AppConf) extends RoleTask[IO] {
                 case Some(parsed) => {
                     IO.print("X")
                 }.as(ExitCode.Success)
-                
-
-         
-
   }
 }}
 
