@@ -8,8 +8,8 @@ import izumi.distage.roles.model.definition.RoleModuleDef
 import sparkshow.commands.CreateUserTask
 import sparkshow.conf.AppConf
 import sparkshow.db.PGTransactorResource
-import sparkshow.db.repository.UserRepository
-import sparkshow.service.AuthService
+import sparkshow.db.repository.{RoleRepository, UserRepository}
+import sparkshow.service.{AuthService, UserService}
 import sparkshow.web.routes.{AuthRoutes, QueryRoutes, RoutesFacade}
 
 object AppPlugin extends PluginDef {
@@ -34,8 +34,10 @@ object AppPlugin extends PluginDef {
 
           make[HikariTransactor[IO]].fromResource[PGTransactorResource]
           make[UserRepository]
+          make[RoleRepository]
           make[AuthService]
           make[AuthRoutes]
+          make[UserService]
           make[QueryRoutes]
           make[RoutesFacade]
           make[HttpServer].fromResource[HttpServer.Impl]

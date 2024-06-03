@@ -13,4 +13,3 @@ object SparkshowLauncher extends RoleAppMain.LauncherCats[IO] {
     )
   }
 }
-
