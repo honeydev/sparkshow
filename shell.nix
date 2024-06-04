@@ -12,6 +12,7 @@ in rec {
 
     buildInputs = [
       pkgs.jdk8
+      pkgs.postgresql
     ];
   };
 }
