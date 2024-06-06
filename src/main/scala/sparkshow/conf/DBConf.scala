@@ -10,12 +10,12 @@ case class DBConf(
     username: String,
     password: String
 ) {
-    def url =
+    def url: String =
         s"jdbc:postgresql://$host:$port/$database"
 }
 
 object DBConf {
-    def load() =
+    def load(): DBConf =
         ConfigSource.default
             .loadOrThrow[
               DBConf

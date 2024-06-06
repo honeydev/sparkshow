@@ -14,10 +14,13 @@ services:
       - 5445:5432
     volumes:
       - ./sql:/sql
+  pgdb-test:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: test_db
+      POSTGRES_USER: test
 
-networks:
-  default:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.16.57.0/24
+    ports:
+      - 5446:5432

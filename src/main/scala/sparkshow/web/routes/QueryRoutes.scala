@@ -9,12 +9,11 @@ class QueryRoutes {
 
     private implicit val queryReqDecoder: EntityDecoder[IO, QueryRequest] =
         QueryRequest.decoder
-    val routes = createQuery
-    private val createQuery = HttpRoutes
+    val routes: HttpRoutes[IO] = HttpRoutes
         .of[IO] { case req @ POST -> Root / "query" =>
             req
                 .as[QueryRequest]
-                .flatMap(r => {
+                .flatMap(_ => {
                     Ok("Create query stub")
                 })
         }

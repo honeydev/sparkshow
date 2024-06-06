@@ -10,7 +10,5 @@ case class AppConf(
 object AppConf {
     def load: AppConf =
         ConfigSource.default
-            .loadOrThrow[
-              AppConf
-            ]
+            .loadOrThrow[AppConf]
 }

@@ -1,14 +1,14 @@
 package sparkshow.db.repository
 
 import cats.effect._
-import doobie.hikari.HikariTransactor
 import doobie.implicits._
+import doobie.util.transactor.Transactor
 import sparkshow.db.model.Role
 
 class RoleRepository(implicit
-    val transactor: HikariTransactor[IO]
+    val transactor: Transactor[IO]
 ) {
-    private val TableName = "roles"
+    
 
     def getMany(userId: Long): IO[List[Role]] = {
         sql"""

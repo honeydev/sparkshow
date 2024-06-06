@@ -12,7 +12,14 @@ in rec {
 
     buildInputs = [
       pkgs.jdk8
+      # pkgs.sbt
+      pkgs.coursier
       pkgs.postgresql
     ];
+
+    shellHook = ''
+      export PATH="$PATH:/home/honey/.local/share/coursier/bin"
+  '';
+
   };
 }

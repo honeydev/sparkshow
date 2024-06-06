@@ -11,8 +11,7 @@ import sparkshow.service.AuthService
 class AuthRoutes(authService: AuthService) {
     private implicit val loginReqDecoder: EntityDecoder[IO, LoginRequest] =
         LoginRequest.decoder
-    val routes = loginRoute
-    private val loginRoute = HttpRoutes
+    val routes: HttpRoutes[IO] = HttpRoutes
         .of[IO] { case req @ POST -> Root / "login" =>
             req
                 .as[LoginRequest]

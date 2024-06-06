@@ -2,15 +2,20 @@ package sparkshow
 
 import cats.effect._
 import distage.plugins.PluginDef
-import doobie.hikari.HikariTransactor
+import doobie.util.transactor.Transactor
 import izumi.distage.model.definition.ModuleDef
 import izumi.distage.roles.model.definition.RoleModuleDef
-import sparkshow.commands.{CreateUserTask, MigrateTask}
+import sparkshow.commands.CreateUserTask
+import sparkshow.commands.MigrateTask
 import sparkshow.conf.AppConf
 import sparkshow.db.PGTransactorResource
-import sparkshow.db.repository.{RoleRepository, UserRepository}
-import sparkshow.service.{AuthService, UserService}
-import sparkshow.web.routes.{AuthRoutes, QueryRoutes, RoutesFacade}
+import sparkshow.db.repository.RoleRepository
+import sparkshow.db.repository.UserRepository
+import sparkshow.service.AuthService
+import sparkshow.service.UserService
+import sparkshow.web.routes.AuthRoutes
+import sparkshow.web.routes.QueryRoutes
+import sparkshow.web.routes.RoutesFacade
 
 object AppPlugin extends PluginDef {
     include(modules.roles)
@@ -31,7 +36,7 @@ object AppPlugin extends PluginDef {
         }
 
         def web: RoleModuleDef = new RoleModuleDef {
-            make[HikariTransactor[IO]].fromResource[PGTransactorResource]
+            make[Transactor[IO]].fromResource[PGTransactorResource]
             make[UserRepository]
             make[RoleRepository]
             make[AuthService]

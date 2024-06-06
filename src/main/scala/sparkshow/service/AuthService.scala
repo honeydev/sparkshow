@@ -10,9 +10,7 @@ class AuthService(
     val userRepository: UserRepository
 ) {
 
-    def authenticate(
-        loginReq: LoginRequest
-                    ): IO[Option[User]] = {
+    def authenticate(loginReq: LoginRequest): IO[Option[User]] = {
 
         for {
             targetUser <- userRepository.getOne(loginReq.username)
@@ -20,8 +18,8 @@ class AuthService(
                 targetUser.flatMap { u =>
                     val isValid = BCrypt
                         .checkpw(
-                            loginReq.password,
-                            u.passwordHash
+                          loginReq.password,
+                          u.passwordHash
                         )
                     if (isValid) targetUser
                     else
