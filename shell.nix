@@ -11,7 +11,7 @@ in rec {
 #    ];
 
     buildInputs = [
-      pkgs.jdk8
+      pkgs.jdk21
       # pkgs.sbt
       pkgs.coursier
       pkgs.postgresql

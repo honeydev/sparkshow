@@ -9,8 +9,6 @@ import sparkshow.db.model.User
 
 class UserRepository(implicit val transactor: Transactor[IO]) {
 
-    
-
     def getOne(id: Long): IO[Option[User]] = {
         sql"select SELECT id, username, email, password_hash from users where id = ${id}"
             .query[Option[User]]
@@ -40,7 +38,8 @@ class UserRepository(implicit val transactor: Transactor[IO]) {
         roles: List[Role]
     ): IO[User] = {
         val createUser =
-            sql"INSERT INTO users (username, email, password_hash) VALUES ($username, $email, $passwordHash)".update
+            sql"""
+                 INSERT INTO users (username, email, password_hash) VALUES ($username, $email, $passwordHash)""".update
                 .withUniqueGeneratedKeys[User](
                   "id",
                   "username",

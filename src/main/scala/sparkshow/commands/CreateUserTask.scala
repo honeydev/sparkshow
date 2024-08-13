@@ -10,9 +10,9 @@ import sparkshow.db.repository.RoleRepository
 import sparkshow.service.UserService
 
 case class Args(
-    username: String = "",
-    password: String = "",
-    email: String = "",
+    username: String   = "",
+    password: String   = "",
+    email: String      = "",
     roles: Seq[String] = List()
 )
 

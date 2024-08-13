@@ -8,7 +8,6 @@ import sparkshow.db.model.Role
 class RoleRepository(implicit
     val transactor: Transactor[IO]
 ) {
-    
 
     def getMany(userId: Long): IO[List[Role]] = {
         sql"""

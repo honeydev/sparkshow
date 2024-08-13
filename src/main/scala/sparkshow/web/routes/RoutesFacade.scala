@@ -18,7 +18,7 @@ class RoutesFacade(val authRoutes: AuthRoutes, val queryRoutes: QueryRoutes) {
           ErrorAction.log(
             appRoutes,
             messageFailureLogAction = errorHandler,
-            serviceErrorLogAction = errorHandler
+            serviceErrorLogAction   = errorHandler
           )
         )
     }
