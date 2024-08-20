@@ -34,7 +34,7 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-generic" % circleVersion,
   // Optional for string interpolation to JSON model
   "io.circe" %% "circe-literal" % circleVersion,
-  "org.flywaydb" % "flyway-core" % flywayVersion,
+//  "org.flywaydb" % "flyway-core" % flywayVersion,
   "org.tpolecat" %% "doobie-core" % doobieVersion,
   "org.tpolecat" %% "doobie-postgres" % doobieVersion,
   "org.tpolecat" %% "doobie-specs2" % doobieVersion,
@@ -60,4 +60,4 @@ addCompilerPlugin(
 )
 addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
 
-scalacOptions ++= Seq("-Wunused")
+scalacOptions ++= Seq("-Wunused", "-target:jvm-17")
