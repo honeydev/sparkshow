@@ -1,20 +1,33 @@
 package sparkshow.web.routes
+import cats.data.Kleisli
+import cats.data.OptionT
 import cats.effect._
 import org.http4s._
 import org.http4s.circe.CirceEntityCodec.circeEntityEncoder
 import org.http4s.dsl.io._
-import sparkshow.web.data.QueryRequest
+import org.http4s.server.AuthMiddleware
+import sparkshow.db.model.User
+import sparkshow.service.UserService
 
-class QueryRoutes {
+class QueryRoutes(val userService: UserService) {
 
-    private implicit val queryReqDecoder: EntityDecoder[IO, QueryRequest] =
-        QueryRequest.decoder
-    val routes: HttpRoutes[IO] = HttpRoutes
-        .of[IO] { case req @ POST -> Root / "query" =>
-            req
-                .as[QueryRequest]
-                .flatMap(_ => {
-                    Ok("Create query stub")
-                })
-        }
+    val user: User = User(1, "t", Some("t"), "t")
+    val authUser: Kleisli[OptionT[IO, *], Request[IO], User] =
+        Kleisli(_ =>
+            OptionT.liftF({
+
+                IO(user)
+            })
+        )
+
+    // Kleisli[OptionT[F, *], Request[F], T]
+    val mw: AuthMiddleware[IO, User] = AuthMiddleware(authUser)
+
+    val routes: Kleisli[OptionT[IO, *], Request[IO], Response[IO]] = mw(
+      AuthedRoutes
+          .of { case POST -> Root / "query" as _ =>
+              Ok("Stub query")
+          }
+    )
 }
+

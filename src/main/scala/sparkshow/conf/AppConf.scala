@@ -4,7 +4,8 @@ import pureconfig._
 import pureconfig.generic.auto._
 
 case class AppConf(
-    db: DBConf
+    db: DBConf,
+    jwt: JwtConf
 )
 
 object AppConf {

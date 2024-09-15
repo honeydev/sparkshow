@@ -1,4 +1,4 @@
-ThisBuild / version := "0.1.0-SNAPSHOT"
+ThisBuild / version      := "0.1.0-SNAPSHOT"
 ThisBuild / scalaVersion := "2.13.13"
 
 lazy val root = (project in file("."))
@@ -6,21 +6,22 @@ lazy val root = (project in file("."))
       name := "sparkshow"
     )
 
-val http4sVersion = "0.23.22"
-val doobieVersion = "1.0.0-RC3"
-val pureConfigVersion = "0.17.4"
-val logbackVersion = "1.2.3"
-val log4CatsVersion = "2.5.0"
-val izumiVersion = "1.2.5"
-val circleVersion = "0.14.5"
-val flywayVersion = "10.15.2"
+val http4sVersion       = "0.23.22"
+val doobieVersion       = "1.0.0-RC3"
+val pureConfigVersion   = "0.17.4"
+val logbackVersion      = "1.2.3"
+val log4CatsVersion     = "2.5.0"
+val izumiVersion        = "1.2.5"
+val circleVersion       = "0.14.5"
+val flywayVersion       = "10.15.2"
 val doobieFlywayVersion = "0.4.0"
-val jbcryptVersion = "0.4"
-val scalacticVersion = "3.2.17"
-val scoptVersion = "4.1.0"
-val munitVersion = "0.7.29"
-val scalatestVersion = "3.2.17"
-val scalamockVersion = "5.1.0"
+val jbcryptVersion      = "0.4"
+val scalacticVersion    = "3.2.17"
+val scoptVersion        = "4.1.0"
+val munitVersion        = "0.7.29"
+val scalatestVersion    = "3.2.17"
+val scalamockVersion    = "5.1.0"
+val jwtCircleVersion    = "10.0.1"
 
 libraryDependencies ++= Seq(
   "org.http4s" %% "http4s-core" % http4sVersion,
@@ -48,6 +49,7 @@ libraryDependencies ++= Seq(
   "org.mindrot" % "jbcrypt" % jbcryptVersion,
   "org.scalactic" %% "scalactic" % scalacticVersion,
   "com.github.scopt" %% "scopt" % scoptVersion,
+//  "com.github.jwt-scala" %% "jwt-circle" % jwtCircleVersion,
   "org.scalameta" %% "munit" % munitVersion % Test,
   "io.7mind.izumi" %% "distage-testkit-scalatest" % izumiVersion % Test,
   "org.scalatest" %% "scalatest" % scalatestVersion % Test,
@@ -55,9 +57,20 @@ libraryDependencies ++= Seq(
   "org.scalamock" %% "scalamock" % scalamockVersion % Test
 )
 
+libraryDependencies += "com.github.jwt-scala" %% "jwt-circe" % "10.0.1"
+
+
 addCompilerPlugin(
   "org.typelevel" %% "kind-projector" % "0.13.3" cross CrossVersion.full
 )
 addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
 
 scalacOptions ++= Seq("-Wunused", "-target:jvm-17")
+
+inThisBuild(
+  List(
+    scalaVersion := "2.13.13",
+    semanticdbEnabled := true,
+    semanticdbVersion := scalafixSemanticdb.revision
+  )
+)

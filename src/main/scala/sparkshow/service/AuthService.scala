@@ -11,7 +11,6 @@ class AuthService(
 ) {
 
     def authenticate(loginReq: LoginRequest): IO[Option[User]] = {
-
         for {
             targetUser <- userRepository.getOne(loginReq.username)
             validatedUser <- IO {
@@ -27,5 +26,9 @@ class AuthService(
                 }
             }
         } yield validatedUser
+    }
+
+    def authenticate(token: String): IO[Option[User]] = {
+        ???
     }
 }

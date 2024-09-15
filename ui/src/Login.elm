@@ -87,3 +87,4 @@ view model =
         , input [ type_ "password", value model.password, onInput ChangePassword ] []
         , button [ onClick SendForm ] [ text <| Debug.toString model ]
         ]
+

@@ -14,3 +14,10 @@ object LoginRequest {
 
     def decoder: EntityDecoder[IO, LoginRequest] = jsonOf[IO, LoginRequest]
 }
+
+case class QueryRequest(sql: String)
+
+object QueryRequest {
+    implicit val decoder: EntityDecoder[IO, QueryRequest] =
+        jsonOf[IO, QueryRequest]
+}

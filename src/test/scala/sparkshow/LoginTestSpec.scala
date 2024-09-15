@@ -3,28 +3,21 @@ package sparkshow
 import cats.effect.IO
 import io.circe.generic.auto._
 import io.circe.literal.JsonStringContext
+import org.http4s.EntityDecoder
+import org.http4s.Method
+import org.http4s.Request
+import org.http4s.Status
 import org.http4s.circe.CirceEntityCodec.circeEntityEncoder
 import org.http4s.circe.jsonOf
 import org.http4s.implicits._
-import org.http4s.{EntityDecoder, Method, Request, Status}
+import sparkshow.db.web.data.LoginResponse
 import sparkshow.service.UserService
 import sparkshow.web.routes.RoutesFacade
 
 class LoginTestSpec extends BaseIntegrationSpec {
 
-    case class LoginResponse(
-        id: Long,
-        username: String,
-        email: String,
-        passwordHash: String
-    )
-    object LoginResponse {
-
-        def decoder: EntityDecoder[IO, LoginResponse] =
-            jsonOf[IO, LoginResponse]
-    }
-    private implicit val loginReqDecoder: EntityDecoder[IO, LoginResponse] =
-        LoginResponse.decoder
+    private implicit val decoder: EntityDecoder[IO, LoginResponse] =
+        jsonOf[IO, LoginResponse]
 
     "Test login happy path" in {
         (
@@ -44,9 +37,10 @@ class LoginTestSpec extends BaseIntegrationSpec {
                     res  <- routes.build.orNotFound.run(req)
                     body <- res.as[LoginResponse]
                     _    <- assertIO(res.status == Status.Ok)
-                    _    <- assertIO(body.username == "test")
-                    _    <- assertIO(body.passwordHash.nonEmpty)
-                    _    <- assertIO(body.email == "test")
+                    _    <- assertIO(body.user.username == "test")
+                    _    <- assertIO(body.user.passwordHash.nonEmpty)
+                    _    <- assertIO(body.user.email == Some("test"))
+                    _    <- assertIO(body.token.nonEmpty)
                 } yield ()
             }
     }

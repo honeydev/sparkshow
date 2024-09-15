@@ -11,7 +11,7 @@ format:
 	sbt scalafmtAll
 
 create-user:
-	./launcher :create-user -cli-command true --username test --password test --email test@email.com --roles ADMIN
+	./launcher :create-user -cli-command true x --username test --password test --email test@email.com --roles ADMIN
 
 
 migrate:

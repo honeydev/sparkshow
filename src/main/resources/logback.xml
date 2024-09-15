@@ -1,6 +1,6 @@
 <configuration>
     <property name="APP" value="realworld"/>
-    <property name="LOGS" value="./logs"/>
+    <Property name="LOGS" value="./logs"/>
 
     <!-- Turn-off Logback init messages -->
     <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>

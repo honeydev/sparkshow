@@ -1,29 +1,55 @@
 CREATE TABLE users ( id SERIAL PRIMARY KEY,
   username VARCHAR(10) NOT NULL UNIQUE,
   password_hash VARCHAR(255),
-  email VARCHAR(255) UNIQUE
+  email VARCHAR(255) UNIQUE,
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE roles (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(30) NOT NULL UNIQUE
+    name VARCHAR(30) NOT NULL UNIQUE,
+   created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+   updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE permissions (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(30) NOT NULL UNIQUE
+    name VARCHAR(30) NOT NULL UNIQUE,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE users_roles (
     id SERIAL PRIMARY KEY,
     role_id INTEGER,
-    user_id INTEGER
+    user_id INTEGER,
+
+    CONSTRAINT fk_user
+      FOREIGN KEY(user_id) 
+        REFERENCES users(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_roles
+      FOREIGN KEY(role_id) 
+        REFERENCES roles(id)
+        ON DELETE CASCADE
 );
 
 CREATE TABLE roles_permissions (
     id SERIAL PRIMARY KEY,
     role_id INTEGER,
-    permission_id INTEGER
+    permission_id INTEGER,
+    CONSTRAINT fk_role
+      FOREIGN KEY(role_id) 
+        REFERENCES roles(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_permissions
+      FOREIGN KEY(permission_id) 
+        REFERENCES permissions(id)
+        ON DELETE CASCADE
+
 );
 
 INSERT INTO permissions (id, name) VALUES
@@ -43,4 +69,5 @@ INSERT INTO roles_permissions (role_id, permission_id) VALUES
     (1, 3),
     (1, 4),
     (2, 2),
+
     (2, 4);

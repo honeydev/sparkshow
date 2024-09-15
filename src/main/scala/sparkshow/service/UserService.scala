@@ -1,16 +1,13 @@
 package sparkshow.service
 
+import cats.effect.IO
 import org.mindrot.jbcrypt.BCrypt
 import sparkshow.db.model.Role
+import sparkshow.db.model.User
 import sparkshow.db.repository.RoleRepository
 import sparkshow.db.repository.UserRepository
-import cats.effect.IO
-import sparkshow.db.model.User
 
-class UserService(
-    implicit val userRepo: UserRepository,
-    implicit val roleRepo: RoleRepository
-) {
+class UserService(val userRepo: UserRepository, val roleRepo: RoleRepository) {
     def createUser(
         username: String,
         password: String,
