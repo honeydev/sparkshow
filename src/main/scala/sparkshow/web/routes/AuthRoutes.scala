@@ -14,28 +14,28 @@ import sparkshow.service.AuthService
 import sparkshow.utils.AuthUtils
 
 class AuthRoutes(authService: AuthService, conf: AppConf) {
+
     private implicit val loginReqDecoder: EntityDecoder[IO, LoginRequest] =
         LoginRequest.decoder
+
     val routes: HttpRoutes[IO] = HttpRoutes
         .of[IO] { case req @ POST -> Root / "login" =>
             req
                 .as[LoginRequest]
                 .flatMap(loginRequest => {
-                    authService.authenticate(loginRequest) flatMap { u =>
-                        u match {
-                            case None =>
-                                NotFound(
-                                  InvalidResponse(message = "User not found")
-                                )
-                            case Some(u) =>
-                                Ok(
-                                  LoginResponse(
-                                    user = u,
-                                    token = AuthUtils
-                                        .encodeToken(u, conf.jwt.secret)
-                                  ).asJson
-                                )
-                        }
+                    authService.authenticate(loginRequest) flatMap {
+                        case None =>
+                            NotFound(
+                              InvalidResponse(message = "User not found")
+                            )
+                        case Some(u) =>
+                            Ok(
+                              LoginResponse(
+                                user = u,
+                                token = AuthUtils
+                                    .encodeToken(u, conf.jwt.secret)
+                              ).asJson
+                            )
                     }
                 })
         }

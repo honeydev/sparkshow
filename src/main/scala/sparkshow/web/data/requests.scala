@@ -21,3 +21,4 @@ object QueryRequest {
     implicit val decoder: EntityDecoder[IO, QueryRequest] =
         jsonOf[IO, QueryRequest]
 }
+
