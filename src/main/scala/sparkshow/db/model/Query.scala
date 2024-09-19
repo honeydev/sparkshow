@@ -10,3 +10,4 @@ case class Query(
     query: String,
     state: String
 )
+

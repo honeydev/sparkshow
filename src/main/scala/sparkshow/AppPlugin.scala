@@ -9,13 +9,14 @@ import sparkshow.commands.CreateUserTask
 import sparkshow.commands.MigrateTask
 import sparkshow.conf.AppConf
 import sparkshow.db.PGTransactorResource
-import sparkshow.db.repository.RoleRepository
-import sparkshow.db.repository.UserRepository
-import sparkshow.service.AuthService
-import sparkshow.service.UserService
-import sparkshow.web.routes.AuthRoutes
-import sparkshow.web.routes.QueryRoutes
-import sparkshow.web.routes.RoutesFacade
+import sparkshow.db.repository.{QueryRepository, RoleRepository, UserRepository}
+import sparkshow.service.{AuthService, QueryService, UserService}
+import sparkshow.web.routes.{
+    AuthRoutes,
+    JWTMiddleware,
+    QueryRoutes,
+    RoutesFacade
+}
 
 object AppPlugin extends PluginDef {
     include(modules.roles)
@@ -39,11 +40,14 @@ object AppPlugin extends PluginDef {
             make[Transactor[IO]].fromResource[PGTransactorResource]
             make[UserRepository]
             make[RoleRepository]
+            make[QueryRepository]
             make[AuthService]
+            make[QueryService]
             make[AuthRoutes]
             make[UserService]
             make[QueryRoutes]
             make[RoutesFacade]
+            make[JWTMiddleware]
             make[HttpServer].fromResource[HttpServer.Impl]
             makeRole[AppServiceRole]
         }

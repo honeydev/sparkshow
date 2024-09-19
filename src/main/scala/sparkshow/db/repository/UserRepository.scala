@@ -10,9 +10,9 @@ import sparkshow.db.model.User
 class UserRepository(implicit val transactor: Transactor[IO]) {
 
     def getOne(id: Long): IO[Option[User]] = {
-        sql"select SELECT id, username, email, password_hash from users where id = ${id}"
-            .query[Option[User]]
-            .unique
+        sql"SELECT id, username, email, password_hash from users where id = ${id}"
+            .query[User]
+            .option
             .transact(transactor)
     }
 
