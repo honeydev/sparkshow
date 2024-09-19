@@ -1,36 +1,27 @@
 package sparkshow.web.routes
 
-import cats.data.Kleisli
-import cats.data.OptionT
+import cats.data.{EitherT, Kleisli, OptionT}
 import cats.effect._
+import io.circe.syntax.EncoderOps
+import org.http4s.Credentials.Token
 import org.http4s._
 import org.http4s.circe.CirceEntityCodec.circeEntityEncoder
 import org.http4s.dsl.io._
-import org.http4s.server.AuthMiddleware
-import sparkshow.db.model.User
-import sparkshow.service.UserService
 import org.http4s.headers.Authorization
-import org.http4s.Credentials.Token
-import sparkshow.utils.AuthUtils
+import org.http4s.server.AuthMiddleware
 import sparkshow.conf.AppConf
-import cats.data.EitherT
-import io.circe.generic.auto._
-import io.circe.syntax.EncoderOps
+import sparkshow.db.model.User
 import sparkshow.db.web.data.InvalidResponse
+import sparkshow.service.UserService
+import sparkshow.utils.AuthUtils
 
-trait CommonRoutesUtils {
+class JWTMiddleware(val userService: UserService, val conf: AppConf) {
 
-    val userService: UserService
-    val conf: AppConf
+    val mw = AuthMiddleware[IO, String, User](authUser, onFailure)
 
-    protected val mw: AuthMiddleware[IO, User] =
-        AuthMiddleware.apply[IO, String, User](authUser, onFailure)
-
-    private val authUser: Kleisli[IO, Request[IO], Either[String, User]] =
+    private def authUser: Kleisli[IO, Request[IO], Either[String, User]] =
         Kleisli(request => {
-
             val targetUser = for {
-
                 jwtPayload <- {
                     val payload = request.headers.get[Authorization] match {
                         case Some(Authorization(Token(_, token))) =>
@@ -43,14 +34,12 @@ trait CommonRoutesUtils {
             } yield user
 
             targetUser.value
-
         })
 
-    private val onFailure: AuthedRoutes[String, IO] =
+    private def onFailure: AuthedRoutes[String, IO] =
         Kleisli(req =>
             OptionT.liftF(
               Forbidden(InvalidResponse(message = req.context).asJson)
             )
         )
-
 }

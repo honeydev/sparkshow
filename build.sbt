@@ -9,7 +9,7 @@ lazy val root = (project in file("."))
 val http4sVersion       = "0.23.22"
 val doobieVersion       = "1.0.0-RC3"
 val pureConfigVersion   = "0.17.4"
-val logbackVersion      = "1.2.3"
+val logbackVersion      = "1.3.5"
 val log4CatsVersion     = "2.5.0"
 val izumiVersion        = "1.2.5"
 val circleVersion       = "0.14.5"
@@ -31,11 +31,8 @@ libraryDependencies ++= Seq(
   "org.http4s" %% "http4s-ember-server" % http4sVersion,
   "org.http4s" %% "http4s-circe" % http4sVersion,
   "org.http4s" %% "http4s-dsl" % http4sVersion,
-  // Optional for auto-derivation of JSON codecs
   "io.circe" %% "circe-generic" % circleVersion,
-  // Optional for string interpolation to JSON model
   "io.circe" %% "circe-literal" % circleVersion,
-//  "org.flywaydb" % "flyway-core" % flywayVersion,
   "org.tpolecat" %% "doobie-core" % doobieVersion,
   "org.tpolecat" %% "doobie-postgres" % doobieVersion,
   "org.tpolecat" %% "doobie-specs2" % doobieVersion,
@@ -49,15 +46,13 @@ libraryDependencies ++= Seq(
   "org.mindrot" % "jbcrypt" % jbcryptVersion,
   "org.scalactic" %% "scalactic" % scalacticVersion,
   "com.github.scopt" %% "scopt" % scoptVersion,
-//  "com.github.jwt-scala" %% "jwt-circle" % jwtCircleVersion,
+  "com.github.jwt-scala" %% "jwt-circe" % jwtCircleVersion,
   "org.scalameta" %% "munit" % munitVersion % Test,
   "io.7mind.izumi" %% "distage-testkit-scalatest" % izumiVersion % Test,
   "org.scalatest" %% "scalatest" % scalatestVersion % Test,
   "org.scalatest" %% "scalatest" % scalatestVersion % Test,
   "org.scalamock" %% "scalamock" % scalamockVersion % Test
 )
-
-libraryDependencies += "com.github.jwt-scala" %% "jwt-circe" % "10.0.1"
 
 
 addCompilerPlugin(

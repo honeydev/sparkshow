@@ -5,20 +5,20 @@ import io.circe.generic.auto._
 import org.http4s.EntityDecoder
 import org.http4s.circe.jsonOf
 
-case class LoginRequest(
+case class LoginRequestBody(
     username: String,
     password: String
 )
 
-object LoginRequest {
+object LoginRequestBody {
 
-    def decoder: EntityDecoder[IO, LoginRequest] = jsonOf[IO, LoginRequest]
+    def decoder: EntityDecoder[IO, LoginRequestBody] =
+        jsonOf[IO, LoginRequestBody]
 }
 
-case class QueryRequest(sql: String)
+case class QueryRequestBody(sql: String)
 
-object QueryRequest {
-    implicit val decoder: EntityDecoder[IO, QueryRequest] =
-        jsonOf[IO, QueryRequest]
+object QueryRequestBody {
+    implicit val decoder: EntityDecoder[IO, QueryRequestBody] =
+        jsonOf[IO, QueryRequestBody]
 }
-

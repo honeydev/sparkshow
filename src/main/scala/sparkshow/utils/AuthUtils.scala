@@ -1,19 +1,14 @@
 package sparkshow.utils
 
 import io.circe.generic.auto._
-import io.circe.jawn.{parse => jawnParse}
+import io.circe.generic.semiauto._
+import io.circe.jawn.{decode, parse => jawnParse}
 import io.circe.syntax.EncoderOps
-import java.time.Instant
-import pdi.jwt.JwtCirce
+import pdi.jwt.{JwtAlgorithm, JwtCirce, JwtClaim}
 import sparkshow.db.model.User
-import pdi.jwt.JwtAlgorithm
-import io.circe._, io.circe.generic.semiauto._
-import io.circe.jawn.decode
-import cats.syntax.all._
 
-import scala.util.Success
-import pdi.jwt.JwtClaim
-import scala.util.Failure
+import java.time.Instant
+import scala.util.{Failure, Success}
 
 sealed case class JwtPayload(
     expires: Long,

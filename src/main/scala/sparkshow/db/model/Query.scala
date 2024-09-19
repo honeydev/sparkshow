@@ -1,18 +1,13 @@
 package sparkshow.db.model
 
-
-//import doobie.postgres._
-//import doobie.postgres.implicits._
-
+object QueryState extends Enumeration {
+    type QueryState = Value
+    val NEW, RUNNING, FINISHED, FAILED = Value
+}
 
 case class Query(
     id: Long,
     query: String,
-    state: String,
+    state: String
 )
 
-
-//object Query {
-//  implicit val MyJavaEnumMeta = pgJavaEnum[QueryStates]("myenum")
-//}
-//

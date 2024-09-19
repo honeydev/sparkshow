@@ -4,13 +4,13 @@ import cats.effect.IO
 import org.mindrot.jbcrypt.BCrypt
 import sparkshow.db.model.User
 import sparkshow.db.repository.UserRepository
-import sparkshow.db.web.data.LoginRequest
+import sparkshow.db.web.data.LoginRequestBody
 
 class AuthService(
     val userRepository: UserRepository
 ) {
 
-    def authenticate(loginReq: LoginRequest): IO[Option[User]] = {
+    def authenticate(loginReq: LoginRequestBody): IO[Option[User]] = {
         for {
             targetUser <- userRepository.getOne(loginReq.username)
             validatedUser <- IO {
@@ -26,9 +26,5 @@ class AuthService(
                 }
             }
         } yield validatedUser
-    }
-
-    def authenticate(token: String): IO[Option[User]] = {
-        ???
     }
 }
