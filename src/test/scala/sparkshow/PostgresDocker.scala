@@ -9,10 +9,8 @@ object PostgresDocker extends ContainerDef {
     override def config: Config = {
         Config(
           registry = Some("mirror.gcr.io"),
-//           registry = Some("public.ecr.aws"),
           image = "postgres:14",
           ports = Seq(primaryPort),
-//          reuse = Docker.DockerReusePolicy.ReuseDisabled,
           env = Map(
             "POSTGRES_USER"     -> "test",
             "POSTGRES_PASSWORD" -> "test",

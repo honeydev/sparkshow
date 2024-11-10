@@ -15,7 +15,7 @@ services:
     volumes:
       - ./sql:/sql
   pgdb-test:
-    image: postgres
+    image: postgres:16
     restart: always
     environment:
       POSTGRES_PASSWORD: test

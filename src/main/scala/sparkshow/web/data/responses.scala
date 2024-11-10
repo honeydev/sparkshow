@@ -17,6 +17,6 @@ case class LoginResponse(status: String = "ok", user: User, token: String)
 
 object LoginResponse {
     implicit val userEncoder: Encoder[User] = deriveEncoder[User]
-        .mapJsonObject(_.remove("passwordHash"))
+        .mapJsonObject(_.remove("token"))
     implicit val jsonEncoder: Encoder[LoginResponse] = deriveEncoder
 }
