@@ -15,6 +15,8 @@ in rec {
       # pkgs.sbt
       pkgs.coursier
       pkgs.postgresql
+      pkgs.metals
+      pkgs.git
     ];
 
     shellHook = ''
