@@ -10,8 +10,7 @@ import izumi.distage.docker.bundled.PostgresFlyWayDocker
 import izumi.distage.docker.modules.DockerSupportModule
 import izumi.distage.model.definition.ModuleDef
 import izumi.distage.testkit.model.TestConfig
-import izumi.distage.testkit.scalatest.AssertCIO
-import izumi.distage.testkit.scalatest.Spec1
+import izumi.distage.testkit.scalatest.{AssertCIO, Spec1}
 import izumi.reflect.TagK
 
 class PostgresDockerModule[IO[_]: TagK] extends ModuleDef {

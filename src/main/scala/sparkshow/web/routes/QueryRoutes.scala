@@ -1,12 +1,13 @@
 package sparkshow.web.routes
 
 import cats.effect._
+import io.circe.syntax._
 import org.http4s._
 import org.http4s.circe.CirceEntityCodec.circeEntityEncoder
 import org.http4s.dsl.io._
 import sparkshow.conf.AppConf
 import sparkshow.db.model.User
-import sparkshow.db.web.data.QueryRequestBody
+import sparkshow.db.web.data.{CreateQueryResponse, QueryRequestBody}
 import sparkshow.service.{QueryService, UserService}
 
 class QueryRoutes(
@@ -20,6 +21,13 @@ class QueryRoutes(
 
     val routes = AuthedRoutes
         .of[User, IO] { case authedRequest @ POST -> Root / "query" as user =>
-            authedRequest.req.as[QueryRequestBody].flatMap(r => Ok(r.sql))
+            authedRequest.req
+                .as[QueryRequestBody]
+                .flatMap(request =>
+                    for {
+                        query    <- queryService.createQuery(request, user)
+                        response <- Ok(CreateQueryResponse(query).asJson)
+                    } yield response
+                )
         }
 }

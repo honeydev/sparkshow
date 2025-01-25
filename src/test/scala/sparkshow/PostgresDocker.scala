@@ -1,7 +1,6 @@
 package sparkshow
 
-import izumi.distage.docker.ContainerDef
-import izumi.distage.docker.Docker
+import izumi.distage.docker.{ContainerDef, Docker}
 
 object PostgresDocker extends ContainerDef {
     val primaryPort: Docker.DockerPort = Docker.DockerPort.TCP(5432)

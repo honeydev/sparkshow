@@ -20,6 +20,5 @@ in rec {
     shellHook = ''
       export PATH="$PATH:/home/honey/.local/share/coursier/bin"
   '';
-
   };
 }

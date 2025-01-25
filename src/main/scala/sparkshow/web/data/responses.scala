@@ -2,7 +2,7 @@ package sparkshow.db.web.data
 
 import io.circe._
 import io.circe.generic.semiauto._
-import sparkshow.db.model.User
+import sparkshow.db.model.{Query, User}
 
 case class InvalidResponse(status: String = "error", message: String)
 
@@ -19,4 +19,11 @@ object LoginResponse {
     implicit val userEncoder: Encoder[User] = deriveEncoder[User]
         .mapJsonObject(_.remove("passwordHash"))
     implicit val jsonEncoder: Encoder[LoginResponse] = deriveEncoder
+}
+
+case class CreateQueryResponse(query: Query)
+
+object CreateQueryResponse {
+    implicit val queryEncoder: Encoder[Query] = deriveEncoder[Query]
+    implicit val jsonEncoder: Encoder[CreateQueryResponse] = deriveEncoder
 }

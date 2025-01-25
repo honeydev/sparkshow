@@ -1,8 +1,7 @@
 package sparkshow.commands
 
 import cats.effect._
-import izumi.distage.roles.model.RoleDescriptor
-import izumi.distage.roles.model.RoleTask
+import izumi.distage.roles.model.{RoleDescriptor, RoleTask}
 import izumi.fundamentals.platform.cli.model.raw.RawEntrypointParams
 import scopt.OParser
 import sparkshow.conf.AppConf
@@ -59,7 +58,7 @@ class CreateUserTask(
                       password = parsed.password,
                       parsed.email
                     )
-                    roles <- roleRepo.getMany(user.id)
+                    roles <- roleRepo.many(user.id)
                     _ <- IO.println(
                       s"Success create user: $user with roles: $roles"
                     )

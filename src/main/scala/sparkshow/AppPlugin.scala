@@ -5,18 +5,12 @@ import distage.plugins.PluginDef
 import doobie.util.transactor.Transactor
 import izumi.distage.model.definition.ModuleDef
 import izumi.distage.roles.model.definition.RoleModuleDef
-import sparkshow.commands.CreateUserTask
-import sparkshow.commands.MigrateTask
+import sparkshow.commands.{CreateUserTask, MigrateTask}
 import sparkshow.conf.AppConf
 import sparkshow.db.PGTransactorResource
 import sparkshow.db.repository.{QueryRepository, RoleRepository, UserRepository}
 import sparkshow.service.{AuthService, QueryService, UserService}
-import sparkshow.web.routes.{
-    AuthRoutes,
-    JWTMiddleware,
-    QueryRoutes,
-    RoutesFacade
-}
+import sparkshow.web.routes.{AuthRoutes, JWTMiddleware, QueryRoutes, RoutesFacade}
 
 object AppPlugin extends PluginDef {
     include(modules.roles)

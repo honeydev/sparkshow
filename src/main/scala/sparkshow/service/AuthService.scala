@@ -12,7 +12,7 @@ class AuthService(
 
     def authenticate(loginReq: LoginRequestBody): IO[Option[User]] = {
         for {
-            targetUser <- userRepository.getOne(loginReq.username)
+            targetUser <- userRepository.one(loginReq.username)
             validatedUser <- IO {
                 targetUser.flatMap { u =>
                     val isValid = BCrypt

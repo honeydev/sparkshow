@@ -1,18 +1,17 @@
 package sparkshow
 
-import scala.annotation.unused
-
 import cats.effect.IO
 import com.comcast.ip4s.IpLiteralSyntax
 import doobie.util.transactor.Transactor
 import izumi.distage.model.definition.Lifecycle
-import izumi.distage.roles.model.RoleDescriptor
-import izumi.distage.roles.model.RoleService
+import izumi.distage.roles.model.{RoleDescriptor, RoleService}
 import izumi.fundamentals.platform.cli.model.raw.RawEntrypointParams
 import org.http4s.ember.server._
 import org.http4s.implicits._
 import org.http4s.server.Server
 import sparkshow.web.routes.RoutesFacade
+
+import scala.annotation.unused
 
 final case class HttpServer(
     server: Server

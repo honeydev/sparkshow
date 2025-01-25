@@ -9,7 +9,7 @@ class RoleRepository(implicit
     val transactor: Transactor[IO]
 ) {
 
-    def getMany(userId: Long): IO[List[Role]] = {
+    def many(userId: Long): IO[List[Role]] = {
         sql"""
              SELECT
                 roles.id,
