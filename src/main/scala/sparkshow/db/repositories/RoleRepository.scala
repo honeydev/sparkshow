@@ -1,9 +1,9 @@
-package sparkshow.db.repository
+package sparkshow.db.repositories
 
 import cats.effect._
 import doobie.implicits._
 import doobie.util.transactor.Transactor
-import sparkshow.db.model.Role
+import sparkshow.db.models.Role
 
 class RoleRepository(implicit
     val transactor: Transactor[IO]

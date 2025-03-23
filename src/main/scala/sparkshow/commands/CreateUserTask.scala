@@ -5,8 +5,8 @@ import izumi.distage.roles.model.{RoleDescriptor, RoleTask}
 import izumi.fundamentals.platform.cli.model.raw.RawEntrypointParams
 import scopt.OParser
 import sparkshow.conf.AppConf
-import sparkshow.db.repository.RoleRepository
-import sparkshow.service.UserService
+import sparkshow.db.repositories.RoleRepository
+import sparkshow.services.UserService
 
 case class Args(
     username: String   = "",

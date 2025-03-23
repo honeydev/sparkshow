@@ -22,6 +22,7 @@ val munitVersion        = "0.7.29"
 val scalatestVersion    = "3.2.17"
 val scalamockVersion    = "5.1.0"
 val jwtCircleVersion    = "10.0.1"
+val sparkVersion        = "3.5.5"
 
 libraryDependencies ++= Seq(
   "org.http4s" %% "http4s-core" % http4sVersion,
@@ -35,7 +36,8 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-literal" % circleVersion,
   "org.tpolecat" %% "doobie-core" % doobieVersion,
   "org.tpolecat" %% "doobie-postgres" % doobieVersion,
-  "org.tpolecat" %% "doobie-specs2" % doobieVersion,
+  "org.tpolecat"  %% "doobie-postgres-circe" % doobieVersion,
+//  "org.tpolecat" %% "doobie-specs2" % doobieVersion,
   "org.tpolecat" %% "doobie-hikari" % doobieVersion,
   "de.lhns" %% "doobie-flyway" % doobieFlywayVersion,
   "ch.qos.logback" % "logback-classic" % logbackVersion,
@@ -47,6 +49,9 @@ libraryDependencies ++= Seq(
   "org.scalactic" %% "scalactic" % scalacticVersion,
   "com.github.scopt" %% "scopt" % scoptVersion,
   "com.github.jwt-scala" %% "jwt-circe" % jwtCircleVersion,
+  "org.apache.spark" %% "spark-core" % sparkVersion,
+  "org.apache.spark" %% "spark-sql" % sparkVersion,
+  "org.apache.spark" %% "spark-streaming" % sparkVersion,
   "org.scalameta" %% "munit" % munitVersion % Test,
   "io.7mind.izumi" %% "distage-testkit-scalatest" % izumiVersion % Test,
   "org.scalatest" %% "scalatest" % scalatestVersion % Test,

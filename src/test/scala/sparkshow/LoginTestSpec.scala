@@ -8,7 +8,7 @@ import org.http4s.circe.CirceEntityCodec.circeEntityEncoder
 import org.http4s.circe.jsonOf
 import org.http4s.implicits._
 import sparkshow.db.web.data.LoginResponse
-import sparkshow.service.UserService
+import sparkshow.services.UserService
 import sparkshow.web.routes.RoutesFacade
 
 class LoginTestSpec extends BaseIntegrationSpec {

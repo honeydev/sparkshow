@@ -6,9 +6,9 @@ import org.http4s._
 import org.http4s.circe.CirceEntityCodec.circeEntityEncoder
 import org.http4s.dsl.io._
 import sparkshow.conf.AppConf
-import sparkshow.db.model.User
-import sparkshow.db.web.data.{CreateQueryResponse, QueryRequestBody}
-import sparkshow.service.{QueryService, UserService}
+import sparkshow.db.models.User
+import sparkshow.web.data.{CreateQueryResponse, QueryRequestBody}
+import sparkshow.services.{QueryService, UserService}
 
 class QueryRoutes(
     val userService: UserService,
@@ -31,3 +31,4 @@ class QueryRoutes(
                 )
         }
 }
+

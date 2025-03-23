@@ -5,7 +5,7 @@ import io.circe.generic.semiauto._
 import io.circe.jawn.{decode, parse => jawnParse}
 import io.circe.syntax.EncoderOps
 import pdi.jwt.{JwtAlgorithm, JwtCirce, JwtClaim}
-import sparkshow.db.model.User
+import sparkshow.db.models.User
 
 import java.time.Instant
 import scala.util.{Failure, Success}

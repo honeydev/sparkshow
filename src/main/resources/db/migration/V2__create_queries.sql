@@ -1,9 +1,11 @@
-CREATE TYPE query_state AS ENUM ('NEW', 'RUNNING', 'FINISHED', 'FAILED');
+CREATE TYPE query_state AS ENUM ('new', 'running', 'finished', 'failed');
 
 CREATE TABLE queries (
   id SERIAL PRIMARY KEY,
   user_id INT,
-  query TEXT NOT NULL,
+  columns jsonb NOT NULL,
+  grouped jsonb NOT NULL,
+  aggregate jsonb NOT NULL,
   state query_state NOT NULL,
   result_path VARCHAR(255),
   created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
@@ -13,4 +15,3 @@ CREATE TABLE queries (
         REFERENCES users(id)
         ON DELETE CASCADE
 );
-

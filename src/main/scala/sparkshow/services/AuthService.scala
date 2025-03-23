@@ -1,10 +1,10 @@
-package sparkshow.service
+package sparkshow.services
 
 import cats.effect.IO
 import org.mindrot.jbcrypt.BCrypt
-import sparkshow.db.model.User
-import sparkshow.db.repository.UserRepository
-import sparkshow.db.web.data.LoginRequestBody
+import sparkshow.db.models.User
+import sparkshow.db.repositories.UserRepository
+import sparkshow.web.data.LoginRequestBody
 
 class AuthService(
     val userRepository: UserRepository

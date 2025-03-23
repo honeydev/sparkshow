@@ -1,4 +1,4 @@
-package sparkshow.db.model
+package sparkshow.db.models
 
 object RoleName extends Enumeration {
     type RoleName = Value

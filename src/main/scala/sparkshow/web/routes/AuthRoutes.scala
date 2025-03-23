@@ -6,8 +6,8 @@ import org.http4s._
 import org.http4s.circe.CirceEntityCodec.circeEntityEncoder
 import org.http4s.dsl.io._
 import sparkshow.conf.AppConf
-import sparkshow.db.web.data.{InvalidResponse, LoginRequestBody, LoginResponse}
-import sparkshow.service.AuthService
+import sparkshow.web.data.{InvalidResponse, LoginRequestBody, LoginResponse}
+import sparkshow.services.AuthService
 import sparkshow.utils.AuthUtils
 
 class AuthRoutes(authService: AuthService, conf: AppConf) {

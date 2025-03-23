@@ -14,6 +14,7 @@ in rec {
       pkgs.jdk21
       # pkgs.sbt
       pkgs.coursier
+      pkgs.metals
       pkgs.postgresql
     ];
 

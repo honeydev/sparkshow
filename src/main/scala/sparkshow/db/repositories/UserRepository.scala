@@ -1,10 +1,10 @@
-package sparkshow.db.repository
+package sparkshow.db.repositories
 
 import cats.effect.IO
 import doobie.implicits._
 import doobie.util.transactor.Transactor
 import doobie.util.update.Update
-import sparkshow.db.model.{Role, User}
+import sparkshow.db.models.{Role, User}
 
 class UserRepository(implicit val transactor: Transactor[IO]) {
 
@@ -22,7 +22,7 @@ class UserRepository(implicit val transactor: Transactor[IO]) {
                username,
                email,
                password_hash
-               FROM users
+             FROM users
               WHERE username = $username
               """
             .query[User]
@@ -38,7 +38,9 @@ class UserRepository(implicit val transactor: Transactor[IO]) {
     ): IO[User] = {
         val createUser =
             sql"""
-                 INSERT INTO users (username, email, password_hash) VALUES ($username, $email, $passwordHash)""".update
+                 INSERT INTO users (username, email, password_hash)
+                 VALUES ($username, $email, $passwordHash)"""
+                .update
                 .withUniqueGeneratedKeys[User](
                   "id",
                   "username",
