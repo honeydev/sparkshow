@@ -7,6 +7,9 @@ db-shell-test:
 dev-up:
 	docker compose up
 
+dev-down:
+	docker compose down
+
 format:
 	sbt scalafmtAll
 

@@ -10,9 +10,9 @@ import org.http4s.dsl.io._
 import org.http4s.headers.Authorization
 import org.http4s.server.AuthMiddleware
 import sparkshow.conf.AppConf
-import sparkshow.db.model.User
-import sparkshow.db.web.data.InvalidResponse
-import sparkshow.service.UserService
+import sparkshow.db.models.User
+import sparkshow.web.data.InvalidResponse
+import sparkshow.services.UserService
 import sparkshow.utils.AuthUtils
 
 class JWTMiddleware(val userService: UserService, val conf: AppConf) {

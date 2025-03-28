@@ -16,7 +16,8 @@ class PGTransactorResource(
             url             = appConfig.db.url, // Connect URL
             user            = appConfig.db.username, // Database user name
             pass =
-                appConfig.db.password, // Database password     // Don't setup logging for now. See Logging page for how to log events in detail
+                appConfig.db.password, // Database password
+            // Don't setup logging for now. See Logging page for how to log events in detail
             connectEC = ec
           )
       } yield ta

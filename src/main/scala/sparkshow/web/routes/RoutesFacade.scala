@@ -3,10 +3,10 @@ package sparkshow.web.routes
 import cats.data.{Kleisli, OptionT}
 import cats.effect.IO
 import cats.implicits._
-import org.http4s.{Request, Response}
 import org.http4s.server.middleware.{ErrorAction, ErrorHandling}
+import org.http4s.{Request, Response}
 import sparkshow.conf.AppConf
-import sparkshow.service.UserService
+import sparkshow.services.UserService
 
 class RoutesFacade(
     val authRoutes: AuthRoutes,

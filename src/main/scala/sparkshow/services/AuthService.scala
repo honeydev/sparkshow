@@ -1,10 +1,10 @@
-package sparkshow.service
+package sparkshow.services
 
 import cats.effect.IO
 import org.mindrot.jbcrypt.BCrypt
-import sparkshow.db.model.User
-import sparkshow.db.repository.UserRepository
-import sparkshow.db.web.data.LoginRequestBody
+import sparkshow.db.models.User
+import sparkshow.db.repositories.UserRepository
+import sparkshow.web.data.LoginRequestBody
 
 class AuthService(
     val userRepository: UserRepository
@@ -12,7 +12,7 @@ class AuthService(
 
     def authenticate(loginReq: LoginRequestBody): IO[Option[User]] = {
         for {
-            targetUser <- userRepository.getOne(loginReq.username)
+            targetUser <- userRepository.one(loginReq.username)
             validatedUser <- IO {
                 targetUser.flatMap { u =>
                     val isValid = BCrypt

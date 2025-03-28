@@ -3,15 +3,12 @@ package sparkshow
 import cats.effect.IO
 import io.circe.generic.auto._
 import io.circe.literal.JsonStringContext
-import org.http4s.EntityDecoder
-import org.http4s.Method
-import org.http4s.Request
-import org.http4s.Status
+import org.http4s.{EntityDecoder, Method, Request, Status}
 import org.http4s.circe.CirceEntityCodec.circeEntityEncoder
 import org.http4s.circe.jsonOf
 import org.http4s.implicits._
 import sparkshow.db.web.data.LoginResponse
-import sparkshow.service.UserService
+import sparkshow.services.UserService
 import sparkshow.web.routes.RoutesFacade
 
 class LoginTestSpec extends BaseIntegrationSpec {

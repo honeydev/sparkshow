@@ -1,29 +1,28 @@
-package sparkshow.db.repository
+package sparkshow.db.repositories
 
 import cats.effect.IO
 import doobie.implicits._
 import doobie.util.transactor.Transactor
 import doobie.util.update.Update
-import sparkshow.db.model.Role
-import sparkshow.db.model.User
+import sparkshow.db.models.{Role, User}
 
 class UserRepository(implicit val transactor: Transactor[IO]) {
 
-    def getOne(id: Long): IO[Option[User]] = {
+    def one(id: Long): IO[Option[User]] = {
         sql"SELECT id, username, email, password_hash from users where id = ${id}"
             .query[User]
             .option
             .transact(transactor)
     }
 
-    def getOne(username: String): IO[Option[User]] = {
+    def one(username: String): IO[Option[User]] = {
         sql"""
              SELECT
                id,
                username,
                email,
                password_hash
-               FROM users
+             FROM users
               WHERE username = $username
               """
             .query[User]
@@ -39,7 +38,9 @@ class UserRepository(implicit val transactor: Transactor[IO]) {
     ): IO[User] = {
         val createUser =
             sql"""
-                 INSERT INTO users (username, email, password_hash) VALUES ($username, $email, $passwordHash)""".update
+                 INSERT INTO users (username, email, password_hash)
+                 VALUES ($username, $email, $passwordHash)"""
+                .update
                 .withUniqueGeneratedKeys[User](
                   "id",
                   "username",
@@ -59,6 +60,6 @@ class UserRepository(implicit val transactor: Transactor[IO]) {
                     "INSERT INTO users_roles (role_id, user_id) VALUES (?, ?)"
                 Update[(Long, Long)](q).updateMany(rolesUsersIds)
             }
-        } yield (user)).transact(transactor)
+        } yield user).transact(transactor)
     }
 }

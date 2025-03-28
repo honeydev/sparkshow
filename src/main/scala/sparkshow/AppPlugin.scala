@@ -5,18 +5,15 @@ import distage.plugins.PluginDef
 import doobie.util.transactor.Transactor
 import izumi.distage.model.definition.ModuleDef
 import izumi.distage.roles.model.definition.RoleModuleDef
-import sparkshow.commands.CreateUserTask
-import sparkshow.commands.MigrateTask
+import org.apache.spark.sql.SparkSession
+import sparkshow.commands.{CreateUserTask, MigrateTask}
 import sparkshow.conf.AppConf
 import sparkshow.db.PGTransactorResource
-import sparkshow.db.repository.{QueryRepository, RoleRepository, UserRepository}
-import sparkshow.service.{AuthService, QueryService, UserService}
-import sparkshow.web.routes.{
-    AuthRoutes,
-    JWTMiddleware,
-    QueryRoutes,
-    RoutesFacade
-}
+import sparkshow.db.repositories.{QueryRepository, RoleRepository, UserRepository}
+import sparkshow.services.{AuthService, QueryService, UserService}
+import sparkshow.tasks.RunQueriesTask
+import sparkshow.utils.SparkSessionResource
+import sparkshow.web.routes.{AuthRoutes, JWTMiddleware, QueryRoutes, RoutesFacade}
 
 object AppPlugin extends PluginDef {
     include(modules.roles)
@@ -26,10 +23,8 @@ object AppPlugin extends PluginDef {
     object modules {
 
         def roles: RoleModuleDef = new RoleModuleDef {
-
             makeRole[CreateUserTask]
             makeRole[MigrateTask]
-
         }
 
         def conf: ModuleDef = new ModuleDef {
@@ -38,6 +33,7 @@ object AppPlugin extends PluginDef {
 
         def web: RoleModuleDef = new RoleModuleDef {
             make[Transactor[IO]].fromResource[PGTransactorResource]
+            make[SparkSession].fromResource[SparkSessionResource]
             make[UserRepository]
             make[RoleRepository]
             make[QueryRepository]
@@ -48,6 +44,7 @@ object AppPlugin extends PluginDef {
             make[QueryRoutes]
             make[RoutesFacade]
             make[JWTMiddleware]
+            make[RunQueriesTask]
             make[HttpServer].fromResource[HttpServer.Impl]
             makeRole[AppServiceRole]
         }

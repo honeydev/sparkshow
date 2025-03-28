@@ -28,8 +28,9 @@ dap.configurations.scala = {
           "--email test@email.com",
           "--roles ADMIN"
         }, -- here just as an example
-    }
-  },
+        vmArgs = "--add-exports java.base/sun.nio.ch=ALL-UNNAMED"
+        
+  }},
   {
     type = "scala",
     request = "launch",

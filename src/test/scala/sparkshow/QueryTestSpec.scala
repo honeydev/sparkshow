@@ -5,7 +5,7 @@ import io.circe.literal.JsonStringContext
 import org.http4s._
 import org.http4s.circe.CirceEntityCodec.circeEntityEncoder
 import org.http4s.implicits._
-import sparkshow.service.UserService
+import sparkshow.services.UserService
 import sparkshow.web.routes.RoutesFacade
 
 class QueryIntegrationSpec extends BaseIntegrationSpec {

@@ -1,12 +1,10 @@
-package sparkshow.service
+package sparkshow.services
 
+import cats.data.EitherT
 import cats.effect.IO
 import org.mindrot.jbcrypt.BCrypt
-import sparkshow.db.model.Role
-import sparkshow.db.model.User
-import sparkshow.db.repository.RoleRepository
-import sparkshow.db.repository.UserRepository
-import cats.data.EitherT
+import sparkshow.db.models.{Role, User}
+import sparkshow.db.repositories.{RoleRepository, UserRepository}
 
 class UserService(val userRepo: UserRepository, val roleRepo: RoleRepository) {
     def createUser(
@@ -25,6 +23,6 @@ class UserService(val userRepo: UserRepository, val roleRepo: RoleRepository) {
 
     def findUser(id: Long): EitherT[IO, String, User] =
         EitherT
-            .fromOptionF(userRepo.getOne(id), s"User with id $id is not found")
+            .fromOptionF(userRepo.one(id), s"User with id $id is not found")
 
 }

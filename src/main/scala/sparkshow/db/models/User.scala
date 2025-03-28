@@ -1,4 +1,4 @@
-package sparkshow.db.model
+package sparkshow.db.models
 
 case class User(
     id: Long,

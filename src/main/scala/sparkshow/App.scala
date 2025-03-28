@@ -1,18 +1,19 @@
 package sparkshow
 
-import scala.annotation.unused
-
 import cats.effect.IO
 import com.comcast.ip4s.IpLiteralSyntax
 import doobie.util.transactor.Transactor
 import izumi.distage.model.definition.Lifecycle
-import izumi.distage.roles.model.RoleDescriptor
-import izumi.distage.roles.model.RoleService
+import izumi.distage.roles.model.{RoleDescriptor, RoleService}
 import izumi.fundamentals.platform.cli.model.raw.RawEntrypointParams
 import org.http4s.ember.server._
 import org.http4s.implicits._
 import org.http4s.server.Server
+import sparkshow.tasks.RunQueriesTask
 import sparkshow.web.routes.RoutesFacade
+
+import scala.annotation.unused
+import scala.concurrent.duration._
 
 final case class HttpServer(
     server: Server
@@ -31,22 +32,30 @@ object HttpServer {
                     ipv4"0.0.0.0"
                   )
                   .withPort(
-                    port"8081"
+                    port"8085"
                   )
                   .withHttpApp(routesFacade.build.orNotFound)
                   .build
                   .map(HttpServer(_))
           }
-        )
+    )
 }
 
-class AppServiceRole(@unused httpServer: HttpServer) extends RoleService[IO] {
+class AppServiceRole(
+    runQueriesTask: RunQueriesTask,
+                        @unused httpServer: HttpServer) extends RoleService[IO] {
 
     override def start(
         roleParameters: RawEntrypointParams,
         freeArgs: Vector[String]
     ): Lifecycle[IO, Unit] = {
-        Lifecycle.liftF(IO.println("Start server"))
+        Lifecycle.liftF(
+            IO.println("Run tasks")
+                >>
+                runQueriesTask.run
+                >>
+            IO.println("Start server")
+        )
     }
 }
 
