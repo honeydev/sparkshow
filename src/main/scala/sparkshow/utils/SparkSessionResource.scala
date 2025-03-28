@@ -10,6 +10,7 @@ class SparkSessionResource(conf: AppConf) extends Lifecycle.OfCats(
     IO.blocking {
         SparkSession
             .builder
+            .appName("Spark SQL basic example")
             .master("local[*]")
             .getOrCreate()
     }

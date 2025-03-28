@@ -14,6 +14,7 @@ class QueryService(
           queryRequest.columns,
           queryRequest.grouped,
           queryRequest.aggregate,
+          queryRequest.source_path,
           user.id
         )
     }

@@ -35,6 +35,7 @@ class QueryRepository(val transactor: Transactor[IO]) {
                    columns: List[String],
                    grouped: List[String],
                    aggregate: Aggregate,
+                   sourcePath: String,
                    ownerId: Long
                  ): IO[Query] = {
         sql"""
@@ -43,6 +44,7 @@ class QueryRepository(val transactor: Transactor[IO]) {
                 , grouped
                 , aggregate
                 , state
+                , source_path
                 , user_id
              )
              VALUES (
@@ -50,6 +52,7 @@ class QueryRepository(val transactor: Transactor[IO]) {
                 , $grouped
                 , $aggregate
                 , ${QueryState.`new`}::query_state
+                , $sourcePath
                 , $ownerId
              )
            """.update
@@ -60,7 +63,8 @@ class QueryRepository(val transactor: Transactor[IO]) {
               "grouped",
               "aggregate",
               "state",
-              "result_path",
+              "source_path",
+              "retries",
               "created_at",
               "updated_at"
             )

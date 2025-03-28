@@ -20,7 +20,8 @@ object LoginRequestBody {
 case class QueryRequestBody(
                             columns: List[String],
                             grouped: List[String],
-                            aggregate: Aggregate
+                            aggregate: Aggregate,
+                            source_path: String
                            )
 
 object QueryRequestBody {
