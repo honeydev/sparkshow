@@ -7,7 +7,6 @@ import doobie.util.meta.Meta
 import doobie.util.transactor.Transactor
 import sparkshow.db.models.{Aggregate, Query, QueryState}
 
-
 class QueryRepository(val transactor: Transactor[IO]) {
     import Aggregate.{decoder, encoder}
 

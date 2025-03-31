@@ -12,7 +12,8 @@ val pureConfigVersion   = "0.17.4"
 val logbackVersion      = "1.3.5"
 val log4CatsVersion     = "2.5.0"
 val izumiVersion        = "1.2.5"
-val circleVersion       = "0.14.5"
+val circeVersion        = "0.14.6"
+val circeGenericExtras  = "0.14.4"
 val flywayVersion       = "10.15.2"
 val doobieFlywayVersion = "0.4.0"
 val jbcryptVersion      = "0.4"
@@ -32,8 +33,9 @@ libraryDependencies ++= Seq(
   "org.http4s" %% "http4s-ember-server" % http4sVersion,
   "org.http4s" %% "http4s-circe" % http4sVersion,
   "org.http4s" %% "http4s-dsl" % http4sVersion,
-  "io.circe" %% "circe-generic" % circleVersion,
-  "io.circe" %% "circe-literal" % circleVersion,
+  "io.circe" %% "circe-generic" % circeVersion,
+  "io.circe" %% "circe-literal" % circeVersion,
+  "io.circe" %% "circe-generic-extras" % circeGenericExtras,
   "org.tpolecat" %% "doobie-core" % doobieVersion,
   "org.tpolecat" %% "doobie-postgres" % doobieVersion,
   "org.tpolecat"  %% "doobie-postgres-circe" % doobieVersion,
@@ -65,7 +67,7 @@ addCompilerPlugin(
 )
 addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
 
-scalacOptions ++= Seq("-Wunused", "-target:jvm-17")
+scalacOptions ++= Seq("-Wunused", "-target:jvm-17", "-Ymacro-annotations")
 
 inThisBuild(
   List(
