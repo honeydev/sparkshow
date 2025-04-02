@@ -11,7 +11,6 @@ import sparkshow.web.data.{CreateQueryResponse, QueryRequestBody}
 import sparkshow.services.{QueryService, UserService}
 
 class QueryRoutes(
-    val userService: UserService,
     val queryService: QueryService,
     val conf: AppConf
 ) {
@@ -26,7 +25,7 @@ class QueryRoutes(
                 .flatMap(request =>
                     for {
                         query    <- queryService.createQuery(request, user)
-                        response <- Ok(CreateQueryResponse(query).asJson)
+                        response <- Ok(CreateQueryResponse.fromQuery(query).asJson)
                     } yield response
                 )
         }

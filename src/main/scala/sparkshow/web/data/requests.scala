@@ -1,10 +1,14 @@
 package sparkshow.web.data
 
+import cats.data.EitherT
 import cats.effect.IO
+import io.circe.{Decoder, HCursor}
 import io.circe.generic.auto._
-import org.http4s.EntityDecoder
-import org.http4s.circe.jsonOf
-import sparkshow.db.models.Aggregate
+import io.circe.parser._
+import io.circe.generic.semiauto.deriveDecoder
+import org.http4s.{DecodeFailure, EntityDecoder, EntityEncoder, HttpVersion, Media, MediaType, Response, Status}
+import org.http4s.circe._
+import sparkshow.db.models.{Aggregate, Column, NumericT, StringT}
 
 case class LoginRequestBody(
     username: String,
@@ -18,13 +22,61 @@ object LoginRequestBody {
 }
 
 case class QueryRequestBody(
-                            columns: List[String],
-                            grouped: List[String],
-                            aggregate: Aggregate,
-                            source_path: String
-                           )
+    columns: List[String],
+    grouped: List[String],
+    aggregate: Aggregate,
+    source_path: String
+)
 
 object QueryRequestBody {
     implicit val decoder: EntityDecoder[IO, QueryRequestBody] =
         jsonOf[IO, QueryRequestBody]
+}
+
+case class SourceRequestBody(
+    name: String,
+    path: String,
+    schema: List[Column]
+)
+
+object SourceRequestBody {
+
+    implicit val colDecoder = new Decoder[Column] {
+        final def apply(c: HCursor): Decoder.Result[Column] =
+            for {
+                name <- c.downField("name").as[String]
+                _type <- c.downField("type").as[String].map(_.toLowerCase).map {
+                    case "numeric" => NumericT
+                    case "string" => StringT
+                }
+            } yield {
+                Column(name, _type)
+            }
+        }
+
+    implicit val sourceDecoder = deriveDecoder[SourceRequestBody]
+
+    implicit val decoder = EntityDecoder.decodeBy[IO, SourceRequestBody](MediaType.application.json) {
+        media: Media[IO] =>
+            val sourceRequestBody = media.as[String].map { rawJson =>
+                for {
+                    parsedJson <- parse(rawJson)
+                    entity <- sourceDecoder.decodeJson(parsedJson)
+                } yield entity
+            }
+
+            EitherT[IO, io.circe.Error, SourceRequestBody](sourceRequestBody).leftMap {
+                v =>
+                    new DecodeFailure {
+
+                        override def message: String = v.getMessage
+
+                        override def cause: Option[Throwable] = Some(v.getCause)
+
+                        override def toHttpResponse[F[_]](httpVersion: HttpVersion): Response[F] =
+                            Response(Status.BadRequest, httpVersion)
+                                .withEntity("Json parse error")(EntityEncoder.stringEncoder[F])
+                    }
+            }
+    }
 }

@@ -13,7 +13,7 @@ import sparkshow.db.repositories.{QueryRepository, RoleRepository, UserRepositor
 import sparkshow.services.{AuthService, QueryService, UserService}
 import sparkshow.tasks.RunQueriesTask
 import sparkshow.utils.SparkSessionResource
-import sparkshow.web.routes.{AuthRoutes, JWTMiddleware, QueryRoutes, RoutesFacade}
+import sparkshow.web.routes.{AuthRoutes, JWTMiddleware, QueryRoutes, RoutesFacade, SourceRoutes}
 
 object AppPlugin extends PluginDef {
     include(modules.roles)
@@ -42,6 +42,7 @@ object AppPlugin extends PluginDef {
             make[AuthRoutes]
             make[UserService]
             make[QueryRoutes]
+            make[SourceRoutes]
             make[RoutesFacade]
             make[JWTMiddleware]
             make[RunQueriesTask]

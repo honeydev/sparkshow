@@ -11,6 +11,7 @@ import sparkshow.services.UserService
 class RoutesFacade(
     val authRoutes: AuthRoutes,
     val queryRoutes: QueryRoutes,
+    val sourceRoutes: SourceRoutes,
     val userService: UserService,
     val JWTMiddleware: JWTMiddleware,
     val conf: AppConf
@@ -18,7 +19,7 @@ class RoutesFacade(
 
     def build: Kleisli[OptionT[IO, *], Request[IO], Response[IO]] = {
         val appRoutes: Kleisli[OptionT[IO, *], Request[IO], Response[IO]] =
-            authRoutes.routes <+> JWTMiddleware.mw(queryRoutes.routes)
+            authRoutes.routes <+> JWTMiddleware.mw(queryRoutes.routes <+> sourceRoutes.routes)
 
         ErrorHandling.Recover.total(
           ErrorAction.log(

@@ -1,11 +1,8 @@
 package sparkshow.db.models
 
-import io.circe.generic.extras.{Configuration, ConfiguredJsonCodec}
-import io.circe.generic.extras.semiauto._
-import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
+import io.circe.{Decoder, Encoder}
 
-@ConfiguredJsonCodec
 case class Query(
     id: Long,
     userId: Long,
@@ -16,13 +13,6 @@ case class Query(
     sourcePath: String,
     retries: Int = 0
 )
-
-object Query {
-  implicit val customConfig: Configuration =
-    Configuration.default.withSnakeCaseMemberNames
-
-  implicit val queryEncoder: Encoder[Query] = deriveEncoder[Query]
-}
 
 sealed trait Function
 case object Sum extends Function {

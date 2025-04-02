@@ -23,10 +23,31 @@ object LoginResponse {
 }
 
 @ConfiguredJsonCodec
-case class CreateQueryResponse(query: Query)
+case class CreateQueryResponse(
+    id: Long,
+    userId: Long,
+    columns: List[String],
+    grouped: List[String],
+    aggregate: Aggregate,
+    state: String,
+    sourcePath: String,
+    retries: Int = 0
+)
 
 object CreateQueryResponse {
-
-    implicit val customConfig: Configuration = Configuration.default.withSnakeCaseMemberNames
     implicit val jsonEncoder: Encoder[CreateQueryResponse] = deriveEncoder
+    implicit val customConfig: Configuration =
+        Configuration.default.withSnakeCaseMemberNames
+
+    def fromQuery(query: Query): CreateQueryResponse =
+        CreateQueryResponse(
+          query.id,
+          query.userId,
+          query.columns,
+          query.grouped,
+          query.aggregate,
+          query.state,
+          query.sourcePath,
+          query.retries
+        )
 }
