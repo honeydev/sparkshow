@@ -11,10 +11,12 @@ import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import sparkshow.web.data.SourceRequestBody
 
 class SourceRepository(val transactor: Transactor[IO]) {
+    import sparkshow.db.models.Source._
 
-    implicit val meta: Meta[Schema] = new Meta[Column](pgDecoderGet, pgEncoderPut)
+    implicit val metaSchema: Meta[Schema] = new Meta[Schema](pgDecoderGet, pgEncoderPut)
+    implicit val meta: Meta[Source] = new Meta[Source](pgDecoderGet, pgEncoderPut)
 
-    def insertOne(name: String, path: String, schema: List[Column]) = {
+    def insertOne(name: String, path: String, schema: Schema) = {
         sql"""
             INSERT INTO sources (
                 name

@@ -40,28 +40,16 @@ case class SourceRequestBody(
 )
 
 object SourceRequestBody {
+    import sparkshow.db.models.Column.decoder
 
-    implicit val colDecoder = new Decoder[Column] {
-        final def apply(c: HCursor): Decoder.Result[Column] =
-            for {
-                name <- c.downField("name").as[String]
-                _type <- c.downField("type").as[String].map(_.toLowerCase).map {
-                    case "numeric" => NumericT
-                    case "string" => StringT
-                }
-            } yield {
-                Column(name, _type)
-            }
-        }
+    implicit val decoder = deriveDecoder[SourceRequestBody]
 
-    implicit val sourceDecoder = deriveDecoder[SourceRequestBody]
-
-    implicit val decoder = EntityDecoder.decodeBy[IO, SourceRequestBody](MediaType.application.json) {
+    implicit val entityDecoder = EntityDecoder.decodeBy[IO, SourceRequestBody](MediaType.application.json) {
         media: Media[IO] =>
             val sourceRequestBody = media.as[String].map { rawJson =>
                 for {
                     parsedJson <- parse(rawJson)
-                    entity <- sourceDecoder.decodeJson(parsedJson)
+                    entity <- decoder.decodeJson(parsedJson)
                 } yield entity
             }
 

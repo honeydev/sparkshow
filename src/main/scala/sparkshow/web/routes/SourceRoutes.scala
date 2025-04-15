@@ -13,7 +13,7 @@ class SourceRoutes(
                       val conf: AppConf
                   ) {
     private implicit val requestDecoder: EntityDecoder[IO, SourceRequestBody] =
-        SourceRequestBody.decoder
+        SourceRequestBody.entityDecoder
 
     val routes = AuthedRoutes
         .of[User, IO] { case authedRequest @ POST -> Root / "source" as user =>
