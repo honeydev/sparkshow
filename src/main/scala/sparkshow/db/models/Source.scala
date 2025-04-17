@@ -30,7 +30,7 @@ object Column {
                     "type",
                     Json.fromString(
                         a.`type` match {
-                            case NumericT => ""
+                            case NumericT => "numeric"
                             case StringT => "string"
                         }
                     )
@@ -38,7 +38,7 @@ object Column {
             )
     }
 }
-case class Source(id: Long, name: String,  path: String, schema: Schema)
+case class Source(id: Long, path: String, name: String, schema: Schema)
 object Source {
 
     type Schema = List[Column]

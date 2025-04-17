@@ -11,6 +11,7 @@ class QueryService(
 
     def createQuery(queryRequest: QueryRequestBody, user: User): IO[Query] = {
         queryRepository.insertOne(
+          queryRequest.resourceId,
           queryRequest.columns,
           queryRequest.grouped,
           queryRequest.aggregate,

@@ -11,7 +11,7 @@ import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import sparkshow.web.data.SourceRequestBody
 
 class SourceRepository(val transactor: Transactor[IO]) {
-    import sparkshow.db.models.Source._
+    import sparkshow.db.models.Source.{decoder, encoder}
 
     implicit val metaSchema: Meta[Schema] = new Meta[Schema](pgDecoderGet, pgEncoderPut)
     implicit val meta: Meta[Source] = new Meta[Source](pgDecoderGet, pgEncoderPut)
@@ -19,21 +19,20 @@ class SourceRepository(val transactor: Transactor[IO]) {
     def insertOne(name: String, path: String, schema: Schema) = {
         sql"""
             INSERT INTO sources (
-                name
-                , path
+                path
+                , name
                 , schema
              )
              VALUES (
-                $name
-                , $path
+                $path
+                , $name
                 , $schema
              )
            """
             .update
             .withUniqueGeneratedKeys[Source](
-              "id",
-              "name",
               "path",
+              "name",
               "schema"
             )
             .transact(transactor)

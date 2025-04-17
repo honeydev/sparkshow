@@ -31,6 +31,7 @@ class QueryRepository(val transactor: Transactor[IO]) {
             .transact(transactor)
 
     def insertOne(
+        resourceId: Long,
                    columns: List[String],
                    grouped: List[String],
                    aggregate: Aggregate,
@@ -44,6 +45,7 @@ class QueryRepository(val transactor: Transactor[IO]) {
                 , aggregate
                 , state
                 , source_path
+                , resource_id
                 , user_id
              )
              VALUES (
@@ -52,12 +54,14 @@ class QueryRepository(val transactor: Transactor[IO]) {
                 , $aggregate
                 , ${QueryState.`new`}::query_state
                 , $sourcePath
+                , $resourceId
                 , $ownerId
              )
            """.update
             .withUniqueGeneratedKeys[Query](
               "id",
               "user_id",
+              "resource_id",
               "columns",
               "grouped",
               "aggregate",

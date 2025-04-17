@@ -2,7 +2,8 @@ CREATE TYPE query_state AS ENUM ('new', 'running', 'finished', 'failed');
 
 CREATE TABLE sources (
   id SERIAL PRIMARY KEY,
-  path VARCHAR(255) NOT NULL,
+  path VARCHAR(2000) NOT NULL,
+  name VARCHAR(255) NOT NULL,
   schema jsonb NOT NULL
 );
 

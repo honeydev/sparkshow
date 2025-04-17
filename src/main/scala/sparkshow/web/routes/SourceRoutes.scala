@@ -5,13 +5,13 @@ import org.http4s.{AuthedRoutes, EntityDecoder}
 import org.http4s.dsl.io._
 import sparkshow.conf.AppConf
 import sparkshow.db.models.User
-import sparkshow.services.QueryService
+import sparkshow.services.{QueryService, SourceService}
 import sparkshow.web.data.{CreateQueryResponse, QueryRequestBody, SourceRequestBody}
 
 class SourceRoutes(
-                      val queryService: QueryService,
-                      val conf: AppConf
-                  ) {
+     val sourceService: SourceService,
+     val conf: AppConf) {
+
     private implicit val requestDecoder: EntityDecoder[IO, SourceRequestBody] =
         SourceRequestBody.entityDecoder
 
@@ -21,8 +21,8 @@ class SourceRoutes(
                 .as[SourceRequestBody]
                 .flatMap(request =>
                     for {
-//                        query    <- queryService.createQuery(request, user)
-                        response <- Ok("""{"success": true}""")
+                        source    <- sourceService.createSource(request)
+                        response  <- Ok(s"""{"success": ${source}}""")
                     } yield response
                 )
         }

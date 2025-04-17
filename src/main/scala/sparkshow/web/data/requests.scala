@@ -22,6 +22,7 @@ object LoginRequestBody {
 }
 
 case class QueryRequestBody(
+    resourceId: Long,
     columns: List[String],
     grouped: List[String],
     aggregate: Aggregate,

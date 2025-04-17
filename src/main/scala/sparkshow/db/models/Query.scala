@@ -6,6 +6,7 @@ import io.circe.{Decoder, Encoder}
 case class Query(
     id: Long,
     userId: Long,
+    resourceId: Long,
     columns: List[String],
     grouped: List[String],
     aggregate: Aggregate,
@@ -25,7 +26,7 @@ object Function {
 
   implicit val decoder: Decoder[Function] = Decoder.decodeString.emap {
     case "sum" => Right(Sum)
-    case "count" => Right(Sum)
+    case "count" => Right(Count)
     case unknownFunction => Left(s"Unrecognised aggregate function $unknownFunction")
   }
 
