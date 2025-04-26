@@ -16,7 +16,7 @@ class QueryRoutes(
 ) {
 
     private implicit val requestDecoder: EntityDecoder[IO, QueryRequestBody] =
-        QueryRequestBody.decoder
+        QueryRequestBody.entityDecoder
 
     val routes = AuthedRoutes
         .of[User, IO] { case authedRequest @ POST -> Root / "query" as user =>

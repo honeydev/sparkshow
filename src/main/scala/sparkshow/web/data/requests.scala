@@ -2,13 +2,14 @@ package sparkshow.web.data
 
 import cats.data.EitherT
 import cats.effect.IO
-import io.circe.{Decoder, HCursor}
+import io.circe.Decoder
 import io.circe.generic.auto._
-import io.circe.parser._
+import io.circe.generic.extras.{Configuration, ConfiguredJsonCodec}
 import io.circe.generic.semiauto.deriveDecoder
-import org.http4s.{DecodeFailure, EntityDecoder, EntityEncoder, HttpVersion, Media, MediaType, Response, Status}
+import io.circe.parser._
 import org.http4s.circe._
-import sparkshow.db.models.{Aggregate, Column, NumericT, StringT}
+import org.http4s.{DecodeFailure, EntityDecoder, EntityEncoder, HttpVersion, Media, MediaType, Response, Status}
+import sparkshow.db.models.{Aggregate, Column}
 
 case class LoginRequestBody(
     username: String,
@@ -21,17 +22,45 @@ object LoginRequestBody {
         jsonOf[IO, LoginRequestBody]
 }
 
+@ConfiguredJsonCodec
 case class QueryRequestBody(
-    resourceId: Long,
+    sourceId: Long,
     columns: List[String],
     grouped: List[String],
     aggregate: Aggregate,
-    source_path: String
 )
 
 object QueryRequestBody {
-    implicit val decoder: EntityDecoder[IO, QueryRequestBody] =
-        jsonOf[IO, QueryRequestBody]
+
+
+
+    // implicit val entityDecoder: EntityDecoder[IO, QueryRequestBody] =
+    //     jsonOf[IO, QueryRequestBody]
+
+    implicit val decoder: Decoder[QueryRequestBody] = deriveDecoder[QueryRequestBody]
+    implicit val customConfig: Configuration =
+        Configuration.default.withSnakeCaseMemberNames
+
+    implicit val entityDecoder = EntityDecoder.decodeBy[IO, QueryRequestBody](MediaType.application.json) {
+        media: Media[IO] =>
+
+           val queryRequestBody = media.as[String].map { rawJson =>
+               decode[QueryRequestBody](rawJson)
+           }
+           EitherT[IO, io.circe.Error, QueryRequestBody](queryRequestBody).leftMap {
+               v =>
+                   new DecodeFailure {
+
+                       override def message: String = v.getMessage
+
+                       override def cause: Option[Throwable] = Some(v.getCause)
+
+                       override def toHttpResponse[F[_]](httpVersion: HttpVersion): Response[F] =
+                           Response(Status.BadRequest, httpVersion)
+                               .withEntity("Json parse error")(EntityEncoder.stringEncoder[F])
+                   }
+           }
+    }
 }
 
 case class SourceRequestBody(
@@ -41,7 +70,6 @@ case class SourceRequestBody(
 )
 
 object SourceRequestBody {
-    import sparkshow.db.models.Column.decoder
 
     implicit val decoder = deriveDecoder[SourceRequestBody]
 

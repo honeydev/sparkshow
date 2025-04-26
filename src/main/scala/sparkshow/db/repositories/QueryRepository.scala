@@ -31,12 +31,11 @@ class QueryRepository(val transactor: Transactor[IO]) {
             .transact(transactor)
 
     def insertOne(
-        resourceId: Long,
-                   columns: List[String],
-                   grouped: List[String],
-                   aggregate: Aggregate,
-                   sourcePath: String,
-                   ownerId: Long
+                     sourceId: Long,
+                     columns: List[String],
+                     grouped: List[String],
+                     aggregate: Aggregate,
+                     ownerId: Long
                  ): IO[Query] = {
         sql"""
              INSERT INTO queries (
@@ -44,8 +43,7 @@ class QueryRepository(val transactor: Transactor[IO]) {
                 , grouped
                 , aggregate
                 , state
-                , source_path
-                , resource_id
+                , source_id
                 , user_id
              )
              VALUES (
@@ -53,20 +51,18 @@ class QueryRepository(val transactor: Transactor[IO]) {
                 , $grouped
                 , $aggregate
                 , ${QueryState.`new`}::query_state
-                , $sourcePath
-                , $resourceId
+                , $sourceId
                 , $ownerId
              )
            """.update
             .withUniqueGeneratedKeys[Query](
               "id",
               "user_id",
-              "resource_id",
+              "source_id",
               "columns",
               "grouped",
               "aggregate",
               "state",
-              "source_path",
               "retries",
               "created_at",
               "updated_at"

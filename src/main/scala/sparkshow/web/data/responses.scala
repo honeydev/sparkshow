@@ -26,11 +26,11 @@ object LoginResponse {
 case class CreateQueryResponse(
     id: Long,
     userId: Long,
+    sourceId: Long,
     columns: List[String],
     grouped: List[String],
     aggregate: Aggregate,
     state: String,
-    sourcePath: String,
     retries: Int = 0
 )
 
@@ -43,11 +43,11 @@ object CreateQueryResponse {
         CreateQueryResponse(
           query.id,
           query.userId,
+          query.sourceId,
           query.columns,
           query.grouped,
           query.aggregate,
           query.state,
-          query.sourcePath,
           query.retries
         )
 }

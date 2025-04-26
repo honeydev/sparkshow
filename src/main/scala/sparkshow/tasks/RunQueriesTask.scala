@@ -29,7 +29,8 @@ class RunQueriesTask(val queryRepository: QueryRepository, val sparkSession: Spa
                                         .read
                                         // TODO: configure header
                                         .option("header", "true")
-                                        .csv(q.sourcePath)
+                                        // FIXME: select path from sources table
+                                        .csv("test")
                                         .groupBy(q.grouped.map(col) :_*)
 
                                     q.aggregate.function match {

@@ -6,12 +6,11 @@ import io.circe.{Decoder, Encoder}
 case class Query(
     id: Long,
     userId: Long,
-    resourceId: Long,
+    sourceId: Long,
     columns: List[String],
     grouped: List[String],
     aggregate: Aggregate,
     state: String,
-    sourcePath: String,
     retries: Int = 0
 )
 

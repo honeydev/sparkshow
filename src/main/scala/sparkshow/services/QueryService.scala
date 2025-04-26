@@ -11,11 +11,10 @@ class QueryService(
 
     def createQuery(queryRequest: QueryRequestBody, user: User): IO[Query] = {
         queryRepository.insertOne(
-          queryRequest.resourceId,
+          queryRequest.sourceId,
           queryRequest.columns,
           queryRequest.grouped,
           queryRequest.aggregate,
-          queryRequest.source_path,
           user.id
         )
     }

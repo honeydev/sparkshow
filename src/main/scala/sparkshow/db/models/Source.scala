@@ -10,6 +10,8 @@ case object StringT extends Type
 
 case class Column(name: String, `type`: Type)
 object Column {
+
+
     implicit val decoder = new Decoder[Column] {
         final def apply(c: HCursor): Decoder.Result[Column] =
             for {
@@ -27,6 +29,10 @@ object Column {
         override def apply(a: Column): Json =
             Json.obj(
                 (
+                    "name",
+                    Json.fromString(a.name)
+                ),
+                (
                     "type",
                     Json.fromString(
                         a.`type` match {
@@ -38,7 +44,9 @@ object Column {
             )
     }
 }
-case class Source(id: Long, path: String, name: String, schema: Schema)
+case class Source(id: Long, path: String, name: String,
+                  schema: Schema
+                  )
 object Source {
 
     type Schema = List[Column]

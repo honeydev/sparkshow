@@ -2,7 +2,7 @@ CREATE TYPE query_state AS ENUM ('new', 'running', 'finished', 'failed');
 
 CREATE TABLE sources (
   id SERIAL PRIMARY KEY,
-  path VARCHAR(2000) NOT NULL,
+  path VARCHAR(255) NOT NULL,
   name VARCHAR(255) NOT NULL,
   schema jsonb NOT NULL
 );
@@ -15,7 +15,6 @@ CREATE TABLE queries (
   grouped jsonb NOT NULL,
   aggregate jsonb NOT NULL,
   state query_state NOT NULL,
-  source_path VARCHAR(255) NOT NULL,
   retries INTEGER NOT NULL DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
