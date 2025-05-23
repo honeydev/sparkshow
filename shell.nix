@@ -11,7 +11,7 @@ let
 
     buildInputs = [
       pkgs.jdk21
-      # pkgs.sbt
+      pkgs.sbt
       pkgs.coursier
       pkgs.metals
       pkgs.postgresql
