@@ -4,6 +4,7 @@ import cats.effect._
 import doobie.implicits._
 import doobie.util.transactor.Transactor
 import sparkshow.db.models.Role
+import doobie.implicits._
 
 class RoleRepository(implicit
     val transactor: Transactor[IO]

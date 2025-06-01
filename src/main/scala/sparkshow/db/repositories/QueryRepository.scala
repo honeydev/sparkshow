@@ -1,18 +1,22 @@
 package sparkshow.db.repositories
 
-import cats.effect._
+import cats.effect.IO
+import cats.implicits._
+import doobie.WeakAsync.doobieWeakAsyncForAsync
 import doobie.implicits._
 import doobie.postgres.circe.jsonb.implicits.{pgDecoderGet, pgEncoderPut}
 import doobie.util.meta.Meta
 import doobie.util.transactor.Transactor
-import sparkshow.db.models.{Aggregate, Query, QueryState}
-
+import sparkshow.db.models.{Aggregate, Query, QueryState, Source}
 
 class QueryRepository(val transactor: Transactor[IO]) {
     import Aggregate.{decoder, encoder}
+    import SourceRepository._
 
-    implicit val metaList: Meta[List[String]] = new Meta[List[String]](pgDecoderGet, pgEncoderPut)
-    implicit val meta: Meta[Aggregate] = new Meta[Aggregate](pgDecoderGet, pgEncoderPut)
+    implicit val metaList: Meta[List[String]] =
+        new Meta[List[String]](pgDecoderGet, pgEncoderPut)
+    implicit val meta: Meta[Aggregate] =
+        new Meta[Aggregate](pgDecoderGet, pgEncoderPut)
 
     def all: IO[List[Query]] = {
         sql"""SELECT * FROM queries"""
@@ -23,28 +27,36 @@ class QueryRepository(val transactor: Transactor[IO]) {
             .transact(transactor)
     }
 
-    def newQueries: IO[List[Query]] =
-        sql"""SELECT * FROM queries WHERE state = ${QueryState.`new`}::query_state"""
-            .query[Query]
+    def queries(st: List[String]): IO[List[(Query, Source)]] = {
+        val states = st.map(v => fr"$v::query_state").intercalate(fr",")
+        val selectClause = fr"""
+             SELECT * FROM queries
+             INNER JOIN sources
+             ON queries.source_id = sources.id
+            """
+        val whereClause = fr"WHERE state IN ($states)"
+        (selectClause ++ whereClause)
+            .query[(Query, Source)]
             .stream
             .compile
             .toList
             .transact(transactor)
+    }
 
     def insertOne(
-                   columns: List[String],
-                   grouped: List[String],
-                   aggregate: Aggregate,
-                   sourcePath: String,
-                   ownerId: Long
-                 ): IO[Query] = {
+        sourceId: Long,
+        columns: List[String],
+        grouped: List[String],
+        aggregate: Aggregate,
+        ownerId: Long
+    ): IO[Query] = {
         sql"""
              INSERT INTO queries (
                 columns
                 , grouped
                 , aggregate
                 , state
-                , source_path
+                , source_id
                 , user_id
              )
              VALUES (
@@ -52,22 +64,31 @@ class QueryRepository(val transactor: Transactor[IO]) {
                 , $grouped
                 , $aggregate
                 , ${QueryState.`new`}::query_state
-                , $sourcePath
+                , $sourceId
                 , $ownerId
              )
            """.update
             .withUniqueGeneratedKeys[Query](
               "id",
               "user_id",
+              "source_id",
               "columns",
               "grouped",
               "aggregate",
               "state",
-              "source_path",
               "retries",
               "created_at",
               "updated_at"
             )
             .transact(transactor)
     }
+
+    def update(state: QueryState, id: Long): IO[Int] = {
+        sql"""UPDATE queries SET state = ${state.toString}::query_state WHERE id = $id""".update.run
+            .transact(transactor)
+    }
+
+    def update(state: QueryState, retries: Int, id: Long): IO[Int] =
+        sql"""UPDATE queries SET state = ${state.toString}::query_state, retries = $retries WHERE id = $id""".update.run
+            .transact(transactor)
 }

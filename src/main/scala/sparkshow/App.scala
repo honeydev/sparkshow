@@ -38,23 +38,24 @@ object HttpServer {
                   .build
                   .map(HttpServer(_))
           }
-    )
+        )
 }
 
 class AppServiceRole(
     runQueriesTask: RunQueriesTask,
-                        @unused httpServer: HttpServer) extends RoleService[IO] {
+    @unused httpServer: HttpServer
+) extends RoleService[IO] {
 
     override def start(
         roleParameters: RawEntrypointParams,
         freeArgs: Vector[String]
     ): Lifecycle[IO, Unit] = {
         Lifecycle.liftF(
-            IO.println("Run tasks")
-                >>
-                runQueriesTask.run
-                >>
-            IO.println("Start server")
+          IO.println("Run tasks")
+              >>
+                  runQueriesTask.run
+                  >>
+                  IO.println("Start server")
         )
     }
 }

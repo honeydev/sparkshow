@@ -10,8 +10,8 @@ let
 #    ];
 
     buildInputs = [
-      pkgs.jdk21
-      # pkgs.sbt
+      pkgs.jdk17
+      pkgs.sbt
       pkgs.coursier
       pkgs.metals
       pkgs.postgresql

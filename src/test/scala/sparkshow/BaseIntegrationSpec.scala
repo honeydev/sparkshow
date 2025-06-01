@@ -32,6 +32,7 @@ final case class PostgresServerConfig(
 )
 
 trait BaseIntegrationSpec extends Spec1[IO] with AssertCIO {
+
     override def config: TestConfig = super.config.copy(
       moduleOverrides = new ModuleDef {
           include(DockerSupportModule[IO])

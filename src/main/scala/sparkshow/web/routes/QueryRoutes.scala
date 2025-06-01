@@ -11,13 +11,12 @@ import sparkshow.web.data.{CreateQueryResponse, QueryRequestBody}
 import sparkshow.services.{QueryService, UserService}
 
 class QueryRoutes(
-    val userService: UserService,
     val queryService: QueryService,
     val conf: AppConf
 ) {
 
     private implicit val requestDecoder: EntityDecoder[IO, QueryRequestBody] =
-        QueryRequestBody.decoder
+        QueryRequestBody.entityDecoder
 
     val routes = AuthedRoutes
         .of[User, IO] { case authedRequest @ POST -> Root / "query" as user =>
@@ -25,10 +24,11 @@ class QueryRoutes(
                 .as[QueryRequestBody]
                 .flatMap(request =>
                     for {
-                        query    <- queryService.createQuery(request, user)
-                        response <- Ok(CreateQueryResponse(query).asJson)
+                        query <- queryService.createQuery(request, user)
+                        response <- Ok(
+                          CreateQueryResponse.fromQuery(query).asJson
+                        )
                     } yield response
                 )
         }
 }
-
