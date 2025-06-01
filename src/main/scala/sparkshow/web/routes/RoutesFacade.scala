@@ -19,7 +19,9 @@ class RoutesFacade(
 
     def build: Kleisli[OptionT[IO, *], Request[IO], Response[IO]] = {
         val appRoutes: Kleisli[OptionT[IO, *], Request[IO], Response[IO]] =
-            authRoutes.routes <+> JWTMiddleware.mw(queryRoutes.routes <+> sourceRoutes.routes)
+            authRoutes.routes <+> JWTMiddleware.mw(
+              queryRoutes.routes <+> sourceRoutes.routes
+            )
 
         ErrorHandling.Recover.total(
           ErrorAction.log(

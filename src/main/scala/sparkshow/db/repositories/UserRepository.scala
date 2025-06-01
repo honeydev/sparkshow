@@ -39,8 +39,7 @@ class UserRepository(implicit val transactor: Transactor[IO]) {
         val createUser =
             sql"""
                  INSERT INTO users (username, email, password_hash)
-                 VALUES ($username, $email, $passwordHash)"""
-                .update
+                 VALUES ($username, $email, $passwordHash)""".update
                 .withUniqueGeneratedKeys[User](
                   "id",
                   "username",

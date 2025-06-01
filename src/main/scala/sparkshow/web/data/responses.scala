@@ -3,7 +3,8 @@ package sparkshow.web.data
 import io.circe._
 import io.circe.generic.extras.{Configuration, ConfiguredJsonCodec}
 import io.circe.generic.semiauto._
-import sparkshow.db.models.{Aggregate, Query, User}
+import sparkshow.db.models.Source.Schema
+import sparkshow.db.models.{Aggregate, Query, Source, User}
 
 case class InvalidResponse(status: String = "error", message: String)
 
@@ -49,5 +50,31 @@ object CreateQueryResponse {
           query.aggregate,
           query.state,
           query.retries
+        )
+}
+
+@ConfiguredJsonCodec
+case class CreateSourceResponse(
+    id: Long,
+    name: String,
+    path: String,
+    header: Boolean,
+    delimiter: Option[String],
+    schema: Schema
+)
+
+object CreateSourceResponse {
+    implicit val jsonEncoder: Encoder[CreateQueryResponse] = deriveEncoder
+    implicit val customConfig: Configuration =
+        Configuration.default.withSnakeCaseMemberNames
+
+    def fromSource(source: Source): CreateSourceResponse =
+        CreateSourceResponse(
+          source.id,
+          source.name,
+          source.path,
+          source.header,
+          source.delimiter,
+          source.schema
         )
 }

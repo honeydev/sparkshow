@@ -12,48 +12,66 @@ import org.postgresql.util.PGobject
 import sparkshow.db.models.Source.Schema
 import sparkshow.db.models.{Column, Source}
 
-class SourceRepository(val transactor: Transactor[IO]) {
+object SourceRepository {
     import sparkshow.db.models.Column.{encoder => colEncoder}
 
     implicit val showPGobject: Show[PGobject] = Show.show(_.getValue.take(250))
 
-    implicit val get: Get[Schema] = Get.Advanced.other[PGobject](NonEmptyList.of("json")).temap[Schema] { o =>
-        import io.circe.parser.decode
-        import sparkshow.db.models.Column.{decoder => colDecoder}
+    implicit val get: Get[Schema] =
+        Get.Advanced.other[PGobject](NonEmptyList.of("json")).temap[Schema] {
+            o =>
+                import io.circe.parser.decode
+                import sparkshow.db.models.Column.{decoder => colDecoder}
 
-        decode[List[Column]](o.getValue).leftMap { e =>
-            e.printStackTrace()
-            e.toString
+                decode[List[Column]](o.getValue).leftMap { e =>
+                    e.printStackTrace()
+                    e.toString
+                }
         }
-    }
-    implicit val put: Put[Schema] = Put.Advanced.other[PGobject](NonEmptyList.of("json")).tcontramap[Schema] { s =>
-        val o = new PGobject
-        o.setType("jsonb")
-        o.setValue(s.asJson.noSpaces)
-        o
-    }
+    implicit val put: Put[Schema] = Put.Advanced
+        .other[PGobject](NonEmptyList.of("json"))
+        .tcontramap[Schema] { s =>
+            val o = new PGobject
+            o.setType("jsonb")
+            o.setValue(s.asJson.noSpaces)
+            o
+        }
+}
 
-    def insertOne(name: String, path: String, schema: List[Column]): IO[Source] = {
+class SourceRepository(val transactor: Transactor[IO]) {
+    import SourceRepository._
+
+    def insertOne(
+        name: String,
+        path: String,
+        header: Boolean,
+        delimiter: Option[String],
+        schema: List[Column]
+    ): IO[Source] = {
         sql"""
             INSERT INTO sources (
                 path
                 , name
+                , header
+                , delimiter
                 , schema
              )
              VALUES (
                 $path
                 , $name
+                , $header
+                , $delimiter
                 , $schema
              )
-           """
-            .update
+           """.update
             .withUniqueGeneratedKeys[Source](
               "id",
               "path",
               "name",
+              "header",
+              "delimiter",
               "schema"
             )
             .transact(transactor)
     }
 }
-

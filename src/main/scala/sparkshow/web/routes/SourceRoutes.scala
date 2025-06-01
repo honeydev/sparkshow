@@ -1,16 +1,17 @@
 package sparkshow.web.routes
 
 import cats.effect.IO
-import org.http4s.{AuthedRoutes, EntityDecoder}
+import io.circe.syntax._
+import org.http4s.circe.CirceEntityCodec.circeEntityEncoder
 import org.http4s.dsl.io._
+import org.http4s.{AuthedRoutes, EntityDecoder}
 import sparkshow.conf.AppConf
 import sparkshow.db.models.User
-import sparkshow.services.{QueryService, SourceService}
-import sparkshow.web.data.{CreateQueryResponse, QueryRequestBody, SourceRequestBody}
+import sparkshow.services.SourceService
+import sparkshow.web.data.CreateSourceResponse._
+import sparkshow.web.data.{CreateSourceResponse, SourceRequestBody}
 
-class SourceRoutes(
-     val sourceService: SourceService,
-     val conf: AppConf) {
+class SourceRoutes(val sourceService: SourceService, val conf: AppConf) {
 
     private implicit val requestDecoder: EntityDecoder[IO, SourceRequestBody] =
         SourceRequestBody.entityDecoder
@@ -21,8 +22,10 @@ class SourceRoutes(
                 .as[SourceRequestBody]
                 .flatMap(request =>
                     for {
-                        source    <- sourceService.createSource(request)
-                        response  <- Ok(s"""{"success": ${source}}""")
+                        source <- sourceService.createSource(request)
+                        response <- Ok(
+                          CreateSourceResponse.fromSource(source).asJson
+                        )
                     } yield response
                 )
         }

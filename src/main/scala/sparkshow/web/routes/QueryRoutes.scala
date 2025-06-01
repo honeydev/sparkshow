@@ -24,10 +24,11 @@ class QueryRoutes(
                 .as[QueryRequestBody]
                 .flatMap(request =>
                     for {
-                        query    <- queryService.createQuery(request, user)
-                        response <- Ok(CreateQueryResponse.fromQuery(query).asJson)
+                        query <- queryService.createQuery(request, user)
+                        response <- Ok(
+                          CreateQueryResponse.fromQuery(query).asJson
+                        )
                     } yield response
                 )
         }
 }
-

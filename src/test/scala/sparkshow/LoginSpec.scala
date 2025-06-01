@@ -11,11 +11,14 @@ import sparkshow.web.data.LoginResponse
 import sparkshow.web.routes.RoutesFacade
 import io.circe.generic.semiauto.deriveDecoder
 
-class LoginTestSpec extends BaseIntegrationSpec {
+class LoginSpec extends BaseIntegrationSpec {
 
-  case class ResponseUser(id: Long, username: String, email: String)
-  case class LoginResponseTest(status: String, user: ResponseUser, token: String)
-
+    case class ResponseUser(id: Long, username: String, email: String)
+    case class LoginResponseTest(
+        status: String,
+        user: ResponseUser,
+        token: String
+    )
 
     private implicit val decoder: EntityDecoder[IO, LoginResponseTest] =
         jsonOf[IO, LoginResponseTest]

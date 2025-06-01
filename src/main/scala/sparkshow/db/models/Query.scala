@@ -11,25 +11,29 @@ case class Query(
     grouped: List[String],
     aggregate: Aggregate,
     state: String,
-    retries: Int = 0
+    retries: Int = 0,
+    createdAt: String,
+    updatedAt: String
 )
 
 sealed trait Function
 case object Sum extends Function {
-  override def toString = "sum"
+    override def toString = "sum"
 }
 case object Count extends Function {
-  override def toString = "count"
+    override def toString = "count"
 }
 object Function {
 
-  implicit val decoder: Decoder[Function] = Decoder.decodeString.emap {
-    case "sum" => Right(Sum)
-    case "count" => Right(Count)
-    case unknownFunction => Left(s"Unrecognised aggregate function $unknownFunction")
-  }
+    implicit val decoder: Decoder[Function] = Decoder.decodeString.emap {
+        case "sum"   => Right(Sum)
+        case "count" => Right(Count)
+        case unknownFunction =>
+            Left(s"Unrecognised aggregate function $unknownFunction")
+    }
 
-  implicit val encoder: Encoder[Function] = Encoder.encodeString.contramap(_.toString)
+    implicit val encoder: Encoder[Function] =
+        Encoder.encodeString.contramap(_.toString)
 }
 
 case class Aggregate(column: String, function: Function)
@@ -42,12 +46,23 @@ object Aggregate {
 sealed trait QueryState
 
 object QueryState {
-    def `new` = NEW.toString
+    def `new`                  = New.toString
+    def `failed`: String       = Failed.toString
+    def `waitingRetry`: String = WaitingRetry.toString
 }
 
-object NEW extends QueryState {
+object New extends QueryState {
     override def toString: String = "new"
 }
-object RUNNING extends QueryState
-object FINISHED extends QueryState
-object FAILED extends QueryState
+
+object Failed extends QueryState {
+    override def toString: String = "failed"
+}
+
+object WaitingRetry extends QueryState {
+    override def toString: String = "waiting_retry"
+}
+
+object Running extends QueryState {
+    override def toString: String = "running"
+}

@@ -1,9 +1,11 @@
-CREATE TYPE query_state AS ENUM ('new', 'running', 'finished', 'failed');
+CREATE TYPE query_state AS ENUM ('new', 'running', 'waiting_retry', 'finished', 'failed');
 
 CREATE TABLE sources (
   id SERIAL PRIMARY KEY,
   path VARCHAR(255) NOT NULL,
   name VARCHAR(255) NOT NULL,
+  header BOOLEAN,
+  delimiter CHAR(1),
   schema jsonb NOT NULL
 );
 
@@ -12,7 +14,7 @@ CREATE TABLE queries (
   user_id INT NOT NULL,
   source_id INT NOT NULL ,
   columns jsonb NOT NULL,
-  grouped jsonb NOT NULL,
+  grouped jsonb,
   aggregate jsonb NOT NULL,
   state query_state NOT NULL,
   retries INTEGER NOT NULL DEFAULT 0,

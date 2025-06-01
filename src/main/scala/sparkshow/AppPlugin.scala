@@ -9,11 +9,27 @@ import org.apache.spark.sql.SparkSession
 import sparkshow.commands.{CreateUserTask, MigrateTask}
 import sparkshow.conf.AppConf
 import sparkshow.db.PGTransactorResource
-import sparkshow.db.repositories.{QueryRepository, RoleRepository, SourceRepository, UserRepository}
-import sparkshow.services.{AuthService, QueryService, SourceService, UserService}
+import sparkshow.db.repositories.{
+    QueryRepository,
+    RoleRepository,
+    SourceRepository,
+    UserRepository
+}
+import sparkshow.services.{
+    AuthService,
+    QueryService,
+    SourceService,
+    UserService
+}
 import sparkshow.tasks.RunQueriesTask
 import sparkshow.utils.SparkSessionResource
-import sparkshow.web.routes.{AuthRoutes, JWTMiddleware, QueryRoutes, RoutesFacade, SourceRoutes}
+import sparkshow.web.routes.{
+    AuthRoutes,
+    JWTMiddleware,
+    QueryRoutes,
+    RoutesFacade,
+    SourceRoutes
+}
 
 object AppPlugin extends PluginDef {
     include(modules.roles)
