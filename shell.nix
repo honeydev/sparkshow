@@ -9,12 +9,12 @@ let
 #      pkgs.ninja
 #    ];
 
-    buildInputs = [
-      pkgs.jdk17
-      pkgs.sbt
-      pkgs.coursier
-      pkgs.metals
-      pkgs.postgresql
+    buildInputs = with pkgs; [
+      jdk17
+      sbt
+      coursier
+      metals
+      postgresql
     ];
 
     shellHook = ''

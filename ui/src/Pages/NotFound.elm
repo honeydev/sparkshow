@@ -1,4 +1,4 @@
-module NotFound exposing (..)
+module Pages.NotFound exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)

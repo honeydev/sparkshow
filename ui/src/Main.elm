@@ -5,11 +5,13 @@ import Browser.Navigation as Nav
 import Components.Navbar as Navbar
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onClick)
-import IndexPage exposing (..)
-import Json.Encode as Encode exposing (Value)
-import Login as LoginPage
-import NotFound exposing (..)
+import Pages.Index as IndexPage
+import Pages.Login as LoginPage
+import Models.Login
+import Models.Model exposing (Model)
+import Models.PageModel exposing (PageModel(..))
+import Models.Login as LoginModel
+import Pages.NotFound as NotFound
 import Route exposing (Route)
 import Session exposing (..)
 import Url
@@ -30,35 +32,21 @@ main =
         , onUrlRequest = LinkClicked
         }
 
-
-
 -- MODEL
-
-
-type Page
-    = IndexPage IndexPage.Model
-    | LoginPage LoginPage.Model
-    | NotFoundPage
-
-
-type alias Model =
-    { pageModel : Page
-    , route : Route
-    , navKey : Nav.Key
-    }
-
 
 getSession : Model -> Session
 getSession model =
     case model.pageModel of
-        IndexPage m ->
+        IndexPageModel m ->
             m.session
 
-        NotFoundPage ->
+        NotFoundPageModel ->
             Unauthenticated
 
-        LoginPage m ->
+        LoginPageModel m ->
             m.session
+
+
 
 
 init : Maybe String -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
@@ -74,18 +62,18 @@ init flags url key =
         page =
             case route of
                 Route.Index ->
-                    IndexPage { session = Unauthenticated }
+                    IndexPageModel { session = Unauthenticated }
 
                 Route.Login ->
-                    LoginPage.init Unauthenticated |> LoginPage
+                    LoginModel.init Unauthenticated |> LoginPageModel
 
                 Route.NotFound ->
-                    NotFoundPage
+                    NotFoundPageModel
 
         _ =
             Debug.toString page |> Debug.log "Page"
     in
-    ( { pageModel = page, route = route, navKey = key }
+    ( { pageModel = page, route = route, navKey = key, session = Unauthenticated }
     , store
     )
 
@@ -102,17 +90,17 @@ type Msg
 
 authHook msg model =
     case model of
-        IndexPage session ->
+        IndexPageModel session ->
             case session of
                 --Unauthenticated ->
                 --    LoginMessage LoginPage.PageOpened
                 _ ->
                     msg
 
-        NotFoundPage ->
+        NotFoundPageModel ->
             msg
 
-        LoginPage subpageModel ->
+        LoginPageModel subpageModel ->
             msg
 
 
@@ -134,18 +122,19 @@ update msg model =
                 page =
                     case route of
                         Route.Index ->
-                            IndexPage { session = Unauthenticated }
+                            IndexPageModel
+                             { session = Unauthenticated }
 
                         Route.Login ->
-                            LoginPage.init Unauthenticated |> LoginPage
+                            LoginModel.init Unauthenticated |> LoginPageModel
 
                         Route.NotFound ->
-                            NotFoundPage
+                            NotFoundPageModel
 
                 _ =
                     Debug.toString page |> Debug.log "Page"
             in
-            ( { pageModel = page, route = route, navKey = model.navKey }, Cmd.none )
+            ( { model |  pageModel = page, route = route }, Cmd.none )
 
         LinkClicked urlRequest ->
             case urlRequest of
@@ -157,10 +146,15 @@ update msg model =
 
         LoginMessage subMsg ->
             let
+                mod = case model.pageModel of
+                    LoginPageModel mold -> mold
+                    _ -> LoginModel.init (getSession model)
+
                 ( m, cmd ) =
-                    LoginPage.update subMsg (LoginPage.init (getSession model))
+                    -- LoginPage.update subMsg (LoginPage.init (getSession model))
+                    LoginPage.update subMsg model mod
             in
-            ( { pageModel = LoginPage m, route = Route.Login, navKey = model.navKey }
+            ( { model | pageModel = LoginPageModel m, route = Route.Login, navKey = model.navKey }
             , Cmd.map LoginMessage cmd
             )
 
@@ -186,18 +180,19 @@ view model =
             [ Navbar.build
                 [ Navbar.Link "Query" "query"
                 , Navbar.Link "Profile" "profile"
-                , Navbar.Link "Sign out" "sign-out"
-                , Navbar.Link "Login" "login"
+                , case model.session of
+                    Unauthenticated -> Navbar.Link "Login" "login"
+                    Active _        -> Navbar.Link "Sign out" "sign-out"
                 ]
             ]
         , case model.pageModel of
-            LoginPage m ->
+            LoginPageModel m ->
                 Html.map LoginMessage (LoginPage.view m)
 
-            NotFoundPage ->
+            NotFoundPageModel ->
                 NotFound.view
 
-            IndexPage m ->
+            IndexPageModel m ->
                 IndexPage.view m
         ]
     }

@@ -1,14 +1,11 @@
-module IndexPage exposing (..)
+module Pages.Index exposing (..)
 
 import Html exposing (..)
-import Html.Attributes exposing (..)
 import Session exposing (..)
 
-
-type alias Model =
+type alias PageModel =
     { session : Session
     }
-
 
 view model =
     div [] [ text "Index" ]

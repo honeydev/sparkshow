@@ -1,31 +1,13 @@
-module Login exposing (..)
+module Pages.Login exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
 import Json.Decode exposing (Decoder, field, map2, string)
-import Session exposing (..)
-import Url
-
-
-type alias Model =
-    { username : String
-    , password : String
-    , session : Session
-    }
-
-
-type alias Form =
-    { username : String
-    , password : String
-    }
-
-
-init : Session -> Model
-init s =
-    { username = "", password = "", session = s }
-
+import Json.Encode as Encode
+import Models.Login exposing (PageModel)
+import Models.Model exposing (Model)
 
 type Msg
     = ChangeUsername String
@@ -34,17 +16,24 @@ type Msg
     | PageOpened
     | GetResult (Result Http.Error Response)
 
-
 type alias Response =
     { status : String
     , token : String
     }
 
+encodeReq : PageModel -> Encode.Value
+encodeReq model =
+    Encode.object
+            [ ( "username", Encode.string model.username )
+            , ( "password", Encode.string model.password )
+            ]
 
-sendForm : Cmd Msg
-sendForm =
-    Http.get
-        { url = "/api/v1/auth"
+
+sendForm : PageModel -> Cmd Msg
+sendForm model =
+    Http.post
+        { url = "localhost:8085/login"
+        , body = Http.jsonBody <| encodeReq model
         , expect = Http.expectJson GetResult formDecoder
         }
 
@@ -56,27 +45,31 @@ formDecoder =
         (field "token" string)
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update : Msg -> Model -> PageModel -> ( PageModel, Cmd Msg )
+update msg model pageModel =
+
+       let
+           _ = Debug.toString model |> Debug.log "Login action"
+       in
     case msg of
         ChangeUsername username ->
-            ( { model | username = username }
+            ( { pageModel | username = username }
             , Cmd.none
             )
 
         ChangePassword password ->
-            ( { model | password = password }
+            ( { pageModel | password = password }
             , Cmd.none
             )
 
         SendForm ->
-            ( model, sendForm )
+            ( pageModel, sendForm pageModel)
 
         PageOpened ->
-            ( model, Cmd.none )
+            ( pageModel, Cmd.none )
 
         GetResult response ->
-            ( model, Cmd.none )
+            ( pageModel, Cmd.none )
 
 
 view model =
@@ -87,4 +80,3 @@ view model =
         , input [ type_ "password", value model.password, onInput ChangePassword ] []
         , button [ onClick SendForm ] [ text <| Debug.toString model ]
         ]
-
