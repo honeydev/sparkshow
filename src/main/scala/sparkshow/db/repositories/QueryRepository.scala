@@ -8,6 +8,7 @@ import doobie.postgres.circe.jsonb.implicits.{pgDecoderGet, pgEncoderPut}
 import doobie.util.meta.Meta
 import doobie.util.transactor.Transactor
 import sparkshow.db.models.{Aggregate, Query, QueryState, Source}
+import doobie.util.fragments.whereAndOpt
 
 class QueryRepository(val transactor: Transactor[IO]) {
     import Aggregate.{decoder, encoder}
@@ -34,7 +35,8 @@ class QueryRepository(val transactor: Transactor[IO]) {
              INNER JOIN sources
              ON queries.source_id = sources.id
             """
-        val whereClause = fr"WHERE state IN ($states)"
+        val stateCl     = fr"state IN ($states)"
+        val whereClause = whereAndOpt(Some(stateCl), Some(stateCl))
         (selectClause ++ whereClause)
             .query[(Query, Source)]
             .stream

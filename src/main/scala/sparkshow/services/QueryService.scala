@@ -18,4 +18,6 @@ class QueryService(
           user.id
         )
     }
+
+    def queries = {}
 }

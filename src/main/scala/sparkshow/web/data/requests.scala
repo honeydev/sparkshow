@@ -41,11 +41,9 @@ case class QueryRequestBody(
 
 object QueryRequestBody {
 
-    // implicit val entityDecoder: EntityDecoder[IO, QueryRequestBody] =
-    //     jsonOf[IO, QueryRequestBody]
-
     implicit val decoder: Decoder[QueryRequestBody] =
         deriveDecoder[QueryRequestBody]
+
     implicit val customConfig: Configuration =
         Configuration.default.withSnakeCaseMemberNames
 

@@ -5,7 +5,7 @@ import Browser.Navigation as Nav
 import Components.Navbar as Navbar
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onClick)
+import Html.Events
 import IndexPage exposing (..)
 import Json.Encode as Encode exposing (Value)
 import Login as LoginPage
@@ -100,6 +100,7 @@ type Msg
     | LoginMessage LoginPage.Msg
 
 
+authHook : a -> Page -> a
 authHook msg model =
     case model of
         IndexPage session ->

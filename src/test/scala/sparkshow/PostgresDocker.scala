@@ -8,8 +8,8 @@ object PostgresDocker extends ContainerDef {
     override def config: Config = {
         Config(
           registry = Some("mirror.gcr.io"),
-          image = "postgres:14",
-          ports = Seq(primaryPort),
+          image    = "postgres:14",
+          ports    = Seq(primaryPort),
           env = Map(
             "POSTGRES_USER"     -> "test",
             "POSTGRES_PASSWORD" -> "test",
