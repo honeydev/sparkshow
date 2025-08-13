@@ -10,7 +10,7 @@ import org.http4s.ember.server._
 import org.http4s.implicits._
 import org.http4s.server.Server
 import sparkshow.tasks.RunQueriesTask
-import sparkshow.web.routes.RoutesFacade
+import sparkshow.web.routes.{RoutesFacade, WSRoutes}
 
 import scala.annotation.unused
 import scala.concurrent.duration._
@@ -34,7 +34,7 @@ object HttpServer {
                   .withPort(
                     port"8085"
                   )
-                  .withHttpApp(routesFacade.build.orNotFound)
+                  .withHttpWebSocketApp(ws => routesFacade.build(ws).orNotFound)
                   .build
                   .map(HttpServer(_))
           }

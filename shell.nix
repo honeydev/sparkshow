@@ -15,6 +15,10 @@ let
       pkgs.coursier
       pkgs.metals
       pkgs.postgresql
+#      pkgs.elmPackages.elm-language-server
+#      pkgs.elmPackages.elm
+#      pkgs.elmPackages.elm-live
+#      pkgs.elmPackages.elm-format
     ];
 
     shellHook = ''

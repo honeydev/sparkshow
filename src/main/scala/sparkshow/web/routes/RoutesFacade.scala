@@ -4,6 +4,7 @@ import cats.data.{Kleisli, OptionT}
 import cats.effect.IO
 import cats.implicits._
 import org.http4s.server.middleware.{ErrorAction, ErrorHandling}
+import org.http4s.server.websocket.WebSocketBuilder2
 import org.http4s.{Request, Response}
 import sparkshow.conf.AppConf
 import sparkshow.services.UserService
@@ -14,13 +15,16 @@ class RoutesFacade(
     val sourceRoutes: SourceRoutes,
     val userService: UserService,
     val JWTMiddleware: JWTMiddleware,
+    val wsRoutes: WSRoutes,
     val conf: AppConf
 ) {
 
-    def build: Kleisli[OptionT[IO, *], Request[IO], Response[IO]] = {
+    def build(
+        ws: WebSocketBuilder2[IO]
+    ): Kleisli[OptionT[IO, *], Request[IO], Response[IO]] = {
         val appRoutes: Kleisli[OptionT[IO, *], Request[IO], Response[IO]] =
             authRoutes.routes <+> JWTMiddleware.mw(
-              queryRoutes.routes <+> sourceRoutes.routes
+              queryRoutes.routes <+> sourceRoutes.routes <+> wsRoutes.routes(ws)
             )
 
         ErrorHandling.Recover.total(

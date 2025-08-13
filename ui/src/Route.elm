@@ -10,6 +10,7 @@ type Route
     | Index
 
 
+parseUrl : Url -> Route
 parseUrl url =
     case parse matchRoute url of
         Just route ->

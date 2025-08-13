@@ -3,7 +3,6 @@ package sparkshow.tasks
 import cats.effect.IO
 import cats.effect.std.Queue
 import cats.syntax.all._
-import doobie.enumerated.JdbcType.Struct
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.{
@@ -12,26 +11,14 @@ import org.apache.spark.sql.types.{
     StructField,
     StructType
 }
-import org.scalactic.anyvals.NonEmptyList
-import sparkshow.db.models.{
-    Count,
-    Failed,
-    New,
-    NumericT,
-    Query,
-    QueryState,
-    Running,
-    Source,
-    StringT,
-    Sum,
-    WaitingRetry
-}
-import sparkshow.db.repositories.QueryRepository
+import sparkshow.db.models._
+import sparkshow.db.repositories.{MetricRepository, QueryRepository}
 
 import scala.concurrent.duration._
 
 class RunQueriesTask(
     val queryRepository: QueryRepository,
+    val metricRepository: MetricRepository,
     val sparkSession: SparkSession
 ) {
 
@@ -40,6 +27,7 @@ class RunQueriesTask(
             val nextQ = {
                 for {
                     q <- queue
+                    // FIXME take only not enqueued queries from db!
                     queries <- queryRepository.queries(
                       List(New.toString, WaitingRetry.toString)
                     )
@@ -63,26 +51,54 @@ class RunQueriesTask(
                                         .option("header", "true")
                                         .option("delimiter", ";")
                                         .schema(schema)
+                                        // TODO impl diff file sources.
                                         .csv(s.path)
 
                                     val grouped =
                                         df.groupBy(q.grouped.map(col): _*)
 
-                                    val result = q.aggregate.function match {
-                                        case Sum =>
-                                            grouped.sum(q.aggregate.column)
-                                        case Count =>
-                                            grouped.agg(
-                                              count(col(q.aggregate.column))
+                                    val aggregated =
+                                        (q.aggregate.function match {
+                                            case Sum =>
+                                                grouped.agg(
+                                                  sum(q.aggregate.column)
+                                                      .alias(q.aggregate.column)
+                                                )
+                                            case Count =>
+                                                grouped.agg(
+                                                  count(
+                                                    col(q.aggregate.column)
+                                                        .alias(
+                                                          q.aggregate.column
+                                                        )
+                                                  )
+                                                )
+                                        })
+
+                                    aggregated
+                                        .collect()
+                                        .map(r =>
+                                            Metric.Value(
+                                              label = q.grouped.mkString(", "),
+                                              name = q.grouped
+                                                  .map(r.getAs[String](_))
+                                                  .mkString(", "),
+                                              value = r.getAs[Long](
+                                                q.aggregate.column
+                                              )
                                             )
-                                    }
-                                    // TODO: write as metric in separate table
-                                    result.show()
+                                        )
+                                        .toList
                                 }
 
                                 val res = for {
                                     _ <- queryRepository.update(Running, q.id)
-                                    _ <- calculate
+                                    metricData <- calculate
+                                    m <- metricRepository.insertOne(
+                                      q.id,
+                                      metricData
+                                    )
+                                    _ <- IO.println("Metric id: ", m)
                                     _ <- queryRepository.update(
                                       WaitingRetry,
                                       retries = 0,
@@ -93,6 +109,7 @@ class RunQueriesTask(
                                 res.handleErrorWith { e =>
                                     for {
                                         _ <-
+                                            // TODO Move to const
                                             if (q.retries > 3) {
                                                 queryRepository.update(
                                                   Failed,
