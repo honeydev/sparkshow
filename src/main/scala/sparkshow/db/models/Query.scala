@@ -49,6 +49,7 @@ object QueryState {
     def `new`                  = New.toString
     def `failed`: String       = Failed.toString
     def `waitingRetry`: String = WaitingRetry.toString
+    def `enqueued`: String     = Enqueued.toString
 }
 
 object New extends QueryState {
@@ -65,4 +66,10 @@ object WaitingRetry extends QueryState {
 
 object Running extends QueryState {
     override def toString: String = "running"
+}
+
+object Enqueued extends QueryState {
+
+    override def toString: String = "enqueued"
+
 }

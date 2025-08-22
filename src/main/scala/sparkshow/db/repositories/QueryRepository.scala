@@ -10,7 +10,7 @@ import doobie.util.transactor.Transactor
 import sparkshow.db.models.{Aggregate, Query, QueryState, Source}
 import doobie.util.fragments.whereAndOpt
 
-class QueryRepository(val transactor: Transactor[IO]) {
+class QueryRepository(val transactor: Transactor[IO]) extends SQLOps {
     import Aggregate.{decoder, encoder}
     import SourceRepository._
 
@@ -87,6 +87,12 @@ class QueryRepository(val transactor: Transactor[IO]) {
 
     def update(state: QueryState, id: Long): IO[Int] = {
         sql"""UPDATE queries SET state = ${state.toString}::query_state WHERE id = $id""".update.run
+            .transact(transactor)
+    }
+
+    def update(state: QueryState, ids: List[Long]): IO[Int] = {
+        val idsFr = longInClause(ids)
+        sql"""UPDATE queries SET state = ${state.toString}::query_state WHERE id IN $idsFr""".update.run
             .transact(transactor)
     }
 

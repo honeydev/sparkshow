@@ -19,5 +19,4 @@ class QueryService(
         )
     }
 
-    def queries = {}
 }
