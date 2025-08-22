@@ -1,4 +1,5 @@
-CREATE TYPE query_state AS ENUM ('new', 'running', 'waiting_retry', 'finished', 'failed');
+CREATE TYPE query_state AS ENUM ('new', 'running', 'enqueued', 'waiting_retry', 'finished',
+    'failed');
 
 CREATE TABLE sources (
   id SERIAL PRIMARY KEY,

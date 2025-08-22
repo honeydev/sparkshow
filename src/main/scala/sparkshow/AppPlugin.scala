@@ -33,6 +33,7 @@ import sparkshow.web.routes.{
     WSRoutes
 }
 import sparkshow.services.MetricService
+import sparkshow.services.QueryQueueService
 
 object AppPlugin extends PluginDef {
     include(modules.roles)
@@ -69,6 +70,7 @@ object AppPlugin extends PluginDef {
             make[RoutesFacade]
             make[JWTMiddleware]
             make[RunQueriesTask]
+            make[QueryQueueService]
             make[WSRoutes]
             make[HttpServer].fromResource[HttpServer.Impl]
             makeRole[AppServiceRole]
