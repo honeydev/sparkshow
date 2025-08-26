@@ -32,10 +32,10 @@ class LocalSparkMetricCalcService(
                 })
 
             val df = sparkSession.read
-                .option("header", "true")
-                .option("delimiter", ";")
+                .option("header", s"${source.header}")
+                .option("delimiter", source.delimiter.getOrElse(""))
                 .schema(schema)
-                // TODO impl diff file sources.
+                // TODO impl diff file sources json, parquet, etc.
                 .csv(source.path)
 
             val grouped =

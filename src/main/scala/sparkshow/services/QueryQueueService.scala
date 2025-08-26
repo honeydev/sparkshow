@@ -1,5 +1,4 @@
 package sparkshow.services
-
 import scala.concurrent.duration._
 
 import cats.effect._
@@ -14,6 +13,7 @@ import sparkshow.db.models.Source
 import sparkshow.db.models.WaitingRetry
 import sparkshow.db.repositories.MetricRepository
 import sparkshow.db.repositories.QueryRepository
+import cats.data.NonEmptyList
 
 class QueryQueueService(
     private val queryRepository: QueryRepository,
@@ -21,20 +21,32 @@ class QueryQueueService(
     private val localSparkMetricCalcService: LocalSparkMetricCalcService
 ) {
 
+  private final val MaxRetries = 3
+
     def produceQueries(queue: Queue[IO, (Query, Source)]) = {
-        val enqueueQueries = for {
+        val enqueue = for {
             queries <- queryRepository.queries(
               List(New.toString, WaitingRetry.toString)
             )
-            _ <- queryRepository.update(
-              Enqueued,
-              queries.map { case (q, _) => q.id }
-            )
-            _  <- IO.println(s"Enqueued: $queries")
-            zs <- queries.traverse_(q => queue.offer(q))
-        } yield (zs)
+            _ <- NonEmptyList
+                .fromList(queries)
+                .map { nonEmptyQueries =>
+                    nonEmptyQueries.map { case (q, _) =>
+                        q.id
+                    }
+                }
+                .map { qIds => queryRepository.update(Enqueued, qIds) }
+                .getOrElse(IO.pure(List()))
 
-        enqueueQueries >> IO.sleep(20.second)
+            enqueueQueries <-
+                if (queries.isEmpty) {
+                  IO.println("Nothing to enqueue, queue is empty")
+                } else {
+                    IO.println(s"Enqueued: $queries") >> queries.traverse_(q =>
+                        queue.offer(q)
+                    )                }
+        } yield (enqueueQueries)
+        enqueue >> IO.sleep(20.seconds)
     }
 
     def handleQueries(queue: Queue[IO, (Query, Source)]): IO[List[Unit]] = {
@@ -51,7 +63,8 @@ class QueryQueueService(
                           q.id,
                           metricData
                         )
-                        _ <- IO.println("Metric id: ", m)
+                        _ <- IO.println(
+                          "Metric id: ", m)
                         _ <- queryRepository.update(
                           WaitingRetry,
                           retries = 0,
@@ -60,8 +73,7 @@ class QueryQueueService(
                     } yield ()).handleErrorWith { e =>
                         for {
                             _ <-
-                                // TODO Move to const
-                                if (q.retries > 3) {
+                                if (q.retries > MaxRetries) {
                                     queryRepository.update(
                                       Failed,
                                       q.id

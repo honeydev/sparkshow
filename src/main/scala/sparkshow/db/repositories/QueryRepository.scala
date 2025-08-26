@@ -9,6 +9,7 @@ import doobie.util.meta.Meta
 import doobie.util.transactor.Transactor
 import sparkshow.db.models.{Aggregate, Query, QueryState, Source}
 import doobie.util.fragments.whereAndOpt
+import cats.data.NonEmptyList
 
 class QueryRepository(val transactor: Transactor[IO]) extends SQLOps {
     import Aggregate.{decoder, encoder}
@@ -90,7 +91,7 @@ class QueryRepository(val transactor: Transactor[IO]) extends SQLOps {
             .transact(transactor)
     }
 
-    def update(state: QueryState, ids: List[Long]): IO[Int] = {
+    def update(state: QueryState, ids: NonEmptyList[Long]): IO[Int] = {
         val idsFr = longInClause(ids)
         sql"""UPDATE queries SET state = ${state.toString}::query_state WHERE id IN $idsFr""".update.run
             .transact(transactor)
