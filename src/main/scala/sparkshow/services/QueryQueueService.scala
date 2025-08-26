@@ -21,7 +21,7 @@ class QueryQueueService(
     private val localSparkMetricCalcService: LocalSparkMetricCalcService
 ) {
 
-  private final val MaxRetries = 3
+    private final val MaxRetries = 3
 
     def produceQueries(queue: Queue[IO, (Query, Source)]) = {
         val enqueue = for {
@@ -40,11 +40,12 @@ class QueryQueueService(
 
             enqueueQueries <-
                 if (queries.isEmpty) {
-                  IO.println("Nothing to enqueue, queue is empty")
+                    IO.println("Nothing to enqueue, queue is empty")
                 } else {
                     IO.println(s"Enqueued: $queries") >> queries.traverse_(q =>
                         queue.offer(q)
-                    )                }
+                    )
+                }
         } yield (enqueueQueries)
         enqueue >> IO.sleep(20.seconds)
     }
@@ -63,8 +64,7 @@ class QueryQueueService(
                           q.id,
                           metricData
                         )
-                        _ <- IO.println(
-                          "Metric id: ", m)
+                        _ <- IO.println("Metric id: ", m)
                         _ <- queryRepository.update(
                           WaitingRetry,
                           retries = 0,
