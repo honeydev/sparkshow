@@ -2,6 +2,7 @@ package sparkshow.db.models
 
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import io.circe.{Decoder, Encoder}
+import java.sql.Timestamp
 
 case class Query(
     id: Long,
@@ -12,8 +13,8 @@ case class Query(
     aggregate: Aggregate,
     state: String,
     retries: Int = 0,
-    createdAt: String,
-    updatedAt: String
+    createdAt: Timestamp,
+    updatedAt: Timestamp
 )
 
 sealed trait Function

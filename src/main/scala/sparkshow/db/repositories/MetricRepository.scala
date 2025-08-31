@@ -10,6 +10,8 @@ import doobie.util.meta.Meta
 import doobie.util.transactor.Transactor
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import io.circe.{Decoder, Encoder}
+import doobie.implicits.javatimedrivernative._
+import doobie.implicits.javasql._
 import sparkshow.db.models.Metric
 
 class MetricRepository(val transactor: Transactor[IO]) {

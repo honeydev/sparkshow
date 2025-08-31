@@ -10,6 +10,8 @@ import doobie.util.transactor.Transactor
 import sparkshow.db.models.{Aggregate, Query, QueryState, Source}
 import doobie.util.fragments.whereAndOpt
 import cats.data.NonEmptyList
+import doobie.implicits.javatimedrivernative._
+import doobie.implicits.javasql._
 
 class QueryRepository(val transactor: Transactor[IO]) extends SQLOps {
     import Aggregate.{decoder, encoder}

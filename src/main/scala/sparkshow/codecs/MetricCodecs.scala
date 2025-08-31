@@ -7,6 +7,7 @@ import io.circe.{Decoder, Encoder}
 import sparkshow.db.models.Metric
 
 object MetricCodecs {
+    import sparkshow.codecs.CommonCodecs._
 
     implicit val ValueDecoder: Decoder[Metric.Value] =
         deriveDecoder[Metric.Value]
