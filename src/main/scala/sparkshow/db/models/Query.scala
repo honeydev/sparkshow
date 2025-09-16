@@ -2,18 +2,19 @@ package sparkshow.db.models
 
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import io.circe.{Decoder, Encoder}
+import java.time.Instant
 
 case class Query(
     id: Long,
     userId: Long,
     sourceId: Long,
+    createdAt: Instant,
+    updatedAt: Instant,
     columns: List[String],
     grouped: List[String],
     aggregate: Aggregate,
     state: String,
-    retries: Int = 0,
-    createdAt: String,
-    updatedAt: String
+    retries: Int = 0
 )
 
 sealed trait Function
@@ -71,5 +72,4 @@ object Running extends QueryState {
 object Enqueued extends QueryState {
 
     override def toString: String = "enqueued"
-
 }

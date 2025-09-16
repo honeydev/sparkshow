@@ -2,14 +2,32 @@ package sparkshow.db.repositories
 
 import cats.effect.IO
 import doobie.implicits._
+import doobie.util.meta.Meta
 import doobie.util.transactor.Transactor
 import doobie.util.update.Update
 import sparkshow.db.models.{Role, User}
 
+import java.sql.Timestamp
+import java.time.Instant
+import doobie.implicits.javasql._
+
 class UserRepository(implicit val transactor: Transactor[IO]) {
 
+    implicit val instantMeta: Meta[Instant] =
+        Meta[Timestamp].timap(_.toInstant)(Timestamp.from)
+
     def one(id: Long): IO[Option[User]] = {
-        sql"SELECT id, username, email, password_hash from users where id = ${id}"
+        sql"""
+            SELECT
+             id
+             , created_at
+             , updated_at
+             , username
+             , email
+             , password_hash
+            FROM
+             users
+            WHERE id = ${id}"""
             .query[User]
             .option
             .transact(transactor)
@@ -18,10 +36,12 @@ class UserRepository(implicit val transactor: Transactor[IO]) {
     def one(username: String): IO[Option[User]] = {
         sql"""
              SELECT
-               id,
-               username,
-               email,
-               password_hash
+                 id
+                , created_at
+                , updated_at
+                , username
+                , email
+                , password_hash
              FROM users
               WHERE username = $username
               """
@@ -42,6 +62,8 @@ class UserRepository(implicit val transactor: Transactor[IO]) {
                  VALUES ($username, $email, $passwordHash)""".update
                 .withUniqueGeneratedKeys[User](
                   "id",
+                  "created_at",
+                  "updated_at",
                   "username",
                   "email",
                   "password_hash"

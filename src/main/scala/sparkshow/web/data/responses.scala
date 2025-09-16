@@ -6,6 +6,8 @@ import io.circe.generic.semiauto._
 import sparkshow.db.models.Source.Schema
 import sparkshow.db.models.{Aggregate, Query, Source, User}
 
+import java.time.Instant
+
 case class InvalidResponse(status: String = "error", message: String)
 
 object InvalidResponse {
@@ -28,6 +30,8 @@ case class CreateQueryResponse(
     id: Long,
     userId: Long,
     sourceId: Long,
+    createdAt: Instant,
+    updatedAt: Instant,
     columns: List[String],
     grouped: List[String],
     aggregate: Aggregate,
@@ -45,6 +49,8 @@ object CreateQueryResponse {
           query.id,
           query.userId,
           query.sourceId,
+          query.createdAt,
+          query.updatedAt,
           query.columns,
           query.grouped,
           query.aggregate,

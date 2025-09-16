@@ -1,5 +1,6 @@
 package sparkshow.db.repositories
 
+import cats.Show
 import cats.effect.IO
 import cats.implicits._
 import doobie.WeakAsync.doobieWeakAsyncForAsync
@@ -10,15 +11,24 @@ import doobie.util.transactor.Transactor
 import sparkshow.db.models.{Aggregate, Query, QueryState, Source}
 import doobie.util.fragments.whereAndOpt
 import cats.data.NonEmptyList
+import doobie.implicits.javasql._
+//import doobie.implicits.javatimedrivernative._
+import org.postgresql.util.PGobject
 
-class QueryRepository(val transactor: Transactor[IO]) extends SQLOps {
+import java.sql.Timestamp
+import java.time.Instant
+
+class QueryRepository(private val transactor: Transactor[IO]) extends SQLOps {
     import Aggregate.{decoder, encoder}
-    import SourceRepository._
+    import SourceRepository.{get, put}
+    import sparkshow.db.models.Column.{encoder => colEncoder}
 
-    implicit val metaList: Meta[List[String]] =
+    implicit val metaListString: Meta[List[String]] =
         new Meta[List[String]](pgDecoderGet, pgEncoderPut)
-    implicit val meta: Meta[Aggregate] =
+    implicit val aggregateMeta: Meta[Aggregate] =
         new Meta[Aggregate](pgDecoderGet, pgEncoderPut)
+    implicit val instantMeta: Meta[Instant] =
+      Meta[Timestamp].timap(_.toInstant)(Timestamp.from)
 
     def all: IO[List[Query]] = {
         sql"""SELECT * FROM queries"""
@@ -75,13 +85,13 @@ class QueryRepository(val transactor: Transactor[IO]) extends SQLOps {
               "id",
               "user_id",
               "source_id",
+              "created_at",
+              "updated_at",
               "columns",
               "grouped",
               "aggregate",
               "state",
-              "retries",
-              "created_at",
-              "updated_at"
+              "retries"
             )
             .transact(transactor)
     }

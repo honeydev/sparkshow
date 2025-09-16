@@ -22,7 +22,7 @@ class QuerySpec extends BaseIntegrationSpec {
 
     "Test create query" in {
         (
-            routes: RoutesFacade,
+            testWebApp: TestWebApp,
             userService: UserService,
             sourceRepository: SourceRepository,
             conf: AppConf
@@ -57,7 +57,7 @@ class QuerySpec extends BaseIntegrationSpec {
                        }"""
                         )
                     }
-                    response <- routes.build.orNotFound.run(request)
+                    response <- testWebApp.routes.run(request)
                     body     <- response.as[CreateQueryResponse]
                     _        <- assertIO(body.id > 0)
                     _        <- assertIO(body.state === QueryState.`new`)

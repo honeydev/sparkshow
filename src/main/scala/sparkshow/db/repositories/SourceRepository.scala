@@ -5,6 +5,7 @@ import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.implicits._
 import doobie.implicits._
+import doobie.util.meta.Meta
 import doobie.util.transactor.Transactor
 import doobie.util.{Get, Put}
 import io.circe.syntax._
@@ -12,9 +13,14 @@ import org.postgresql.util.PGobject
 import sparkshow.db.models.Source.Schema
 import sparkshow.db.models.{Column, Source}
 
+import java.sql.Timestamp
+import java.time.Instant
+import doobie.implicits.javasql._
+
 object SourceRepository {
     import sparkshow.db.models.Column.{encoder => colEncoder}
-
+    implicit val instantMeta: Meta[Instant] =
+        Meta[Timestamp].timap(_.toInstant)(Timestamp.from)
     implicit val showPGobject: Show[PGobject] = Show.show(_.getValue.take(250))
 
     implicit val get: Get[Schema] =
@@ -66,6 +72,8 @@ class SourceRepository(val transactor: Transactor[IO]) {
            """.update
             .withUniqueGeneratedKeys[Source](
               "id",
+              "created_at",
+              "updated_at",
               "path",
               "name",
               "header",

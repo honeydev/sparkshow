@@ -3,6 +3,8 @@ CREATE TYPE query_state AS ENUM ('new', 'running', 'enqueued', 'waiting_retry', 
 
 CREATE TABLE sources (
   id SERIAL PRIMARY KEY,
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   path VARCHAR(255) NOT NULL,
   name VARCHAR(255) NOT NULL,
   header BOOLEAN,

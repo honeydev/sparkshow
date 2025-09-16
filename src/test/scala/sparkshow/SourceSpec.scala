@@ -20,6 +20,7 @@ class SourceSpec extends BaseIntegrationSpec {
 
     "Test create source" in {
         (
+            testWebApp: TestWebApp,
             routes: RoutesFacade,
             userService: UserService,
             conf: AppConf
@@ -48,7 +49,7 @@ class SourceSpec extends BaseIntegrationSpec {
                               }"""
                         )
                     }
-                    response <- routes.build.orNotFound.run(request)
+                    response <- testWebApp.routes.run(request)
                     body     <- response.as[CreateSourceResponse]
                     schema    = body.schema.head
                     _        <- assertIO(body.name === "test")
