@@ -2,36 +2,24 @@ package sparkshow.web.routes
 
 import cats.effect.IO
 import fs2.{Pipe, Stream}
+import io.circe.parser._
+import io.circe.syntax._
 import org.http4s.AuthedRoutes
 import org.http4s.dsl.io._
 import org.http4s.server.websocket.WebSocketBuilder2
 import org.http4s.websocket.WebSocketFrame
+import org.typelevel.log4cats._
+import org.typelevel.log4cats.slf4j.Slf4jFactory
+import org.typelevel.log4cats.syntax._
+import sparkshow.codecs.MetricCodecs._
 import sparkshow.db.models.User
-import sparkshow.web.data.{
-    IncomeMsg,
-    GetMetrics,
-    SendMetrics,
-    SendNothing,
-    SendState
-}
-import io.circe._
-import io.circe.parser._
+import sparkshow.db.repositories.MetricRepository
+import sparkshow.services.MetricService
+import sparkshow.web.data
+import sparkshow.web.data.{GetMetrics, SendMetrics, SendNothing, SendState}
 
 import java.nio.charset.StandardCharsets
 import scala.concurrent.duration._
-import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
-import org.typelevel.log4cats.SelfAwareStructuredLogger
-import org.typelevel.log4cats._
-import org.typelevel.log4cats.slf4j.Slf4jLogger
-import org.typelevel.log4cats.syntax._
-import org.typelevel.log4cats.slf4j.Slf4jFactory
-import cats.data.EitherT
-import sparkshow.web.data
-import sparkshow.db.repositories.MetricRepository
-import io.circe.syntax._
-import io.circe.generic.auto._
-import sparkshow.codecs.MetricCodecs._
-import sparkshow.services.MetricService
 
 class WSRoutes(
     val metricService: MetricService,
@@ -108,7 +96,7 @@ class WSRoutes(
                                                 info"Raw message: $rawMessage, newState: $newState"
                                             _ = state = newState
                                             _ <-
-                                                info"Success chagne state to $newState"
+                                                info"Success change state to $newState"
                                         } yield ()
                                     }
                                     case Left(errorMessage: String) => {
@@ -117,7 +105,6 @@ class WSRoutes(
                                 }
 
                             } yield ()
-
                         })
 
                 ws.build(send, receive)

@@ -38,6 +38,8 @@ trait BaseIntegrationSpec extends Spec1[IO] with AssertCIO {
           include(DockerSupportModule[IO])
           include(PostgresDockerModule[IO])
 
+          make[TestWebApp]
+
           make[PostgresServerConfig].from {
               container: PostgresFlyWayDocker.Container =>
                   {

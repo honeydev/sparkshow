@@ -4,6 +4,8 @@ import io.circe.{Decoder, Encoder, HCursor, Json}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import sparkshow.db.models.Source.Schema
 
+import java.time.Instant
+
 sealed trait Type
 case object NumericT extends Type
 case object StringT extends Type
@@ -45,6 +47,8 @@ object Column {
 }
 case class Source(
     id: Long,
+    createdAt: Instant,
+    updatedAt: Instant,
     path: String,
     name: String,
     header: Boolean,

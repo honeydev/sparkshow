@@ -6,6 +6,8 @@ import org.mindrot.jbcrypt.BCrypt
 import sparkshow.db.models.{Role, User}
 import sparkshow.db.repositories.{RoleRepository, UserRepository}
 
+import java.time.Instant
+
 class UserService(val userRepo: UserRepository, val roleRepo: RoleRepository) {
     def createUser(
         username: String,
@@ -17,7 +19,7 @@ class UserService(val userRepo: UserRepository, val roleRepo: RoleRepository) {
           username,
           email,
           passwordHash,
-          List(Role(name = "ADMIN"))
+          List(Role(name = "ADMIN", createdAt = Instant.now(), updatedAt = Instant.now()))
         )
     }
 
