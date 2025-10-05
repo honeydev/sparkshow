@@ -158,8 +158,16 @@ update msg model =
 
         LoginMessage subMsg ->
             let
+                loginPageModel =
+                    case model.pageModel of
+                        LoginPage lpm ->
+                            lpm
+
+                        _ ->
+                            LoginPage.init (getSession model)
+
                 ( m, cmd ) =
-                    LoginPage.update subMsg (LoginPage.init (getSession model))
+                    LoginPage.update subMsg loginPageModel
             in
             ( { pageModel = LoginPage m, route = Route.Login, navKey = model.navKey }
             , Cmd.map LoginMessage cmd
