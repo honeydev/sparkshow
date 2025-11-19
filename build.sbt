@@ -1,10 +1,6 @@
-ThisBuild / version      := "0.1.0-SNAPSHOT"
-ThisBuild / scalaVersion := "2.13.13"
+import scala.collection.Seq
 
-lazy val root = (project in file("."))
-    .settings(
-      name := "sparkshow"
-    )
+ThisBuild / version      := "0.1.0-SNAPSHOT"
 
 val http4sVersion       = "0.23.22"
 val doobieVersion       = "1.0.0-RC3"
@@ -25,42 +21,73 @@ val scalamockVersion    = "5.1.0"
 val jwtCircleVersion    = "10.0.1"
 val sparkVersion        = "3.5.5"
 
-libraryDependencies ++= Seq(
-  "org.http4s" %% "http4s-core" % http4sVersion,
-  "org.http4s" %% "http4s-client" % http4sVersion,
-  "org.http4s" %% "http4s-server" % http4sVersion,
-  "org.http4s" %% "http4s-ember-client" % http4sVersion,
-  "org.http4s" %% "http4s-ember-server" % http4sVersion,
-  "org.http4s" %% "http4s-circe" % http4sVersion,
-  "org.http4s" %% "http4s-dsl" % http4sVersion,
-  "io.circe" %% "circe-generic" % circeVersion,
-  "io.circe" %% "circe-literal" % circeVersion,
-  "io.circe" %% "circe-parser" % circeVersion,
-  "io.circe" %% "circe-generic-extras" % circeGenericExtras,
-  "org.tpolecat" %% "doobie-core" % doobieVersion,
-  "org.tpolecat" %% "doobie-postgres" % doobieVersion,
-  "org.tpolecat"  %% "doobie-postgres-circe" % doobieVersion,
-//  "org.tpolecat" %% "doobie-specs2" % doobieVersion,
-  "org.tpolecat" %% "doobie-hikari" % doobieVersion,
-  "de.lhns" %% "doobie-flyway" % doobieFlywayVersion,
-  "ch.qos.logback" % "logback-classic" % logbackVersion,
-  "io.7mind.izumi" %% "distage-core" % izumiVersion,
-  "io.7mind.izumi" %% "distage-framework" % izumiVersion,
-  "io.7mind.izumi" %% "distage-framework-docker" % izumiVersion,
-  "com.github.pureconfig" %% "pureconfig" % pureConfigVersion,
-  "org.mindrot" % "jbcrypt" % jbcryptVersion,
-  "org.scalactic" %% "scalactic" % scalacticVersion,
-  "com.github.scopt" %% "scopt" % scoptVersion,
-  "com.github.jwt-scala" %% "jwt-circe" % jwtCircleVersion,
-  "org.apache.spark" %% "spark-core" % sparkVersion,
-  "org.apache.spark" %% "spark-sql" % sparkVersion,
-  "org.apache.spark" %% "spark-streaming" % sparkVersion,
-  "org.scalameta" %% "munit" % munitVersion % Test,
-  "io.7mind.izumi" %% "distage-testkit-scalatest" % izumiVersion % Test,
-  "org.scalatest" %% "scalatest" % scalatestVersion % Test,
-  "org.scalatest" %% "scalatest" % scalatestVersion % Test,
-  "org.scalamock" %% "scalamock" % scalamockVersion % Test
+lazy val coreDependencies = Seq(
+    "org.http4s" %% "http4s-core" % http4sVersion,
+    "org.http4s" %% "http4s-client" % http4sVersion,
+    "org.http4s" %% "http4s-server" % http4sVersion,
+    "org.http4s" %% "http4s-ember-client" % http4sVersion,
+    "org.http4s" %% "http4s-ember-server" % http4sVersion,
+    "org.http4s" %% "http4s-circe" % http4sVersion,
+    "org.http4s" %% "http4s-dsl" % http4sVersion,
+    "io.circe" %% "circe-generic" % circeVersion,
+    "io.circe" %% "circe-literal" % circeVersion,
+    "io.circe" %% "circe-parser" % circeVersion,
+    "io.circe" %% "circe-generic-extras" % circeGenericExtras,
+    "org.tpolecat" %% "doobie-core" % doobieVersion,
+    "org.tpolecat" %% "doobie-postgres" % doobieVersion,
+    "org.tpolecat"  %% "doobie-postgres-circe" % doobieVersion,
+    //  "org.tpolecat" %% "doobie-specs2" % doobieVersion,
+    "org.tpolecat" %% "doobie-hikari" % doobieVersion,
+    "de.lhns" %% "doobie-flyway" % doobieFlywayVersion,
+    "ch.qos.logback" % "logback-classic" % logbackVersion,
+    "io.7mind.izumi" %% "distage-core" % izumiVersion,
+    "io.7mind.izumi" %% "distage-framework" % izumiVersion,
+    "io.7mind.izumi" %% "distage-framework-docker" % izumiVersion,
+    "com.github.pureconfig" %% "pureconfig" % pureConfigVersion,
+    "org.mindrot" % "jbcrypt" % jbcryptVersion,
+    "org.scalactic" %% "scalactic" % scalacticVersion,
+    "com.github.scopt" %% "scopt" % scoptVersion,
+    "com.github.jwt-scala" %% "jwt-circe" % jwtCircleVersion,
+    "org.scalameta" %% "munit" % munitVersion % Test,
+    "io.7mind.izumi" %% "distage-testkit-scalatest" % izumiVersion % Test,
+    "org.scalatest" %% "scalatest" % scalatestVersion % Test,
+    "org.scalatest" %% "scalatest" % scalatestVersion % Test,
+    "org.scalamock" %% "scalamock" % scalamockVersion % Test
 )
+
+lazy val root = (project in file("."))
+    .settings(
+      name := "sparkshow"
+    ).aggregate(core, spark)
+
+val common = (project in file("common"))
+    .settings(
+        scalaVersion := "2.13.14",
+        libraryDependencies := coreDependencies,
+    )
+
+lazy val core = (project in file("core")).settings(
+    scalacOptions ++=Seq("-Wnonunit-statement", "-Wunused", "-target:jvm-17", "-Ymacro-annotations"),
+    scalaVersion := "2.13.14",
+    libraryDependencies := coreDependencies,
+        addCompilerPlugin(
+            "org.typelevel" %% "kind-projector" % "0.13.3" cross CrossVersion.full
+        ),
+            addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
+
+)
+    .dependsOn(spark, common)
+
+lazy val spark = (project in file("spark"))
+    .settings(
+        scalaVersion := "2.13.14",
+        libraryDependencies := Seq(
+            "org.apache.spark" %% "spark-core" % sparkVersion,
+            "org.apache.spark" %% "spark-sql" % sparkVersion,
+            "org.apache.spark" %% "spark-streaming" % sparkVersion,
+        )
+    )
+    .dependsOn(common)
 
 
 addCompilerPlugin(
@@ -72,7 +99,7 @@ scalacOptions ++= Seq("-Wunused", "-target:jvm-17", "-Ymacro-annotations")
 
 inThisBuild(
   List(
-    scalaVersion := "2.13.13",
+    scalaVersion := "2.13.14",
     semanticdbEnabled := true,
     semanticdbVersion := scalafixSemanticdb.revision
   )
