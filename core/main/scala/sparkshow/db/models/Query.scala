@@ -1,7 +1,11 @@
 package sparkshow.db.models
 
+import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
+import io.circe.{Decoder, Encoder}
 import sparkshow.data.Aggregate
 import sparkshow.services.QueryProperties
+import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
+import io.circe.{Decoder, Encoder}
 
 import java.time.Instant
 
@@ -30,4 +34,26 @@ case class Query(
             this.state,
             this.retries
         )
+}
+
+import sparkshow.data.{Function, Sum, Count}
+
+object Function {
+
+    implicit val decoder: Decoder[Function] = Decoder.decodeString.emap {
+        case "sum"   => Right(Sum)
+        case "count" => Right(Count)
+        case unknownFunction =>
+            Left(s"Unrecognised aggregate function $unknownFunction")
+    }
+
+    implicit val encoder: Encoder[Function] =
+        Encoder.encodeString.contramap(_.toString)
+}
+
+
+
+object Aggregate {
+    implicit val decoder: Decoder[Aggregate] = deriveDecoder[Aggregate]
+    implicit val encoder: Encoder[Aggregate] = deriveEncoder[Aggregate]
 }

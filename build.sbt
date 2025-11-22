@@ -17,7 +17,7 @@ val scalacticVersion    = "3.2.17"
 val scoptVersion        = "4.1.0"
 val munitVersion        = "0.7.29"
 val scalatestVersion    = "3.2.17"
-val scalamockVersion    = "5.1.0"
+val scalamockVersion    = "7.3.2"
 val jwtCircleVersion    = "10.0.1"
 val sparkVersion        = "3.5.5"
 
@@ -32,7 +32,7 @@ lazy val coreDependencies = Seq(
     "io.circe" %% "circe-generic" % circeVersion,
     "io.circe" %% "circe-literal" % circeVersion,
     "io.circe" %% "circe-parser" % circeVersion,
-    "io.circe" %% "circe-generic-extras" % circeGenericExtras,
+//    "io.circe" %% "circe-generic-extras" % circeGenericExtras,
     "org.tpolecat" %% "doobie-core" % doobieVersion,
     "org.tpolecat" %% "doobie-postgres" % doobieVersion,
     "org.tpolecat"  %% "doobie-postgres-circe" % doobieVersion,
@@ -43,7 +43,6 @@ lazy val coreDependencies = Seq(
     "io.7mind.izumi" %% "distage-core" % izumiVersion,
     "io.7mind.izumi" %% "distage-framework" % izumiVersion,
     "io.7mind.izumi" %% "distage-framework-docker" % izumiVersion,
-    "com.github.pureconfig" %% "pureconfig" % pureConfigVersion,
     "org.mindrot" % "jbcrypt" % jbcryptVersion,
     "org.scalactic" %% "scalactic" % scalacticVersion,
     "com.github.scopt" %% "scopt" % scoptVersion,
@@ -51,32 +50,37 @@ lazy val coreDependencies = Seq(
     "org.scalameta" %% "munit" % munitVersion % Test,
     "io.7mind.izumi" %% "distage-testkit-scalatest" % izumiVersion % Test,
     "org.scalatest" %% "scalatest" % scalatestVersion % Test,
-    "org.scalatest" %% "scalatest" % scalatestVersion % Test,
     "org.scalamock" %% "scalamock" % scalamockVersion % Test
 )
 
 lazy val root = (project in file("."))
     .settings(
       name := "sparkshow"
-    ).aggregate(core, spark)
+    ).aggregate(core)
 
 val common = (project in file("common"))
     .settings(
-        scalaVersion := "2.13.14",
-        libraryDependencies := coreDependencies,
+        scalaVersion := "2.13.14"
     )
 
 lazy val core = (project in file("core")).settings(
-    scalacOptions ++=Seq("-Wnonunit-statement", "-Wunused", "-target:jvm-17", "-Ymacro-annotations"),
-    scalaVersion := "2.13.14",
-    libraryDependencies := coreDependencies,
-        addCompilerPlugin(
-            "org.typelevel" %% "kind-projector" % "0.13.3" cross CrossVersion.full
-        ),
-            addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
+    scalacOptions ++=Seq("-Wnonunit-statement", "-target:jvm-17", "-Ymacro-annotations", "-Xkind-projector", "-Yretain-trees", "-Ykind-projector:underscores"),
+    scalaVersion := "3.6.4",
+    libraryDependencies := coreDependencies ++ Seq(
+        "com.github.pureconfig" %% "pureconfig-core" % pureConfigVersion
+    ),
+        excludeDependencies ++= Seq(
+            "org.scala-lang.modules" % "scala-collection-compat_2.13",
+            "org.scala-lang.modules" % "scala-xml_2.13"
+        )
+
+    //    addCompilerPlugin(
+    //        "org.typelevel" %% "kind-projector" % "0.13.3" cross CrossVersion.full
+    //    ),
+//            addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
 
 )
-    .dependsOn(spark, common)
+    .dependsOn(common, spark)
 
 lazy val spark = (project in file("spark"))
     .settings(
@@ -89,17 +93,18 @@ lazy val spark = (project in file("spark"))
     )
     .dependsOn(common)
 
+//addCompilerPlugin(
+//  "org.typelevel" %% "kind-projector" % "0.13.3" cross CrossVersion.full
+//)
+//addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
 
-addCompilerPlugin(
-  "org.typelevel" %% "kind-projector" % "0.13.3" cross CrossVersion.full
-)
-addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
-
-scalacOptions ++= Seq("-Wunused", "-target:jvm-17", "-Ymacro-annotations")
+scalacOptions ++= Seq(
+   // "-Wunused",
+    "-target:jvm-17", "-Ymacro-annotations")
 
 inThisBuild(
   List(
-    scalaVersion := "2.13.14",
+//    scalaVersion := "2.13.14",
     semanticdbEnabled := true,
     semanticdbVersion := scalafixSemanticdb.revision
   )

@@ -1,8 +1,8 @@
 package sparkshow
 
-import cats.effect.{IO, Resource}
-import izumi.functional.lifecycle.Lifecycle
-import org.apache.spark.sql.SparkSession
+//import cats.effect.{IO, Resource}
+//import izumi.functional.lifecycle.Lifecycle
+//import org.apache.spark.sql.SparkSession
 
 //class SparkSessionResource(conf: AppConf)
 //    extends Lifecycle.OfCats(

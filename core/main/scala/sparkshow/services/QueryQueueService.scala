@@ -85,9 +85,7 @@ class QueryQueueService(
                             _ <- IO.println("Raised:", e)
                         } yield ()
                     }
-                }
-            }
-
+                }}
         }
     }
 }

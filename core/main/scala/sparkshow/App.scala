@@ -1,19 +1,19 @@
 package sparkshow
 
 import cats.effect.IO
-import com.comcast.ip4s.IpLiteralSyntax
+import com.comcast.ip4s.{port, ipv4}
 import doobie.util.transactor.Transactor
 import izumi.distage.model.definition.Lifecycle
 import izumi.distage.roles.model.{RoleDescriptor, RoleService}
 import izumi.fundamentals.platform.cli.model.raw.RawEntrypointParams
-import org.http4s.ember.server._
-import org.http4s.implicits._
+import org.http4s.ember.server.*
+import org.http4s.implicits.*
 import org.http4s.server.Server
 import sparkshow.tasks.RunQueriesTask
 import sparkshow.web.routes.{RoutesFacade, WSRoutes}
 
 import scala.annotation.unused
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 final case class HttpServer(
     server: Server

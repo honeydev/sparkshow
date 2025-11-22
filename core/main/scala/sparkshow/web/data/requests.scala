@@ -49,7 +49,7 @@ object QueryRequestBody {
 
     implicit val entityDecoder = EntityDecoder.decodeBy[IO, QueryRequestBody](
       MediaType.application.json
-    ) { media: Media[IO] =>
+    ) { (media: Media[IO]) =>
         val queryRequestBody = media.as[String].map { rawJson =>
             decode[QueryRequestBody](rawJson)
         }
@@ -87,7 +87,7 @@ object SourceRequestBody {
 
     implicit val entityDecoder = EntityDecoder.decodeBy[IO, SourceRequestBody](
       MediaType.application.json
-    ) { media: Media[IO] =>
+    ) { (media: Media[IO]) =>
         val sourceRequestBody = media.as[String].map { rawJson =>
             for {
                 parsedJson <- parse(rawJson)
