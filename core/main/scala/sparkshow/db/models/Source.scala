@@ -18,7 +18,7 @@ case class Source (
     delimiter: Option[String],
     schema: Schema
 ) {
-    def toProps =
+    def toProps: SourceProperties =
         SourceProperties(
             id = id,
             createdAt = createdAt,
@@ -27,7 +27,7 @@ case class Source (
             name = name,
             header = header,
             delimiter = delimiter,
-            schema = schema.toList
+            schema = schema
         )
 }
 
@@ -39,7 +39,7 @@ object Source {
     implicit val encoder: Encoder.AsObject[Source] = deriveEncoder[Source]
 }
 
-case class Column(name: String, typeV: Type) extends BaseColumn(name = name, `type` = typeV)
+case class Column(override val name: String, override val `type`: Type) extends BaseColumn(name = name, `type` = `type`)
 object Column {
 
     implicit val decoder: Decoder[Column] = new Decoder[Column] {

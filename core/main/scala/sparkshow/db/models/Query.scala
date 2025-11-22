@@ -6,6 +6,7 @@ import sparkshow.data.Aggregate
 import sparkshow.services.QueryProperties
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import io.circe.{Decoder, Encoder}
+import sparkshow.data.{Function, Sum, Count}
 
 import java.time.Instant
 
@@ -36,7 +37,6 @@ case class Query(
         )
 }
 
-import sparkshow.data.{Function, Sum, Count}
 
 object Function {
 
@@ -51,9 +51,9 @@ object Function {
         Encoder.encodeString.contramap(_.toString)
 }
 
-
-
 object Aggregate {
+    import Function.{decoder, encoder}
+    
     implicit val decoder: Decoder[Aggregate] = deriveDecoder[Aggregate]
     implicit val encoder: Encoder[Aggregate] = deriveEncoder[Aggregate]
 }

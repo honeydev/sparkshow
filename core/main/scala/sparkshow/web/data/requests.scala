@@ -3,21 +3,13 @@ package sparkshow.web.data
 import cats.data.EitherT
 import cats.effect.IO
 import io.circe.Decoder
-import io.circe.generic.auto._
+import io.circe.generic.auto.*
 import io.circe.generic.semiauto.deriveDecoder
-import io.circe.parser._
-import org.http4s.circe._
-import org.http4s.{
-    DecodeFailure,
-    EntityDecoder,
-    EntityEncoder,
-    HttpVersion,
-    Media,
-    MediaType,
-    Response,
-    Status
-}
+import io.circe.parser.*
+import org.http4s.circe.*
+import org.http4s.{DecodeFailure, EntityDecoder, EntityEncoder, HttpVersion, Media, MediaType, Response, Status}
 import sparkshow.data.{Aggregate, BaseColumn}
+import sparkshow.db.models.Column
 
 case class LoginRequestBody(
     username: String,
@@ -73,7 +65,7 @@ case class SourceRequestBody(
     path: String,
     header: Boolean,
     delimiter: Option[String],
-    schema: List[BaseColumn]
+    schema: List[Column]
 )
 
 object SourceRequestBody {

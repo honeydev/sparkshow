@@ -39,6 +39,7 @@ case class CreateQueryResponse(
 )
 
 object CreateQueryResponse {
+    import sparkshow.db.models.Aggregate.{decoder, encoder}
     implicit val jsonEncoder: Encoder[CreateQueryResponse] = deriveEncoder
 
     def fromQuery(query: Query): CreateQueryResponse =

@@ -17,9 +17,10 @@ import java.time.Instant
 import doobie.implicits.javasql._
 import sparkshow.db.models.Source
 import sparkshow.db.models.Source.Schema
+import sparkshow.db.models.Column
 
 object SourceRepository {
-    import sparkshow.data.Column.{encoder => colEncoder}
+    import sparkshow.db.models.Column.{encoder => colEncoder, decoder => colDecoder}
     implicit val instantMeta: Meta[Instant] =
         Meta[Timestamp].timap(_.toInstant)(Timestamp.from)
     implicit val showPGobject: Show[PGobject] = Show.show(_.getValue.take(250))
@@ -28,9 +29,9 @@ object SourceRepository {
         Get.Advanced.other[PGobject](NonEmptyList.of("json")).temap[Schema] {
             o =>
                 import io.circe.parser.decode
-                import sparkshow.data.Column.{decoder => colDecoder}
+                import sparkshow.db.models.Column.{decoder => colDecoder}
 
-                decode[List[BaseColumn]](o.getValue).leftMap { e =>
+                decode[List[Column]](o.getValue).leftMap { e =>
                     e.printStackTrace()
                     e.toString
                 }
@@ -53,7 +54,7 @@ class SourceRepository(val transactor: Transactor[IO]) {
         path: String,
         header: Boolean,
         delimiter: Option[String],
-        schema: List[BaseColumn]
+        schema: Schema
     ): IO[Source] = {
         sql"""
             INSERT INTO sources (

@@ -20,9 +20,9 @@ import java.sql.Timestamp
 import java.time.Instant
 
 class QueryRepository(private val transactor: Transactor[IO]) extends SQLOps {
-    import Aggregate.{decoder, encoder}
+    import sparkshow.db.models.Aggregate.{decoder, encoder}
     import SourceRepository.{get, put}
-    import sparkshow.data.Column.{encoder => colEncoder}
+    import sparkshow.db.models.Column.{encoder => colEncoder}
 
     implicit val metaListString: Meta[List[String]] =
         new Meta[List[String]](pgDecoderGet, pgEncoderPut)
