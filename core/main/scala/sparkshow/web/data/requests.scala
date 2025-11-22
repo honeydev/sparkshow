@@ -8,8 +8,12 @@ import io.circe.generic.semiauto.deriveDecoder
 import io.circe.parser.*
 import org.http4s.circe.*
 import org.http4s.{DecodeFailure, EntityDecoder, EntityEncoder, HttpVersion, Media, MediaType, Response, Status}
-import sparkshow.data.{Aggregate, BaseColumn}
+import sparkshow.data.{Aggregate}
 import sparkshow.db.models.Column
+import io.circe.derivation.{Configuration, ConfiguredCodec}
+
+given Configuration =
+    Configuration.default.withDiscriminator("type").withSnakeCaseMemberNames
 
 case class LoginRequestBody(
     username: String,
@@ -27,10 +31,11 @@ case class QueryRequestBody(
     columns: List[String],
     grouped: List[String],
     aggregate: Aggregate
-)
+) derives ConfiguredCodec
 
 object QueryRequestBody {
 
+    import sparkshow.db.models.Aggregate.{decoder, encoder}
     implicit val decoder: Decoder[QueryRequestBody] =
         deriveDecoder[QueryRequestBody]
 

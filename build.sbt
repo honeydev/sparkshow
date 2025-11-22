@@ -22,6 +22,7 @@ val jwtCircleVersion    = "10.0.1"
 val sparkVersion        = "3.5.5"
 
 lazy val coreDependencies = Seq(
+    "com.github.pureconfig" %% "pureconfig-core" % pureConfigVersion,
     "org.http4s" %% "http4s-core" % http4sVersion,
     "org.http4s" %% "http4s-client" % http4sVersion,
     "org.http4s" %% "http4s-server" % http4sVersion,
@@ -66,13 +67,11 @@ val common = (project in file("common"))
 lazy val core = (project in file("core")).settings(
     scalacOptions ++=Seq("-Wnonunit-statement", "-target:jvm-17", "-Ymacro-annotations", "-Xkind-projector", "-Yretain-trees", "-Ykind-projector:underscores"),
     scalaVersion := "3.6.4",
-    libraryDependencies := coreDependencies ++ Seq(
-        "com.github.pureconfig" %% "pureconfig-core" % pureConfigVersion,
-    ),
-        excludeDependencies ++= Seq(
-            "org.scala-lang.modules" % "scala-collection-compat_2.13",
-            "org.scala-lang.modules" % "scala-xml_2.13"
-        )
+    libraryDependencies := coreDependencies,
+    excludeDependencies ++= Seq(
+        "org.scala-lang.modules" % "scala-collection-compat_2.13",
+        "org.scala-lang.modules" % "scala-xml_2.13"
+    )
 
     //    addCompilerPlugin(
     //        "org.typelevel" %% "kind-projector" % "0.13.3" cross CrossVersion.full
