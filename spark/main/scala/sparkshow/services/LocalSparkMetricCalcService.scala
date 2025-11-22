@@ -6,7 +6,7 @@ import org.apache.spark.sql.types.LongType
 import org.apache.spark.sql.types.StringType
 import org.apache.spark.sql.types.StructField
 import org.apache.spark.sql.types.StructType
-import sparkshow.data.{Aggregate, Column, Count, MetricValue, NumericT, StringT, Sum}
+import sparkshow.data.{Aggregate, BaseColumn, Count, MetricValue, NumericT, StringT, Sum}
 
 import java.time.Instant
 
@@ -31,7 +31,7 @@ case class SourceProperties(
                                name: String,
                                header: Boolean,
                                delimiter: Option[String],
-                               schema: List[Column]
+                               schema: List[BaseColumn]
 )
 
 class LocalSparkMetricCalcService {

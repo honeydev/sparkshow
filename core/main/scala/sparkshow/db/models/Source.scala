@@ -1,11 +1,10 @@
 package sparkshow.db.models
 
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
-import sparkshow.data.Column
 import sparkshow.db.models.Source.Schema
 import sparkshow.services.SourceProperties
-
 import io.circe.{Decoder, Encoder, HCursor, Json}
+import sparkshow.data.{BaseColumn, Type, NumericT, StringT}
 
 import java.time.Instant
 
@@ -28,7 +27,7 @@ case class Source (
             name = name,
             header = header,
             delimiter = delimiter,
-            schema = schema
+            schema = schema.toList
         )
 }
 
@@ -40,11 +39,7 @@ object Source {
     implicit val encoder: Encoder.AsObject[Source] = deriveEncoder[Source]
 }
 
-sealed trait Type
-case object NumericT extends Type
-case object StringT extends Type
-
-case class Column(name: String, `type`: Type)
+case class Column(name: String, typeV: Type) extends BaseColumn(name = name, `type` = typeV)
 object Column {
 
     implicit val decoder: Decoder[Column] = new Decoder[Column] {

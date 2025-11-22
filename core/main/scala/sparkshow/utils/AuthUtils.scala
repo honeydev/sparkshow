@@ -1,8 +1,9 @@
 package sparkshow.utils
 
-import io.circe.generic.auto._
-import io.circe.generic.semiauto._
-import io.circe.jawn.{decode, parse => jawnParse}
+import io.circe.Decoder
+import io.circe.generic.auto.*
+import io.circe.generic.semiauto.*
+import io.circe.jawn.{decode, parse as jawnParse}
 import io.circe.syntax.EncoderOps
 import pdi.jwt.{JwtAlgorithm, JwtCirce, JwtClaim}
 import sparkshow.db.models.User
@@ -19,7 +20,7 @@ sealed case class JwtPayload(
 
 object AuthUtils {
 
-    implicit val decoder = deriveDecoder[JwtPayload]
+    implicit val decoder: Decoder[JwtPayload] = deriveDecoder[JwtPayload]
 
     def encodeToken(user: User, secret: String): String = {
         val tokenData = JwtPayload(

@@ -1,7 +1,8 @@
 package sparkshow.conf
 
 import pureconfig._
-import pureconfig.generic.auto._
+import pureconfig.generic.derivation.default._
+
 
 case class DBConf(
     host: String,
@@ -9,7 +10,7 @@ case class DBConf(
     database: String,
     username: String,
     password: String
-) {
+) derives ConfigReader {
     def url: String =
         s"jdbc:postgresql://$host:$port/$database"
 }

@@ -31,16 +31,16 @@ class CreateUserTask(
             OParser.sequence(
               programName("Sparkshow"),
               head("CLI tool for manage app"),
-              opt[String]('u', "username").required
+              opt[String]('u', "username").required()
                   .action((a, c) => c.copy(username = a))
                   .text("user username"),
-              opt[String]('p', "password").required
+              opt[String]('p', "password").required()
                   .action((a, c) => c.copy(password = a))
                   .text("user password"),
-              opt[String]('e', "email").required
+              opt[String]('e', "email").required()
                   .action((a, c) => c.copy(email = a))
                   .text("user email"),
-              opt[Seq[String]]('r', "roles").required
+              opt[Seq[String]]('r', "roles").required()
                   .action((a, c) => c.copy(roles = a))
                   .text("user roles")
             )

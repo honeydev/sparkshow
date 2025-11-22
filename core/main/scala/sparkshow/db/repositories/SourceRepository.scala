@@ -10,7 +10,7 @@ import doobie.util.transactor.Transactor
 import doobie.util.{Get, Put}
 import io.circe.syntax._
 import org.postgresql.util.PGobject
-import sparkshow.data.Column
+import sparkshow.data.BaseColumn
 
 import java.sql.Timestamp
 import java.time.Instant
@@ -30,7 +30,7 @@ object SourceRepository {
                 import io.circe.parser.decode
                 import sparkshow.data.Column.{decoder => colDecoder}
 
-                decode[List[Column]](o.getValue).leftMap { e =>
+                decode[List[BaseColumn]](o.getValue).leftMap { e =>
                     e.printStackTrace()
                     e.toString
                 }
@@ -53,7 +53,7 @@ class SourceRepository(val transactor: Transactor[IO]) {
         path: String,
         header: Boolean,
         delimiter: Option[String],
-        schema: List[Column]
+        schema: List[BaseColumn]
     ): IO[Source] = {
         sql"""
             INSERT INTO sources (

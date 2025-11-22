@@ -4,7 +4,6 @@ import cats.data.EitherT
 import cats.effect.IO
 import io.circe.Decoder
 import io.circe.generic.auto._
-import io.circe.generic.extras.{Configuration, ConfiguredJsonCodec}
 import io.circe.generic.semiauto.deriveDecoder
 import io.circe.parser._
 import org.http4s.circe._
@@ -18,7 +17,7 @@ import org.http4s.{
     Response,
     Status
 }
-import sparkshow.data.{Aggregate, Column}
+import sparkshow.data.{Aggregate, BaseColumn}
 
 case class LoginRequestBody(
     username: String,
@@ -31,7 +30,6 @@ object LoginRequestBody {
         jsonOf[IO, LoginRequestBody]
 }
 
-@ConfiguredJsonCodec
 case class QueryRequestBody(
     sourceId: Long,
     columns: List[String],
@@ -44,10 +42,7 @@ object QueryRequestBody {
     implicit val decoder: Decoder[QueryRequestBody] =
         deriveDecoder[QueryRequestBody]
 
-    implicit val customConfig: Configuration =
-        Configuration.default.withSnakeCaseMemberNames
-
-    implicit val entityDecoder = EntityDecoder.decodeBy[IO, QueryRequestBody](
+    implicit val entityDecoder: EntityDecoder[IO, QueryRequestBody] = EntityDecoder.decodeBy[IO, QueryRequestBody](
       MediaType.application.json
     ) { (media: Media[IO]) =>
         val queryRequestBody = media.as[String].map { rawJson =>
@@ -78,20 +73,20 @@ case class SourceRequestBody(
     path: String,
     header: Boolean,
     delimiter: Option[String],
-    schema: List[Column]
+    schema: List[BaseColumn]
 )
 
 object SourceRequestBody {
 
-    implicit val decoder = deriveDecoder[SourceRequestBody]
+    implicit val decoder: Decoder[SourceRequestBody] = deriveDecoder[SourceRequestBody]
 
-    implicit val entityDecoder = EntityDecoder.decodeBy[IO, SourceRequestBody](
-      MediaType.application.json
+    implicit val entityDecoder: EntityDecoder[IO, SourceRequestBody] = EntityDecoder.decodeBy[IO, SourceRequestBody](
+        MediaType.application.json
     ) { (media: Media[IO]) =>
         val sourceRequestBody = media.as[String].map { rawJson =>
             for {
                 parsedJson <- parse(rawJson)
-                entity     <- decoder.decodeJson(parsedJson)
+                entity <- decoder.decodeJson(parsedJson)
             } yield entity
         }
 
@@ -104,11 +99,11 @@ object SourceRequestBody {
                     override def cause: Option[Throwable] = Some(v.getCause)
 
                     override def toHttpResponse[F[_]](
-                        httpVersion: HttpVersion
-                    ): Response[F] =
+                                                         httpVersion: HttpVersion
+                                                     ): Response[F] =
                         Response(Status.BadRequest, httpVersion)
                             .withEntity("Json parse error")(
-                              EntityEncoder.stringEncoder[F]
+                                EntityEncoder.stringEncoder[F]
                             )
                 }
             }

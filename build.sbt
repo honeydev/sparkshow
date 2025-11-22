@@ -67,7 +67,7 @@ lazy val core = (project in file("core")).settings(
     scalacOptions ++=Seq("-Wnonunit-statement", "-target:jvm-17", "-Ymacro-annotations", "-Xkind-projector", "-Yretain-trees", "-Ykind-projector:underscores"),
     scalaVersion := "3.6.4",
     libraryDependencies := coreDependencies ++ Seq(
-        "com.github.pureconfig" %% "pureconfig-core" % pureConfigVersion
+        "com.github.pureconfig" %% "pureconfig-core" % pureConfigVersion,
     ),
         excludeDependencies ++= Seq(
             "org.scala-lang.modules" % "scala-collection-compat_2.13",

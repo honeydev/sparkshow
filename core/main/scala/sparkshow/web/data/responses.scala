@@ -1,7 +1,6 @@
 package sparkshow.web.data
 
 import io.circe._
-import io.circe.generic.extras.{Configuration, ConfiguredJsonCodec}
 import io.circe.generic.semiauto._
 import sparkshow.db.models.Source.Schema
 import sparkshow.db.models.{Query, Source, User}
@@ -26,7 +25,6 @@ object LoginResponse {
     implicit val jsonEncoder: Encoder[LoginResponse] = deriveEncoder
 }
 
-@ConfiguredJsonCodec
 case class CreateQueryResponse(
     id: Long,
     userId: Long,
@@ -42,8 +40,6 @@ case class CreateQueryResponse(
 
 object CreateQueryResponse {
     implicit val jsonEncoder: Encoder[CreateQueryResponse] = deriveEncoder
-    implicit val customConfig: Configuration =
-        Configuration.default.withSnakeCaseMemberNames
 
     def fromQuery(query: Query): CreateQueryResponse =
         CreateQueryResponse(
@@ -60,7 +56,6 @@ object CreateQueryResponse {
         )
 }
 
-@ConfiguredJsonCodec
 case class CreateSourceResponse(
     id: Long,
     name: String,
@@ -72,9 +67,7 @@ case class CreateSourceResponse(
 
 object CreateSourceResponse {
     implicit val jsonEncoder: Encoder[CreateSourceResponse] = deriveEncoder
-    implicit val customConfig: Configuration =
-        Configuration.default.withSnakeCaseMemberNames
-
+    
     def fromSource(source: Source): CreateSourceResponse =
         CreateSourceResponse(
           source.id,
