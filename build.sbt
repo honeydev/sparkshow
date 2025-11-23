@@ -33,7 +33,7 @@ lazy val coreDependencies = Seq(
     "io.circe" %% "circe-generic" % circeVersion,
     "io.circe" %% "circe-literal" % circeVersion,
     "io.circe" %% "circe-parser" % circeVersion,
-//    "io.circe" %% "circe-generic-extras" % circeGenericExtras,
+    //    "io.circe" %% "circe-generic-extras" % circeGenericExtras,
     "org.tpolecat" %% "doobie-core" % doobieVersion,
     "org.tpolecat" %% "doobie-postgres" % doobieVersion,
     "org.tpolecat"  %% "doobie-postgres-circe" % doobieVersion,
@@ -56,7 +56,7 @@ lazy val coreDependencies = Seq(
 
 lazy val root = (project in file("."))
     .settings(
-      name := "sparkshow"
+        name := "sparkshow"
     ).aggregate(core)
 
 val common = (project in file("common"))
@@ -65,20 +65,20 @@ val common = (project in file("common"))
     )
 
 lazy val core = (project in file("core")).settings(
-    scalacOptions ++=Seq("-Wnonunit-statement", "-target:jvm-17", "-Ymacro-annotations", "-Xkind-projector", "-Yretain-trees", "-Ykind-projector:underscores"),
-    scalaVersion := "3.6.4",
-    libraryDependencies := coreDependencies,
-    excludeDependencies ++= Seq(
-        "org.scala-lang.modules" % "scala-collection-compat_2.13",
-        "org.scala-lang.modules" % "scala-xml_2.13"
+        scalacOptions ++=Seq("-Wnonunit-statement", "-target:jvm-17", "-Ymacro-annotations", "-Xkind-projector", "-Yretain-trees", "-Ykind-projector:underscores"),
+        scalaVersion := "3.6.4",
+        libraryDependencies := coreDependencies,
+        excludeDependencies ++= Seq(
+            "org.scala-lang.modules" % "scala-collection-compat_2.13",
+            "org.scala-lang.modules" % "scala-xml_2.13"
+        )
+
+        //    addCompilerPlugin(
+        //        "org.typelevel" %% "kind-projector" % "0.13.3" cross CrossVersion.full
+        //    ),
+        //            addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
+
     )
-
-    //    addCompilerPlugin(
-    //        "org.typelevel" %% "kind-projector" % "0.13.3" cross CrossVersion.full
-    //    ),
-//            addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
-
-)
     .dependsOn(common, spark)
 
 lazy val spark = (project in file("spark"))
@@ -98,13 +98,13 @@ lazy val spark = (project in file("spark"))
 //addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
 
 scalacOptions ++= Seq(
-   // "-Wunused",
+    // "-Wunused",
     "-target:jvm-17", "-Ymacro-annotations")
 
 inThisBuild(
-  List(
-//    scalaVersion := "2.13.14",
-    semanticdbEnabled := true,
-    semanticdbVersion := scalafixSemanticdb.revision
-  )
+    List(
+        //    scalaVersion := "2.13.14",
+        semanticdbEnabled := true,
+        semanticdbVersion := scalafixSemanticdb.revision
+    )
 )
