@@ -1,6 +1,6 @@
 { pkgs ? import <nixpkgs> {} }:
 let
-  stdenv = pkgs.llvmPackages_15.stdenv; in rec {
+  stdenv = pkgs.llvmPackages.stdenv; in rec {
   project = stdenv.mkDerivation {
     name = "sparkshow";
 

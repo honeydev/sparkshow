@@ -6,6 +6,7 @@ dap.configurations.scala = {
     request = "launch",
     name = "web",
     metals = {
+       sourceRoot = "core/src/main/scala",
       runType = "runOrTestFile",
       mainClass = "sparkshow.SparkshowLauncher",
       args = { ":web" }, -- here just as an example

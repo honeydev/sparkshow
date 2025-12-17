@@ -1,6 +1,7 @@
 import scala.collection.Seq
 
 ThisBuild / version      := "0.1.0-SNAPSHOT"
+Compile / scalaSource := baseDirectory.value / "core" / "src"
 
 val http4sVersion       = "0.23.22"
 val doobieVersion       = "1.0.0-RC3"
