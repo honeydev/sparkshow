@@ -1,0 +1,63 @@
+package sparkshow.utils
+
+import scala.util.Failure
+import scala.util.Success
+
+import io.circe.Decoder
+import io.circe.Encoder
+import io.circe.generic.semiauto.deriveDecoder
+import io.circe.generic.semiauto.deriveEncoder
+import io.circe.jawn.decode
+import io.circe.jawn.{parse => jawnParse}
+import io.circe.syntax.EncoderOps
+import java.time.Instant
+import pdi.jwt.JwtAlgorithm
+import pdi.jwt.JwtCirce
+import pdi.jwt.JwtClaim
+import sparkshow.db.models.User
+
+sealed case class JwtPayload(
+    expires: Long,
+    username: String,
+    email: Option[String],
+    id: Long
+)
+
+object AuthUtils {
+
+    implicit val decoder: Decoder[JwtPayload] = deriveDecoder[JwtPayload]
+    implicit val encoder: Encoder[JwtPayload] = deriveEncoder[JwtPayload]
+
+    def encodeToken(user: User, secret: String): String = {
+        val tokenData = JwtPayload(
+          expires  = Instant.now.getEpochSecond,
+          username = user.username,
+          email    = user.email,
+          id       = user.id
+        ).asJson
+        val Right(header) = jawnParse("""{"typ":"JWT","alg":"HS256"}""")
+        JwtCirce.encode(header, tokenData, secret)
+    }
+
+    def decodeToken(
+        token: String,
+        secret: String
+    ): Either[String, JwtPayload] = {
+
+        JwtCirce.decode(token, secret, Seq(JwtAlgorithm.HS256)) match {
+            case Success(value: JwtClaim) =>
+                decode(value.content) match {
+                    case Left(error) => {
+                        error.printStackTrace()
+                        Left(error.toString)
+                    }
+                    case Right(payload) => Right(payload)
+                }
+            case Failure(error) => {
+                println(error) // TODO replace on logger
+                error.printStackTrace()
+                Left("Invalid decode JWT token")
+            }
+        }
+    }
+}

@@ -1,0 +1,50 @@
+<configuration>
+    <property name="APP" value="realworld"/>
+    <Property name="LOGS" value="./logs"/>
+
+    <!-- Turn-off Logback init messages -->
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>
+                %d{"yyyy-MM-dd'T'HH:mm:ss.SSSXXX"} %highlight(%-5p) %magenta(${PID:- }) --- [%yellow(%16.16t)]
+                %cyan(%-36.36C{36}): %msg%n%throwable
+            </Pattern>
+        </layout>
+
+        <!-- On Windows machines setting `withJansi` to true enables ANSI
+             color code interpretation by the Jansi library. This requires
+             org.fusesource.jansi:jansi:1.8 on the class path. Note that
+             Unix-based operating systems such as Linux and Mac OS X
+             support ANSI color codes by default.
+         -->
+        <withJansi>true</withJansi>
+    </appender>
+
+    <appender name="FILE" class="com.hhandoko.realworld.util.LazyInitRollingFileAppender">
+        <file>${LOGS}/${APP}.log</file>
+
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>%d{"yyyy-MM-dd'T'HH:mm:ss.SSSXXX"} %-5p ${PID:- } --- [%16.16t] %-36.36C{36}: %m%n</Pattern>
+        </encoder>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOGS}/archived/${APP}-%d{"yyyy-MM-dd"}.%i.log</fileNamePattern>
+
+            <!-- Rollover daily and when the file reaches 10 MegaBytes, keep the last 14 days  -->
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>10MB</maxFileSize>
+                <maxHistory>14</maxHistory>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+    <logger name="com.zaxxer.hikari" level="ALL" additivity="false">
+        <appender-ref ref="STDOUT"/>
+    </logger>
+</configuration>
