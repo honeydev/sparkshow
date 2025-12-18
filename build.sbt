@@ -1,6 +1,9 @@
 import scala.collection.Seq
 
 ThisBuild / version      := "0.1.0-SNAPSHOT"
+ThisBuild / semanticdbEnabled := true
+ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
+
 Compile / scalaSource := baseDirectory.value / "core" / "src"
 
 val http4sVersion       = "0.23.22"
@@ -61,19 +64,15 @@ lazy val root = (project in file("."))
 val common = (project in file("common"))
     .settings(
         scalaVersion := "2.13.14",
-        scalacOptions ++=Seq(
-//            "-wunused:imports"
-        ),
+        scalacOptions ++=Seq("-Wunused:imports"),
     )
 
 lazy val core = (project in file("core")).settings(
         scalacOptions ++=Seq(
             "-Wnonunit-statement",
-            "-Ymacro-annotations",
-            "-Xkind-projector",
             "-Yretain-trees",
-            "-Ykind-projector:underscores",
-            "-Wunused:all"
+            "-Xkind-projector:underscores",
+            "-Wunused:imports",
         ),
         scalaVersion := "3.6.4",
         libraryDependencies := coreDependencies,
@@ -91,18 +90,7 @@ lazy val spark = (project in file("spark"))
             "org.apache.spark" %% "spark-core" % sparkVersion,
             "org.apache.spark" %% "spark-sql" % sparkVersion,
             "org.apache.spark" %% "spark-streaming" % sparkVersion,
-        )
+        ),
+        scalacOptions ++=Seq("-Wunused:imports"),
     )
     .dependsOn(common)
-
-scalacOptions ++= Seq(
-    "-ymacro-annotations",
-    "-wunused:imports"
-)
-
-inThisBuild(
-    List(
-        semanticdbEnabled := true,
-        semanticdbVersion := scalafixSemanticdb.revision
-    )
-)

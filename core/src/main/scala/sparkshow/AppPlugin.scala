@@ -1,5 +1,7 @@
 package sparkshow
 
+import scala.annotation.nowarn
+
 import cats.effect._
 import distage.plugins.PluginDef
 import doobie.util.transactor.Transactor
@@ -29,6 +31,7 @@ import sparkshow.web.routes.RoutesFacade
 import sparkshow.web.routes.SourceRoutes
 import sparkshow.web.routes.WSRoutes
 
+@nowarn
 object AppPlugin extends PluginDef {
     include(modules.roles)
     include(modules.conf)
