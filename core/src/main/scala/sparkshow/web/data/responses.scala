@@ -11,20 +11,18 @@ import sparkshow.db.models.User
 
 case class InvalidResponse(status: String = "error", message: String)
 
-object InvalidResponse {
-    implicit val encoder: Encoder[InvalidResponse] =
+object InvalidResponse:
+    given encoder: Encoder[InvalidResponse] =
         deriveEncoder[InvalidResponse]
-}
 
 sealed class SuccessResponse(status: String = "ok")
 case class LoginResponse(status: String = "ok", user: User, token: String)
     extends SuccessResponse(status)
 
-object LoginResponse {
-    implicit val userEncoder: Encoder[User] = deriveEncoder[User]
+object LoginResponse:
+    given userEncoder: Encoder[User] = deriveEncoder[User]
         .mapJsonObject(_.remove("token"))
-    implicit val jsonEncoder: Encoder[LoginResponse] = deriveEncoder
-}
+    given jsonEncoder: Encoder[LoginResponse] = deriveEncoder
 
 case class CreateQueryResponse(
     id: Long,
@@ -39,9 +37,9 @@ case class CreateQueryResponse(
     retries: Int = 0
 )
 
-object CreateQueryResponse {
+object CreateQueryResponse:
     import sparkshow.db.models.Aggregate.encoder
-    implicit val jsonEncoder: Encoder[CreateQueryResponse] = deriveEncoder
+    given jsonEncoder: Encoder[CreateQueryResponse] = deriveEncoder
 
     def fromQuery(query: Query): CreateQueryResponse =
         CreateQueryResponse(
@@ -56,7 +54,6 @@ object CreateQueryResponse {
           query.state,
           query.retries
         )
-}
 
 case class CreateSourceResponse(
     id: Long,
@@ -67,8 +64,8 @@ case class CreateSourceResponse(
     schema: Schema
 )
 
-object CreateSourceResponse {
-    implicit val jsonEncoder: Encoder[CreateSourceResponse] = deriveEncoder
+object CreateSourceResponse:
+    given jsonEncoder: Encoder[CreateSourceResponse] = deriveEncoder
 
     def fromSource(source: Source): CreateSourceResponse =
         CreateSourceResponse(
@@ -79,4 +76,3 @@ object CreateSourceResponse {
           source.delimiter,
           source.schema
         )
-}
