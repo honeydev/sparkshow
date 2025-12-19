@@ -68,3 +68,7 @@ project/**/metals.sbt
 
 .bsp
 test_fixtures
+
+common/target/
+core/target/
+spark/target/

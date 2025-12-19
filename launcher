@@ -2,4 +2,4 @@
 
 ARGS="$@"
 
-sbt "runMain sparkshow.SparkshowLauncher $ARGS"
+sbt "project core" "runMain sparkshow.SparkshowLauncher $ARGS"
