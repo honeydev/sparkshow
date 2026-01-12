@@ -30,6 +30,7 @@ lazy val coreDependencies = Seq(
     "org.http4s" %% "http4s-core" % http4sVersion,
     "org.http4s" %% "http4s-client" % http4sVersion,
     "org.http4s" %% "http4s-server" % http4sVersion,
+    "org.http4s" %% "http4s-cors" % http4sVersion,
     "org.http4s" %% "http4s-ember-client" % http4sVersion,
     "org.http4s" %% "http4s-ember-server" % http4sVersion,
     "org.http4s" %% "http4s-circe" % http4sVersion,

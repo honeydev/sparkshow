@@ -14,6 +14,10 @@ import sparkshow.db.models.Query
 import sparkshow.db.models.Source
 import sparkshow.db.repositories.MetricRepository
 import sparkshow.db.repositories.QueryRepository
+import org.typelevel.log4cats.slf4j.Slf4jFactory
+import org.typelevel.log4cats.LoggerFactory
+import org.typelevel.log4cats.SelfAwareStructuredLogger
+import org.typelevel.log4cats.syntax._
 
 class QueryQueueService(
     private val queryRepository: QueryRepository,
@@ -22,6 +26,8 @@ class QueryQueueService(
 ) {
 
     private final val MaxRetries = 3
+    private given logger: SelfAwareStructuredLogger[IO] =
+        Slf4jFactory.create[IO].getLogger
 
     def produceQueries(queue: Queue[IO, (Query, Source)]) = {
         val enqueue = for {
@@ -39,13 +45,11 @@ class QueryQueueService(
                 .getOrElse(IO.pure(List()))
 
             enqueueQueries <-
-                if (queries.isEmpty) {
-                    IO.println("Nothing to enqueue, queue is empty")
-                } else {
-                    IO.println(s"Enqueued: $queries") >> queries.traverse_(q =>
-                        queue.offer(q)
-                    )
-                }
+                if (queries.isEmpty)
+                    info"Nothing to enqueue, queue is empty"
+                else
+                    queries.traverse_(q => queue.offer(q))
+
         } yield (enqueueQueries)
         enqueue >> IO.sleep(20.seconds)
     }
