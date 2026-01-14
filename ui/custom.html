@@ -30,14 +30,17 @@
   <div id="app"></div>
   <script src="main.js"></script>
   <script>
-      var session = localStorage.getItem("session")
+      var storedSession = localStorage.getItem("session")
+
       var app = Elm.Main.init({
         node: document.getElementById("app"),
-        flags: session
+        flags: storedSession
       })
       app.ports.storeSession.subscribe(function(session) {
         localStorage.setItem("session", session)
       })
+
+      app.ports.loadSession.send(storedSession || "")
     </script>
 </body>
 </html>

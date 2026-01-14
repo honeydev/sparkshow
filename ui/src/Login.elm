@@ -26,7 +26,19 @@ type alias Form =
 
 
 type alias LoginSuccess =
-    { token : String }
+    { user : User
+    , token : String
+    }
+
+
+type alias User =
+    { id : Int
+    , createdAt : String
+    , updatedAt : String
+    , username : String
+    , email : Maybe String
+    , passwordHash : String
+    }
 
 
 type alias LoginError =
@@ -71,13 +83,20 @@ formEncoder form =
         ]
 
 
+loginSuccessDecoder : Decode.Decoder LoginSuccess
+loginSuccessDecoder =
+    Decode.map2 LoginSuccess
+        (Decode.field "user" userDecoder)
+        (Decode.field "token" Decode.string)
+
+
 loginStringResponseDecoder : Http.Response String -> Result LoginError LoginSuccess
 loginStringResponseDecoder response =
     case response of
         Http.GoodStatus_ _ body ->
-            case Decode.decodeString (Decode.field "token" Decode.string) body of
-                Ok token ->
-                    Ok { token = token }
+            case Decode.decodeString loginSuccessDecoder body of
+                Ok success ->
+                    Ok success
 
                 Err decodeErr ->
                     Err (Decode.errorToString decodeErr)
@@ -121,10 +140,10 @@ update msg model =
             case result of
                 Ok success ->
                     ( { model
-                        | session = Session.Active { token = success.token }
-                        , message = Just "Login successful"
+                        | session = Session.Active { token = success.token, user = success.user }
+                        , message = Just ("Welcome, " ++ success.user.username ++ "!")
                       }
-                    , Session.storeSession { token = success.token }
+                    , Session.storeSession { token = success.token, user = success.user }
                     )
 
                 Err errMsg ->
