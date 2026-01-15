@@ -5,8 +5,10 @@ import Browser.Navigation as Nav
 import Components.Navbar as Navbar
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (onClick)
 import IndexPage exposing (..)
 import Login as LoginPage
+import Msg exposing (..)
 import NotFound exposing (..)
 import Platform.Cmd as Cmd
 import Ports
@@ -76,25 +78,26 @@ init flags url key =
         route =
             Route.parseUrl url
 
-        page =
+        ( page, session ) =
             pageForRoute route initialSession
     in
-    ( { pageModel = page, route = route, navKey = key, session = initialSession }
+    ( { pageModel = page, route = route, navKey = key, session = session }
     , Cmd.none
     )
 
 
-pageForRoute : Route -> Session -> Page
+pageForRoute : Route -> Session -> ( Page, Session )
 pageForRoute route session =
     case route of
         Route.Index ->
-            IndexPage { session = session }
-
-        Route.Login ->
-            LoginPage.init session |> LoginPage
+            ( IndexPage { session = session }, session )
 
         Route.NotFound ->
-            NotFoundPage
+            ( NotFoundPage, session )
+
+        -- redirect on login page for (sign out and click on login link)
+        _ ->
+            ( LoginPage.init Unauthenticated |> LoginPage, session )
 
 
 pageWithSession : Session -> Page -> Page
@@ -112,13 +115,6 @@ pageWithSession session page =
 
 
 -- UPDATE
-
-
-type Msg
-    = LinkClicked Browser.UrlRequest
-    | UrlChanged Url.Url
-    | LoginMessage LoginPage.Msg
-    | SessionLoaded String
 
 
 authHook : a -> Page -> a
@@ -153,10 +149,10 @@ update msg model =
                 route =
                     Route.parseUrl url
 
-                page =
+                ( page, session ) =
                     pageForRoute route model.session
             in
-            ( { pageModel = page, route = route, navKey = model.navKey, session = model.session }, Cmd.none )
+            ( { pageModel = page, route = route, navKey = model.navKey, session = session }, Cmd.none )
 
         LinkClicked urlRequest ->
             case urlRequest of
@@ -199,6 +195,9 @@ update msg model =
             in
             ( { model | pageModel = updatedPage, session = newSession }, Cmd.none )
 
+        SignOut ->
+            ( { model | session = Unauthenticated }, Nav.pushUrl model.navKey "/login" )
+
 
 
 -- SUBSCRIPTIONS
@@ -217,17 +216,19 @@ view : Model -> Browser.Document Msg
 view model =
     { title = "Sparkshow"
     , body =
+        let
+            mainNavElements =
+                [ Navbar.Link "Queries" "queries", Navbar.Link "Profile" "profile" ]
+        in
         [ ul []
-            [ Navbar.build
-                [ Navbar.Link "Queries" "queries"
-                , Navbar.Link "Profile" "profile"
-                , case model.session of
-                    Active _ ->
-                        Navbar.Link "Sign out" "sign-out"
+            [ case model.session of
+                Active _ ->
+                    Navbar.buildSignOut mainNavElements (Navbar.NavButton "Sign Out")
 
-                    Unauthenticated ->
-                        Navbar.Link "Login" "login"
-                ]
+                Unauthenticated ->
+                    mainNavElements
+                        ++ [ Navbar.Link "Login" "login" ]
+                        |> Navbar.buildLogIn
             ]
         , div [] [ text <| Debug.toString model.session ]
         , case model.pageModel of

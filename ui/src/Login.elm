@@ -26,18 +26,8 @@ type alias Form =
 
 
 type alias LoginSuccess =
-    { user : User
+    { user : Session.User
     , token : String
-    }
-
-
-type alias User =
-    { id : Int
-    , createdAt : String
-    , updatedAt : String
-    , username : String
-    , email : Maybe String
-    , passwordHash : String
     }
 
 
@@ -86,7 +76,7 @@ formEncoder form =
 loginSuccessDecoder : Decode.Decoder LoginSuccess
 loginSuccessDecoder =
     Decode.map2 LoginSuccess
-        (Decode.field "user" userDecoder)
+        (Decode.field "user" Session.userDecoder)
         (Decode.field "token" Decode.string)
 
 

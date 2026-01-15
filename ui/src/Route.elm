@@ -8,6 +8,7 @@ type Route
     = Login
     | NotFound
     | Index
+    | SignOut
 
 
 parseUrl : Url -> Route
@@ -25,4 +26,5 @@ matchRoute =
     oneOf
         [ map Index top
         , map Login (s "login")
+        , map SignOut (s "sign-out")
         ]
