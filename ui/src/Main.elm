@@ -196,7 +196,7 @@ update msg model =
             ( { model | pageModel = updatedPage, session = newSession }, Cmd.none )
 
         SignOut ->
-            ( { model | session = Unauthenticated }, Nav.pushUrl model.navKey "/login" )
+            ( { model | session = Unauthenticated }, Cmd.batch [ Ports.removeLocalStorageItem "session", Nav.pushUrl model.navKey "/login" ] )
 
 
 
