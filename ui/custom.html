@@ -18,7 +18,7 @@
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
-  <link rel="stylesheet" href="css/styles.css?v=1.0">
+  <link rel="stylesheet" href="static/styles.css?v=1.0">
 
 <!-- Bootstrap -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
@@ -41,6 +41,12 @@
       })
 
       app.ports.loadSession.send(storedSession || "")
+
+      app.ports.removeLocalStorageItem.subscribe(function (key) {
+        console.log("Key")
+        console.log(key)
+        localStorage.removeItem(key)
+      })
     </script>
 </body>
 </html>
