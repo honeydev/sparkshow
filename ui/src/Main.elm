@@ -173,7 +173,7 @@ update msg model =
                             LoginPage.init (getSession model)
 
                 ( m, cmd ) =
-                    LoginPage.update subMsg loginPageModel
+                    LoginPage.update subMsg loginPageModel model.navKey
 
                 newPageModel =
                     LoginPage m
@@ -192,8 +192,16 @@ update msg model =
 
                 updatedPage =
                     pageWithSession newSession model.pageModel
+
+                pushOnLoginPage =
+                    case newSession of
+                        Active _ ->
+                            Cmd.none
+
+                        Unauthenticated ->
+                            Nav.pushUrl model.navKey "/login"
             in
-            ( { model | pageModel = updatedPage, session = newSession }, Cmd.none )
+            ( { model | pageModel = updatedPage, session = newSession }, pushOnLoginPage )
 
         SignOut ->
             ( { model | session = Unauthenticated }, Cmd.batch [ Ports.removeLocalStorageItem "session", Nav.pushUrl model.navKey "/login" ] )
@@ -219,27 +227,60 @@ view model =
         let
             mainNavElements =
                 [ Navbar.Link "Queries" "queries", Navbar.Link "Profile" "profile" ]
+
+            ( sidebar, contentHeader, contentHeighSize ) =
+                case model.session of
+                    Active _ ->
+                        ( aside
+                            [ id "sidebar", class "fixed inset-y-0 left-0 z-30 w-64 bg-gray-900 text-white transform -translate-x-full transition-transform duration-200 ease-in-out md:translate-x-0 md:static md:inset-0" ]
+                            [ div [ class "p-6 text-xl font-bold border-b border-gray-700" ] [ text "Dashboard" ]
+                            , nav [ class "p-4 space-y-2" ]
+                                [ Navbar.authenticatedNavbar mainNavElements (Navbar.NavButton "Sign Out") ]
+                            ]
+                            |> Just
+                        , header
+                            [ class "flex items-center bg-white shadow px-4 h-16" ]
+                            [ button [ class "md:hidden text-gray-700" ]
+                                [ text "☰"
+                                ]
+                            , h1 [ class "ml-4 text-lg font-semibold" ] [ text " Contnet" ]
+                            ]
+                            |> Just
+                        , "[calc(100vh-4rem)]"
+                        )
+
+                    Unauthenticated ->
+                        ( Nothing, Nothing, "screen" )
+
+            content =
+                let
+                    mainContent =
+                        div [ class <| "bg-gray-100 flex items-center justify-center min-h-" ++ contentHeighSize ]
+                            [ -- div [] [ text <| Debug.toString model.session ]
+                              case model.pageModel of
+                                LoginPage m ->
+                                    Html.map LoginMessage (LoginPage.view m)
+
+                                NotFoundPage ->
+                                    NotFound.view
+
+                                IndexPage m ->
+                                    IndexPage.view m
+                            ]
+
+                    contentElements =
+                        List.filterMap identity [ contentHeader, Just mainContent ]
+                in
+                main_
+                    [ class "flex-1 flex flex-col min-h-screen" ]
+                    contentElements
+
+            all =
+                List.filterMap identity [ sidebar, Just content ]
         in
-        [ ul []
-            [ case model.session of
-                Active _ ->
-                    Navbar.buildSignOut mainNavElements (Navbar.NavButton "Sign Out")
-
-                Unauthenticated ->
-                    mainNavElements
-                        ++ [ Navbar.Link "Login" "login" ]
-                        |> Navbar.buildLogIn
-            ]
-        , div [] [ text <| Debug.toString model.session ]
-        , case model.pageModel of
-            LoginPage m ->
-                Html.map LoginMessage (LoginPage.view m)
-
-            NotFoundPage ->
-                NotFound.view
-
-            IndexPage m ->
-                IndexPage.view m
+        [ div
+            [ class "flex h-screen" ]
+            all
         ]
     }
 
