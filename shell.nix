@@ -9,12 +9,13 @@ let
 #      pkgs.ninja
 #    ];
 
-    buildInputs = [
-      pkgs.jdk21
-      pkgs.sbt
-      pkgs.coursier
-      pkgs.metals
-      pkgs.postgresql
+    buildInputs = with pkgs; [
+      jdk21
+      sbt
+      coursier
+      metals
+      postgresql
+      tailwindcss
 #      pkgs.elmPackages.elm-language-server
 #      pkgs.elmPackages.elm
 #      pkgs.elmPackages.elm-live

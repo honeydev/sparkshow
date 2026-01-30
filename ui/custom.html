@@ -18,25 +18,31 @@
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
-  <link rel="stylesheet" href="css/styles.css?v=1.0">
+  <link rel="stylesheet" href="static/styles.css">
 
-<!-- Bootstrap -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
 </head>
 
-<body>
+<body  class="bg-gray-100">
   <!-- your content here... -->
   <div id="app"></div>
   <script src="main.js"></script>
   <script>
-      var session = localStorage.getItem("session")
+      var storedSession = localStorage.getItem("session")
+
       var app = Elm.Main.init({
         node: document.getElementById("app"),
-        flags: session
+        flags: storedSession
       })
       app.ports.storeSession.subscribe(function(session) {
         localStorage.setItem("session", session)
+      })
+
+      app.ports.loadSession.send(storedSession || "")
+
+      app.ports.removeLocalStorageItem.subscribe(function (key) {
+        console.log("Key")
+        console.log(key)
+        localStorage.removeItem(key)
       })
     </script>
 </body>

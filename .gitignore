@@ -72,3 +72,4 @@ test_fixtures
 common/target/
 core/target/
 spark/target/
+.nvim-dap.lua
