@@ -5,6 +5,9 @@ import cats.data.NonEmptyList
 import cats.effect._
 import cats.effect.std.Queue
 import cats.syntax.all._
+import org.typelevel.log4cats.SelfAwareStructuredLogger
+import org.typelevel.log4cats.slf4j.Slf4jFactory
+import org.typelevel.log4cats.syntax._
 import sparkshow.data.Enqueued
 import sparkshow.data.Failed
 import sparkshow.data.New
@@ -14,10 +17,6 @@ import sparkshow.db.models.Query
 import sparkshow.db.models.Source
 import sparkshow.db.repositories.MetricRepository
 import sparkshow.db.repositories.QueryRepository
-import org.typelevel.log4cats.slf4j.Slf4jFactory
-import org.typelevel.log4cats.LoggerFactory
-import org.typelevel.log4cats.SelfAwareStructuredLogger
-import org.typelevel.log4cats.syntax._
 
 class QueryQueueService(
     private val queryRepository: QueryRepository,
