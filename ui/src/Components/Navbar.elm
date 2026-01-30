@@ -26,24 +26,24 @@ linkToHtml : Link -> Html msg
 linkToHtml link =
     case link of
         Link name path ->
-            li [ class "nav-item" ] [ a [ class "nav-link", href path ] [ text name ] ]
+            li [] [ a [ class "block px-4 py-2 rounded hover:bg-gray-700", href path ] [ text name ] ]
 
 
-buildLogIn : List Link -> Html Msg
-buildLogIn links =
+navBarLinks : List (Html msg) -> Html msg
+navBarLinks links =
+    nav [ class "navbar-custom p-4 space-y-2" ]
+        links
+
+
+unaunthenticatedNavbar : Link -> Html msg
+unaunthenticatedNavbar logIn =
+    [ linkToHtml logIn ] |> navBarLinks
+
+
+authenticatedNavbar : List Link -> NavButton -> Html Msg
+authenticatedNavbar links signOut =
     let
-        navLinks =
-            List.map linkToHtml links
-    in
-    nav [ class "navbar navbar-light bg-light" ]
-        [ navLinks |> ul [ class "navbar-nav" ]
-        ]
-
-
-buildSignOut : List Link -> NavButton -> Html Msg
-buildSignOut links signOut =
-    let
-        navLinks =
+        commonNavbarLinks =
             List.map linkToHtml links
 
         logOutLink =
@@ -53,13 +53,11 @@ buildSignOut links signOut =
                         NavButton name ->
                             name
             in
-            span
-                [ onClick SignOut ]
+            li
+                [ class "list-none block px-4 py-2 rounded hover:bg-gray-700", onClick SignOut ]
                 [ text signOutName ]
 
         allLinks =
-            navLinks ++ [ logOutLink ]
+            commonNavbarLinks ++ [ logOutLink ]
     in
-    nav [ class "navbar navbar-light bg-light" ]
-        [ allLinks |> ul [ class "navbar-nav" ]
-        ]
+    navBarLinks allLinks
