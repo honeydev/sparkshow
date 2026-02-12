@@ -1,23 +1,18 @@
 package sparkshow.codecs
 
-import io.circe._
+import io.circe.*
 import java.sql.Timestamp
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
-object CommonCodecs {
+object CommonCodecs:
 
-    implicit val TimestampCodecs: Encoder[Timestamp] & Decoder[Timestamp] =
-        new Encoder[Timestamp] with Decoder[Timestamp] {
-            override def apply(a: Timestamp): Json =
-                Encoder.encodeLong.apply(a.getTime)
+    given TimestampCodecs: Encoder[Timestamp] & Decoder[Timestamp] with
+        def apply(a: Timestamp): Json = Encoder.encodeLong(a.getTime)
+        def apply(c: HCursor): Decoder.Result[Timestamp] =
+            summon[Decoder[Long]].map(Timestamp(_))(c)
 
-            override def apply(c: HCursor): Decoder.Result[Timestamp] =
-                Decoder.decodeLong.map(s => new Timestamp(s)).apply(c)
-        }
+    given FiniteDurationDecoder: Decoder[FiniteDuration] =
+        summon[Decoder[Long]].map(_.seconds)
 
-    implicit val FiniteDurationDecoder: Decoder[FiniteDuration] =
-        Decoder.decodeLong.map(_.seconds)
-
-    implicit val FiniteDurationEncoder: Encoder[FiniteDuration] =
-        Encoder.encodeLong.contramap(_.toSeconds.toLong)
-}
+    given FiniteDurationEncoder: Encoder[FiniteDuration] =
+        summon[Encoder[Long]].contramap(_.toSeconds)

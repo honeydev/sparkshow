@@ -77,7 +77,7 @@ lazy val core = (project in file("core"))
         "-Xkind-projector:underscores",
         "-Wunused:imports"
       ),
-      scalaVersion        := "3.6.4",
+      scalaVersion        := "3.8.1",
       libraryDependencies := coreDependencies,
       excludeDependencies ++= Seq(
         "org.scala-lang.modules" % "scala-collection-compat_2.13",

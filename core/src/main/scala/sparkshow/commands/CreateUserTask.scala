@@ -27,7 +27,7 @@ class CreateUserTask(
     ): IO[Unit] = {
         IO.println(s"Running ${CreateUserTask.id}! with $appConf")
         val builder = OParser.builder[Args]
-        val parser = {
+        val parser  = {
             import builder._
             OParser.sequence(
               programName("Sparkshow"),
@@ -64,7 +64,7 @@ class CreateUserTask(
                       parsed.email
                     )
                     roles <- roleRepo.many(user.id)
-                    _ <- IO.println(
+                    _     <- IO.println(
                       s"Success create user: $user with roles: $roles"
                     )
                 } yield ()).as(ExitCode.Success)

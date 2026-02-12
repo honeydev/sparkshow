@@ -41,7 +41,7 @@ class QueryRepository(private val transactor: Transactor[IO]) extends SQLOps {
     }
 
     def queries(st: List[String]): IO[List[(Query, Source)]] = {
-        val states = st.map(v => fr"$v::query_state").intercalate(fr",")
+        val states       = st.map(v => fr"$v::query_state").intercalate(fr",")
         val selectClause = fr"""
              SELECT * FROM queries
              INNER JOIN sources

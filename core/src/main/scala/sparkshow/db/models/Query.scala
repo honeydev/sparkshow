@@ -44,8 +44,8 @@ case class Query(
 object Function {
 
     implicit val decoder: Decoder[Function] = Decoder.decodeString.emap {
-        case "sum"   => Right(Sum)
-        case "count" => Right(Count)
+        case "sum"           => Right(Sum)
+        case "count"         => Right(Count)
         case unknownFunction =>
             Left(s"Unrecognised aggregate function $unknownFunction")
     }

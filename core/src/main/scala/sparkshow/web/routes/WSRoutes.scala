@@ -30,7 +30,7 @@ class WSRoutes(
     val metricRepo: MetricRepository
 ) {
 
-    implicit val logging: LoggerFactory[IO] = Slf4jFactory.create[IO]
+    implicit val logging: LoggerFactory[IO]            = Slf4jFactory.create[IO]
     implicit val logger: SelfAwareStructuredLogger[IO] =
         LoggerFactory[IO].getLogger
 
@@ -65,7 +65,7 @@ class WSRoutes(
                                 rawData <- frameIn.data.decodeString(
                                   StandardCharsets.UTF_8
                                 )
-                                parsed <- parse(rawData)
+                                parsed      <- parse(rawData)
                                 requestType <- parsed.hcursor.get[String](
                                   "request"
                                 )
@@ -98,7 +98,7 @@ class WSRoutes(
                                         for {
                                             _ <-
                                                 info"Raw message: $rawMessage, newState: $newState"
-                                            _ = state = newState
+                                            _  = state = newState
                                             _ <-
                                                 info"Success change state to $newState"
                                         } yield ()

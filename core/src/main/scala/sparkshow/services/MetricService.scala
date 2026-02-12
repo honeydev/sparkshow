@@ -15,7 +15,7 @@ class MetricService(
     val userRepo: UserRepository
 ) {
 
-    implicit val logging: LoggerFactory[IO] = Slf4jFactory.create[IO]
+    implicit val logging: LoggerFactory[IO]            = Slf4jFactory.create[IO]
     implicit val logger: SelfAwareStructuredLogger[IO] =
         LoggerFactory[IO].getLogger
 

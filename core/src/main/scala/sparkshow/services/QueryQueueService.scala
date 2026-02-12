@@ -24,7 +24,7 @@ class QueryQueueService(
     private val localSparkMetricCalcService: LocalSparkMetricCalcService
 ) {
 
-    private final val MaxRetries = 3
+    private final val MaxRetries                        = 3
     private given logger: SelfAwareStructuredLogger[IO] =
         Slf4jFactory.create[IO].getLogger
 
@@ -65,12 +65,12 @@ class QueryQueueService(
                         _ <- queryRepository.update(Running, q.id)
 
                         perfomanceStartTime <- clock.realTime
-                        metricData <- IO.blocking {
+                        metricData          <- IO.blocking {
                             localSparkMetricCalcService
                                 .calc(q.toProps, s.toProps)
                         }
                         perfomanceEndTime <- clock.realTime
-                        _ <-
+                        _                 <-
                             info"Query ${q.id} perfom time seconds: ${(perfomanceEndTime - perfomanceStartTime).toSeconds}"
                         m <- metricRepository.insertOne(
                           q.id,

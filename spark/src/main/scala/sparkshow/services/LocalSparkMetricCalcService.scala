@@ -93,7 +93,7 @@ class LocalSparkMetricCalcService {
             .map(r =>
                 MetricValue(
                   label = queryProperties.grouped.mkString(", "),
-                  name = queryProperties.grouped
+                  name  = queryProperties.grouped
                       .map(r.getAs[String](_))
                       .mkString(", "),
                   value = r.getAs[Long](

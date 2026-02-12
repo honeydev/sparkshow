@@ -10,8 +10,14 @@ dev-up:
 dev-down:
 	docker compose down
 
+format-core:
+	sbt "core/scalafmt"
+
 format:
 	sbt "core/scalafmt"
+	sbt "common/scalafmt"
+	sbt "spark/scalafmt"
+
 create-user:
 	./launcher :create-user -cli-command true x --username test --password test --email test@email.com --roles ADMIN
 
