@@ -3,9 +3,9 @@ import scala.collection.Seq
 ThisBuild / version           := "0.1.0-SNAPSHOT"
 ThisBuild / semanticdbEnabled := true
 ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
+Compile / scalaSource         := baseDirectory.value / "core" / "src"
 
-Compile / scalaSource := baseDirectory.value / "core" / "src"
-
+val Scala213Version     = "2.13.18"
 val http4sVersion       = "0.23.32"
 val doobieVersion       = "1.0.0-RC3"
 val pureConfigVersion   = "0.17.4"
@@ -65,7 +65,7 @@ lazy val root = (project in file("."))
 
 val common = (project in file("common"))
     .settings(
-      scalaVersion := "2.13.18",
+      scalaVersion := Scala213Version,
       scalacOptions ++= Seq("-Wunused:imports")
     )
 
@@ -88,7 +88,7 @@ lazy val core = (project in file("core"))
 
 lazy val spark = (project in file("spark"))
     .settings(
-      scalaVersion := "2.13.18",
+      scalaVersion := Scala213Version,
       libraryDependencies := Seq(
         "org.apache.spark" %% "spark-core" % sparkVersion,
         "org.apache.spark" %% "spark-sql" % sparkVersion,

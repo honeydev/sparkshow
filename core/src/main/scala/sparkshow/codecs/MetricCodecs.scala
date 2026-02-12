@@ -9,8 +9,9 @@ import io.circe.generic.semiauto.deriveDecoder
 import io.circe.generic.semiauto.deriveEncoder
 import sparkshow.data.MetricValue
 import sparkshow.db.models.Metric
+import sparkshow.codecs.CommonCodecs.TimestampCodecs
 
-object MetricCodecs {
+object MetricCodecs:
     import sparkshow.codecs.CommonCodecs._
 
     implicit val ValueDecoder: Decoder[MetricValue] =
@@ -22,4 +23,3 @@ object MetricCodecs {
 
     implicit val metaValueList: Meta[List[MetricValue]] =
         new Meta[List[MetricValue]](pgDecoderGet, pgEncoderPut)
-}

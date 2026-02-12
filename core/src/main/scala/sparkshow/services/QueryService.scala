@@ -5,6 +5,7 @@ import sparkshow.db.models.Query
 import sparkshow.db.models.User
 import sparkshow.db.repositories.QueryRepository
 import sparkshow.web.data.QueryRequestBody
+import scala.concurrent.duration._
 
 class QueryService(
     val queryRepository: QueryRepository
@@ -16,6 +17,7 @@ class QueryService(
           queryRequest.columns,
           queryRequest.grouped,
           queryRequest.aggregate,
+          queryRequest.period,
           user.id
         )
     }

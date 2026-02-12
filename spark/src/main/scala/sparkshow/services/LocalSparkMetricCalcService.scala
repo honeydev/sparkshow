@@ -14,6 +14,7 @@ import sparkshow.data.MetricValue
 import sparkshow.data.NumericT
 import sparkshow.data.StringT
 import sparkshow.data.Sum
+import scala.concurrent.duration._
 
 case class QueryProperties(
     id: Long,
@@ -25,7 +26,8 @@ case class QueryProperties(
     grouped: List[String],
     aggregate: Aggregate,
     state: String,
-    retries: Int = 0
+    retries: Int           = 0,
+    period: FiniteDuration = 60.seconds
 )
 
 case class SourceProperties(

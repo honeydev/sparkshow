@@ -43,31 +43,40 @@ class QueryQueueService(
                 .map { qIds => queryRepository.update(Enqueued, qIds) }
                 .getOrElse(IO.pure(List()))
 
-            enqueueQueries <-
+            _ <-
                 if (queries.isEmpty)
                     info"Nothing to enqueue, queue is empty"
                 else
-                    queries.traverse_(q => queue.offer(q))
+                    queries.traverse_(q =>
+                        queue.offer(q)
+                    ) >> info"Success enqueue ${queries.length} queries"
 
-        } yield (enqueueQueries)
+        } yield ()
         enqueue >> IO.sleep(20.seconds)
     }
 
-    def handleQueries(queue: Queue[IO, (Query, Source)]): IO[List[Unit]] = {
+    def handleQueries(
+        queue: Queue[IO, (Query, Source)]
+    )(using F: Sync[IO], clock: Clock[IO]): IO[List[Unit]] = {
         queue.tryTakeN(Some(4)).flatMap { extracted =>
             extracted.parTraverse {
                 case (q, s) => {
                     (for {
                         _ <- queryRepository.update(Running, q.id)
+
+                        perfomanceStartTime <- clock.realTime
                         metricData <- IO.blocking {
                             localSparkMetricCalcService
                                 .calc(q.toProps, s.toProps)
                         }
+                        perfomanceEndTime <- clock.realTime
+                        _ <-
+                            info"Query ${q.id} perfom time seconds: ${(perfomanceEndTime - perfomanceStartTime).toSeconds}"
                         m <- metricRepository.insertOne(
                           q.id,
                           metricData
                         )
-                        _ <- IO.println("Metric id: ", m)
+                        _ <- info"Metric id: $m"
                         _ <- queryRepository.update(
                           WaitingRetry,
                           retries = 0,
@@ -88,7 +97,9 @@ class QueryQueueService(
                                       id      = q.id
                                     )
                                 }
-                            _ <- IO.println("Raised:", e)
+                            _ <- logger.error(Map("query" -> q.toString), e)(
+                              "Failed calc metric"
+                            )
                         } yield ()
                     }
                 }

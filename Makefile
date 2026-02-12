@@ -11,8 +11,7 @@ dev-down:
 	docker compose down
 
 format:
-	sbt scalafmtAll
-
+	sbt "core/scalafmt"
 create-user:
 	./launcher :create-user -cli-command true x --username test --password test --email test@email.com --roles ADMIN
 

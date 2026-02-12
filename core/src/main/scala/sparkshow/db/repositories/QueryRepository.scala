@@ -17,6 +17,7 @@ import sparkshow.data.Aggregate
 import sparkshow.data.QueryState
 import sparkshow.db.models.Query
 import sparkshow.db.models.Source
+import scala.concurrent.duration._
 
 class QueryRepository(private val transactor: Transactor[IO]) extends SQLOps {
     import SourceRepository.get
@@ -28,7 +29,8 @@ class QueryRepository(private val transactor: Transactor[IO]) extends SQLOps {
         new Meta[Aggregate](pgDecoderGet, pgEncoderPut)
     implicit val instantMeta: Meta[Instant] =
         Meta[Timestamp].timap(_.toInstant)(Timestamp.from)
-
+    given periodMeta: Meta[FiniteDuration] =
+        Meta[Int].timap(_.seconds)(d => d.toSeconds.toInt)
     def all: IO[List[Query]] = {
         sql"""SELECT * FROM queries"""
             .query[Query]
@@ -60,6 +62,7 @@ class QueryRepository(private val transactor: Transactor[IO]) extends SQLOps {
         columns: List[String],
         grouped: List[String],
         aggregate: Aggregate,
+        period: FiniteDuration,
         ownerId: Long
     ): IO[Query] = {
         sql"""
@@ -68,6 +71,7 @@ class QueryRepository(private val transactor: Transactor[IO]) extends SQLOps {
                 , grouped
                 , aggregate
                 , state
+                , period
                 , source_id
                 , user_id
              )
@@ -76,6 +80,7 @@ class QueryRepository(private val transactor: Transactor[IO]) extends SQLOps {
                 , $grouped
                 , $aggregate
                 , ${QueryState.`new`}::query_state
+                , $period
                 , $sourceId
                 , $ownerId
              )
@@ -89,6 +94,7 @@ class QueryRepository(private val transactor: Transactor[IO]) extends SQLOps {
               "aggregate",
               "state",
               "retries",
+              "period",
               "created_at",
               "updated_at"
             )

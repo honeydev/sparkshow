@@ -19,6 +19,12 @@ import org.http4s.Status
 import org.http4s.circe._
 import sparkshow.data.Aggregate
 import sparkshow.db.models.Column
+import scala.concurrent.duration.FiniteDuration
+import sparkshow.codecs.CommonCodecs.{
+    FiniteDurationDecoder,
+    FiniteDurationEncoder
+}
+import org.http4s.circe.CirceEntityEncoder._
 
 given Configuration =
     Configuration.default.withDiscriminator("type").withSnakeCaseMemberNames
@@ -38,12 +44,14 @@ case class QueryRequestBody(
     sourceId: Long,
     columns: List[String],
     grouped: List[String],
+    period: FiniteDuration,
     aggregate: Aggregate
 ) derives ConfiguredCodec
 
 object QueryRequestBody {
 
     import sparkshow.db.models.Aggregate.{decoder, encoder}
+    import sparkshow.web.data.InvalidResponse.{encoder => irResponseDec}
     implicit val decoder: Decoder[QueryRequestBody] =
         deriveDecoder[QueryRequestBody]
 
@@ -66,8 +74,8 @@ object QueryRequestBody {
                             httpVersion: HttpVersion
                         ): Response[F] =
                             Response(Status.BadRequest, httpVersion)
-                                .withEntity("Json parse error")(
-                                  EntityEncoder.stringEncoder[F]
+                                .withEntity(
+                                  InvalidResponse(message = message)
                                 )
                     }
                 }

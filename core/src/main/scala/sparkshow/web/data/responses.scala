@@ -8,6 +8,7 @@ import sparkshow.db.models.Query
 import sparkshow.db.models.Source
 import sparkshow.db.models.Source.Schema
 import sparkshow.db.models.User
+import org.http4s.EntityEncoder
 
 case class InvalidResponse(status: String = "error", message: String)
 
@@ -34,7 +35,8 @@ case class CreateQueryResponse(
     grouped: List[String],
     aggregate: Aggregate,
     state: String,
-    retries: Int = 0
+    retries: Int = 0,
+    period: Int
 )
 
 object CreateQueryResponse:
@@ -52,7 +54,8 @@ object CreateQueryResponse:
           query.grouped,
           query.aggregate,
           query.state,
-          query.retries
+          query.retries,
+          query.period.toSeconds.toInt
         )
 
 case class CreateSourceResponse(

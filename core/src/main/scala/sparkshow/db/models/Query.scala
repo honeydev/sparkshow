@@ -10,6 +10,8 @@ import sparkshow.data.Count
 import sparkshow.data.Function
 import sparkshow.data.Sum
 import sparkshow.services.QueryProperties
+import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.duration._
 
 case class Query(
     id: Long,
@@ -19,11 +21,12 @@ case class Query(
     grouped: List[String],
     aggregate: Aggregate,
     state: String,
-    retries: Int = 0,
+    retries: Int           = 0,
+    period: FiniteDuration = 60.seconds,
     createdAt: Instant,
     updatedAt: Instant
 ) {
-    def toProps =
+    def toProps: QueryProperties =
         QueryProperties(
           this.id,
           this.userId,
