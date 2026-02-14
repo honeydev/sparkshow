@@ -1,5 +1,7 @@
 package sparkshow.services
 
+import scala.concurrent.duration._
+
 import java.time.Instant
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
@@ -14,7 +16,6 @@ import sparkshow.data.MetricValue
 import sparkshow.data.NumericT
 import sparkshow.data.StringT
 import sparkshow.data.Sum
-import scala.concurrent.duration._
 
 case class QueryProperties(
     id: Long,
