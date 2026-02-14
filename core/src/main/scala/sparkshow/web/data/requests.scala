@@ -50,8 +50,6 @@ case class QueryRequestBody(
 object QueryRequestBody {
 
     import sparkshow.db.models.Aggregate.{decoder, encoder}
-    implicit val decoder: Decoder[QueryRequestBody] =
-        deriveDecoder[QueryRequestBody]
 
     implicit val entityDecoder: EntityDecoder[IO, QueryRequestBody] =
         EntityDecoder.decodeBy[IO, QueryRequestBody](

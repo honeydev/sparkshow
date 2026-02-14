@@ -21,8 +21,25 @@ format:
 format-core:
 	sbt "core/scalafmt"
 
+format-common:
+	sbt "common/scalafmt"
+
+format-spark:
+	sbt "spark/scalafmt"
+
+fix-spark:
+	sbt "spark/scalafmt"
+
 fix-core:
 	sbt "core/scalafix"
+
+fix-common:
+	sbt "common/scalafix"
+
+fix:
+	sbt "core/scalafix"
+	sbt "common/scalafix"
+	sbt "spark/scalafmt"
 
 web:
 	./launcher :web
