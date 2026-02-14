@@ -18,6 +18,9 @@ format:
 	sbt "common/scalafmt"
 	sbt "spark/scalafmt"
 
+web:
+	./launcher :web
+
 create-user:
 	./launcher :create-user -cli-command true x --username test --password test --email test@email.com --roles ADMIN
 

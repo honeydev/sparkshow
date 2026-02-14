@@ -10,7 +10,7 @@ import doobie.util.transactor.Transactor
 import sparkshow.db.models.Metric
 
 class MetricRepository(val transactor: Transactor[IO]) {
-    import sparkshow.codecs.MetricCodecs._
+    import sparkshow.codecs.MetricCodecs.*
 
     def where(queryId: Long) = {
         sql"""

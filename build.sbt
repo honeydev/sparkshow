@@ -77,7 +77,7 @@ lazy val core = (project in file("core"))
         "-Xkind-projector:underscores",
         "-Wunused:imports"
       ),
-      scalaVersion        := "3.8.1",
+      scalaVersion        := "3.6.4",
       libraryDependencies := coreDependencies,
       excludeDependencies ++= Seq(
         "org.scala-lang.modules" % "scala-collection-compat_2.13",
@@ -88,7 +88,7 @@ lazy val core = (project in file("core"))
 
 lazy val spark = (project in file("spark"))
     .settings(
-      scalaVersion := Scala213Version,
+      scalaVersion        := Scala213Version,
       libraryDependencies := Seq(
         "org.apache.spark" %% "spark-core" % sparkVersion,
         "org.apache.spark" %% "spark-sql" % sparkVersion,
