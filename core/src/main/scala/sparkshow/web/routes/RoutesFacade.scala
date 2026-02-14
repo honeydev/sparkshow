@@ -6,6 +6,7 @@ import cats.effect.IO
 import cats.implicits._
 import org.http4s.Request
 import org.http4s.Response
+import org.http4s.server.middleware.CORS
 import org.http4s.server.middleware.ErrorAction
 import org.http4s.server.middleware.ErrorHandling
 import org.http4s.server.websocket.WebSocketBuilder2
@@ -30,13 +31,16 @@ class RoutesFacade(
               queryRoutes.routes <+> sourceRoutes.routes <+> wsRoutes.routes(ws)
             )
 
-        ErrorHandling.Recover.total(
-          ErrorAction.log(
-            appRoutes,
-            messageFailureLogAction = errorHandler,
-            serviceErrorLogAction   = errorHandler
-          )
-        )
+        val errorHandlingMW =
+            ErrorHandling.Recover.total(
+              ErrorAction.log(
+                appRoutes,
+                messageFailureLogAction = errorHandler,
+                serviceErrorLogAction   = errorHandler
+              )
+            )
+
+        CORS.policy.withAllowOriginAll(errorHandlingMW)
     }
 
     private def errorHandler(t: Throwable, msg: => String): OptionT[IO, Unit] =
