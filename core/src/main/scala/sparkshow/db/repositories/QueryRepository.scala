@@ -1,5 +1,7 @@
 package sparkshow.db.repositories
 
+import scala.concurrent.duration._
+
 import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.implicits._
@@ -17,7 +19,6 @@ import sparkshow.data.Aggregate
 import sparkshow.data.QueryState
 import sparkshow.db.models.Query
 import sparkshow.db.models.Source
-import scala.concurrent.duration._
 
 class QueryRepository(private val transactor: Transactor[IO]) extends SQLOps {
     import SourceRepository.get

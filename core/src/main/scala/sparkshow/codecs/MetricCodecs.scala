@@ -7,9 +7,9 @@ import io.circe.Decoder
 import io.circe.Encoder
 import io.circe.generic.semiauto.deriveDecoder
 import io.circe.generic.semiauto.deriveEncoder
+import sparkshow.codecs.CommonCodecs.TimestampFormat
 import sparkshow.data.MetricValue
 import sparkshow.db.models.Metric
-import sparkshow.codecs.CommonCodecs.TimestampFormat
 
 object MetricCodecs:
     import sparkshow.codecs.CommonCodecs.*

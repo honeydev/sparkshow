@@ -8,7 +8,6 @@ import sparkshow.db.models.Query
 import sparkshow.db.models.Source
 import sparkshow.db.models.Source.Schema
 import sparkshow.db.models.User
-import org.http4s.EntityEncoder
 
 case class InvalidResponse(status: String = "error", message: String)
 

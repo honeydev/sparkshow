@@ -1,8 +1,9 @@
 package sparkshow.codecs
 
-import io.circe.*
+import scala.concurrent.duration._
+
+import io.circe._
 import java.sql.Timestamp
-import scala.concurrent.duration.*
 
 object CommonCodecs:
 

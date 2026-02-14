@@ -1,5 +1,8 @@
 package sparkshow.db.models
 
+import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.duration._
+
 import io.circe.Decoder
 import io.circe.Encoder
 import io.circe.generic.semiauto.deriveDecoder
@@ -10,8 +13,6 @@ import sparkshow.data.Count
 import sparkshow.data.Function
 import sparkshow.data.Sum
 import sparkshow.services.QueryProperties
-import scala.concurrent.duration.FiniteDuration
-import scala.concurrent.duration._
 
 case class Query(
     id: Long,

@@ -1,5 +1,7 @@
 package sparkshow.web.data
 
+import scala.concurrent.duration.FiniteDuration
+
 import cats.data.EitherT
 import cats.effect.IO
 import io.circe.Decoder
@@ -16,15 +18,12 @@ import org.http4s.Media
 import org.http4s.MediaType
 import org.http4s.Response
 import org.http4s.Status
+import org.http4s.circe.CirceEntityEncoder._
 import org.http4s.circe._
+import sparkshow.codecs.CommonCodecs.FiniteDurationDecoder
+import sparkshow.codecs.CommonCodecs.FiniteDurationEncoder
 import sparkshow.data.Aggregate
 import sparkshow.db.models.Column
-import scala.concurrent.duration.FiniteDuration
-import sparkshow.codecs.CommonCodecs.{
-    FiniteDurationDecoder,
-    FiniteDurationEncoder
-}
-import org.http4s.circe.CirceEntityEncoder._
 
 given Configuration =
     Configuration.default.withDiscriminator("type").withSnakeCaseMemberNames
@@ -51,7 +50,6 @@ case class QueryRequestBody(
 object QueryRequestBody {
 
     import sparkshow.db.models.Aggregate.{decoder, encoder}
-    import sparkshow.web.data.InvalidResponse.{encoder => irResponseDec}
     implicit val decoder: Decoder[QueryRequestBody] =
         deriveDecoder[QueryRequestBody]
 
