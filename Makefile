@@ -39,7 +39,7 @@ fix-common:
 fix:
 	sbt "core/scalafix"
 	sbt "common/scalafix"
-	sbt "spark/scalafmt"
+	sbt "spark/scalafix"
 
 web:
 	./launcher :web

@@ -24,6 +24,7 @@ case class Query(
     state: String,
     retries: Int           = 0,
     period: FiniteDuration = 60.seconds,
+    lastRun: Option[Instant],
     createdAt: Instant,
     updatedAt: Instant
 ) {

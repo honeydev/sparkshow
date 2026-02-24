@@ -16,6 +16,7 @@ object MetricCodecs:
 
     given ValueDecoder: Decoder[MetricValue] =
         deriveDecoder[MetricValue]
+        
     implicit val ValueEncoder: Encoder[MetricValue] =
         deriveEncoder[MetricValue]
 

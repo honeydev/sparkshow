@@ -1,13 +1,12 @@
 package sparkshow.services
-import scala.concurrent.duration._
-
+import scala.concurrent.duration.*
 import cats.data.NonEmptyList
-import cats.effect._
+import cats.effect.*
 import cats.effect.std.Queue
-import cats.syntax.all._
+import cats.syntax.all.*
 import org.typelevel.log4cats.SelfAwareStructuredLogger
 import org.typelevel.log4cats.slf4j.Slf4jFactory
-import org.typelevel.log4cats.syntax._
+import org.typelevel.log4cats.syntax.*
 import sparkshow.data.Enqueued
 import sparkshow.data.Failed
 import sparkshow.data.New
@@ -17,6 +16,7 @@ import sparkshow.db.models.Query
 import sparkshow.db.models.Source
 import sparkshow.db.repositories.MetricRepository
 import sparkshow.db.repositories.QueryRepository
+import sparkshow.utils.toInstant
 
 class QueryQueueService(
     private val queryRepository: QueryRepository,
@@ -36,13 +36,10 @@ class QueryQueueService(
             _ <- NonEmptyList
                 .fromList(queries)
                 .map { nonEmptyQueries =>
-                    nonEmptyQueries.map { case (q, _) =>
-                        q.id
-                    }
+                    nonEmptyQueries.map { case (q, _) => q.id }
                 }
                 .map { qIds => queryRepository.update(Enqueued, qIds) }
-                .getOrElse(IO.pure(List()))
-
+                .getOrElse(IO.pure(List.empty))
             _ <-
                 if (queries.isEmpty)
                     info"Nothing to enqueue, queue is empty"
@@ -63,7 +60,6 @@ class QueryQueueService(
                 case (q, s) => {
                     (for {
                         _ <- queryRepository.update(Running, q.id)
-
                         perfomanceStartTime <- clock.realTime
                         metricData          <- IO.blocking {
                             localSparkMetricCalcService
@@ -78,12 +74,14 @@ class QueryQueueService(
                         )
                         _ <- info"Metric id: $m"
                         _ <- queryRepository.update(
-                          WaitingRetry,
+                          state   = WaitingRetry,
                           retries = 0,
-                          q.id
+                          lastRun = perfomanceEndTime.toInstant,
+                          id      = q.id
                         )
                     } yield ()).handleErrorWith { e =>
                         for {
+                            errorTime <- clock.realTime
                             _ <-
                                 if (q.retries > MaxRetries) {
                                     queryRepository.update(
@@ -94,6 +92,7 @@ class QueryQueueService(
                                     queryRepository.update(
                                       state   = WaitingRetry,
                                       retries = q.retries + 1,
+                                      lastRun = errorTime.toInstant,
                                       id      = q.id
                                     )
                                 }

@@ -78,7 +78,8 @@ lazy val core = (project in file("core"))
         "-Wunused:imports"
       ),
       scalaVersion        := "3.6.4",
-      libraryDependencies := coreDependencies,
+      // install single version scala-xml for 3 & 2.13
+      libraryDependencies := coreDependencies ++ Seq("org.scala-lang.modules" %% "scala-xml" % "2.4.0"),
       excludeDependencies ++= Seq(
         "org.scala-lang.modules" % "scala-collection-compat_2.13",
         "org.scala-lang.modules" % "scala-xml_2.13"
@@ -92,7 +93,7 @@ lazy val spark = (project in file("spark"))
       libraryDependencies := Seq(
         "org.apache.spark" %% "spark-core" % sparkVersion,
         "org.apache.spark" %% "spark-sql" % sparkVersion,
-        "org.apache.spark" %% "spark-streaming" % sparkVersion
+        "org.scala-lang.modules" %% "scala-xml" % "2.4.0"
       ),
       scalacOptions ++= Seq("-Wunused:imports")
     )
