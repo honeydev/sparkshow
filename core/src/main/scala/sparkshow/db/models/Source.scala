@@ -52,7 +52,7 @@ object Column {
     implicit val decoder: Decoder[Column] = new Decoder[Column] {
         final def apply(c: HCursor): Decoder.Result[Column] =
             for {
-                name <- c.downField("name").as[String]
+                name  <- c.downField("name").as[String]
                 _type <- c.downField("type").as[String].map(_.toLowerCase).map {
                     case "numeric" => NumericT
                     case "string"  => StringT

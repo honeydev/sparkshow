@@ -1,5 +1,7 @@
 package sparkshow.db.repositories
 
+import scala.concurrent.duration._
+
 import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.implicits._
@@ -22,13 +24,14 @@ class QueryRepository(private val transactor: Transactor[IO]) extends SQLOps {
     import SourceRepository.get
     import sparkshow.db.models.Aggregate.{decoder, encoder}
 
-    implicit val metaListString: Meta[List[String]] =
+    given metaListString: Meta[List[String]] =
         new Meta[List[String]](pgDecoderGet, pgEncoderPut)
-    implicit val aggregateMeta: Meta[Aggregate] =
+    given aggregateMeta: Meta[Aggregate] =
         new Meta[Aggregate](pgDecoderGet, pgEncoderPut)
-    implicit val instantMeta: Meta[Instant] =
+    given instantMeta: Meta[Instant] =
         Meta[Timestamp].timap(_.toInstant)(Timestamp.from)
-
+    given periodMeta: Meta[FiniteDuration] =
+        Meta[Int].timap(_.seconds)(d => d.toSeconds.toInt)
     def all: IO[List[Query]] = {
         sql"""SELECT * FROM queries"""
             .query[Query]
@@ -38,15 +41,26 @@ class QueryRepository(private val transactor: Transactor[IO]) extends SQLOps {
             .transact(transactor)
     }
 
-    def queries(st: List[String]): IO[List[(Query, Source)]] = {
-        val states = st.map(v => fr"$v::query_state").intercalate(fr",")
+    def queries(
+        st: Option[List[String]],
+        period: Some[Unit]
+    ): IO[List[(Query, Source)]] = {
         val selectClause = fr"""
              SELECT * FROM queries
              INNER JOIN sources
              ON queries.source_id = sources.id
             """
-        val stateCl     = fr"state IN ($states)"
-        val whereClause = whereAndOpt(Some(stateCl), Some(stateCl))
+        val stateCl = st.map { states =>
+            val statesFragment =
+                st.map(v => fr"$v::query_state").intercalate(fr",")
+
+            fr"state IN ($statesFragment)"
+        }
+        val periodCl =
+            period.map { _ =>
+                fr"COALESCE(EXTRACT(EPOCH FROM NOW() - last_run) > period, true)"
+            }
+        val whereClause = whereAndOpt(stateCl, periodCl)
         (selectClause ++ whereClause)
             .query[(Query, Source)]
             .stream
@@ -60,7 +74,9 @@ class QueryRepository(private val transactor: Transactor[IO]) extends SQLOps {
         columns: List[String],
         grouped: List[String],
         aggregate: Aggregate,
-        ownerId: Long
+        period: FiniteDuration,
+        ownerId: Long,
+        lastRun: Option[Instant] = None
     ): IO[Query] = {
         sql"""
              INSERT INTO queries (
@@ -68,6 +84,8 @@ class QueryRepository(private val transactor: Transactor[IO]) extends SQLOps {
                 , grouped
                 , aggregate
                 , state
+                , period
+                , last_run
                 , source_id
                 , user_id
              )
@@ -76,6 +94,8 @@ class QueryRepository(private val transactor: Transactor[IO]) extends SQLOps {
                 , $grouped
                 , $aggregate
                 , ${QueryState.`new`}::query_state
+                , $period
+                , $lastRun
                 , $sourceId
                 , $ownerId
              )
@@ -89,6 +109,8 @@ class QueryRepository(private val transactor: Transactor[IO]) extends SQLOps {
               "aggregate",
               "state",
               "retries",
+              "period",
+              "last_run",
               "created_at",
               "updated_at"
             )
@@ -106,7 +128,18 @@ class QueryRepository(private val transactor: Transactor[IO]) extends SQLOps {
             .transact(transactor)
     }
 
-    def update(state: QueryState, retries: Int, id: Long): IO[Int] =
-        sql"""UPDATE queries SET state = ${state.toString}::query_state, retries = $retries WHERE id = $id""".update.run
+    def update(
+        state: QueryState,
+        retries: Int,
+        lastRun: Instant,
+        id: Long
+    ): IO[Int] =
+        sql"""UPDATE 
+          queries
+        SET 
+          state = ${state.toString}::query_state
+          , retries = $retries
+          , last_run = $lastRun
+        WHERE id = $id""".update.run
             .transact(transactor)
 }

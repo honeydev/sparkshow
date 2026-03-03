@@ -25,7 +25,7 @@ class QueryRoutes(
                 .as[QueryRequestBody]
                 .flatMap(request =>
                     for {
-                        query <- queryService.createQuery(request, user)
+                        query    <- queryService.createQuery(request, user)
                         response <- Ok(
                           CreateQueryResponse.fromQuery(query).asJson
                         )

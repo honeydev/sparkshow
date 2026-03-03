@@ -24,7 +24,7 @@ class SourceRoutes(val sourceService: SourceService, val conf: AppConf) {
                 .as[SourceRequestBody]
                 .flatMap(request =>
                     for {
-                        source <- sourceService.createSource(request)
+                        source   <- sourceService.createSource(request)
                         response <- Ok(
                           CreateSourceResponse.fromSource(source).asJson
                         )

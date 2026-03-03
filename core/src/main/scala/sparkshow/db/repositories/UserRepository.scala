@@ -71,13 +71,13 @@ class UserRepository(implicit val transactor: Transactor[IO]) {
         val rolesNames = roles.map(_.name).mkString(", ")
 
         (for {
-            user <- createUser
+            user    <- createUser
             rolesId <- sql"SELECT id FROM roles WHERE name IN ($rolesNames)"
                 .query[Long]
                 .to[List]
             _ <- {
                 val rolesUsersIds = rolesId.map(roleId => (roleId, user.id))
-                val q =
+                val q             =
                     "INSERT INTO users_roles (role_id, user_id) VALUES (?, ?)"
                 Update[(Long, Long)](q).updateMany(rolesUsersIds)
             }

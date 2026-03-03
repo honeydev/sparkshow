@@ -1,4 +1,5 @@
 package sparkshow
+
 import cats.effect.IO
 import io.circe.Decoder
 import io.circe.generic.semiauto.*
@@ -36,7 +37,8 @@ class QuerySpec extends BaseIntegrationSpec {
                              "source_id": 1,
                              "columns": ["username"],
                              "grouped": ["position"],
-                             "aggregate": {"column": "salary", "function": "sum"}
+                             "aggregate": {"column": "salary", "function": "sum"},
+                             "period": 60
                        }"""
                 for {
                     user <- userService.createUser("test", "test", "test")
@@ -70,6 +72,7 @@ class QuerySpec extends BaseIntegrationSpec {
                     _        <- assertIO(body.grouped == List("position"))
                     _        <- assertIO(body.aggregate.column == "salary")
                     _        <- assertIO(body.aggregate.function == Sum)
+                    _        <- assertIO(body.period == 60)
                 } yield ()
             }
     }

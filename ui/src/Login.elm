@@ -1,5 +1,6 @@
 module Login exposing (..)
 
+import Browser.Navigation as Nav
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -26,7 +27,9 @@ type alias Form =
 
 
 type alias LoginSuccess =
-    { token : String }
+    { user : Session.User
+    , token : String
+    }
 
 
 type alias LoginError =
@@ -71,13 +74,20 @@ formEncoder form =
         ]
 
 
+loginSuccessDecoder : Decode.Decoder LoginSuccess
+loginSuccessDecoder =
+    Decode.map2 LoginSuccess
+        (Decode.field "user" Session.userDecoder)
+        (Decode.field "token" Decode.string)
+
+
 loginStringResponseDecoder : Http.Response String -> Result LoginError LoginSuccess
 loginStringResponseDecoder response =
     case response of
         Http.GoodStatus_ _ body ->
-            case Decode.decodeString (Decode.field "token" Decode.string) body of
-                Ok token ->
-                    Ok { token = token }
+            case Decode.decodeString loginSuccessDecoder body of
+                Ok success ->
+                    Ok success
 
                 Err decodeErr ->
                     Err (Decode.errorToString decodeErr)
@@ -100,8 +110,8 @@ loginStringResponseDecoder response =
             Err "Network error"
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update : Msg -> Model -> Nav.Key -> ( Model, Cmd Msg )
+update msg model navKey =
     case msg of
         ChangeUsername username ->
             ( { model | username = username }, Cmd.none )
@@ -121,27 +131,46 @@ update msg model =
             case result of
                 Ok success ->
                     ( { model
-                        | session = Session.Active { token = success.token }
-                        , message = Just "Login successful"
+                        | session = Session.Active { token = success.token, user = success.user }
                       }
-                    , Session.storeSession { token = success.token }
+                    , Cmd.batch [ Session.storeSession { token = success.token, user = success.user }, Nav.pushUrl navKey "/queries" ]
                     )
 
                 Err errMsg ->
                     ( { model | message = Just errMsg }, Cmd.none )
 
 
+view : Model -> Html Msg
 view model =
-    div []
-        [ label [] [ text "Username" ]
-        , input [ value model.username, onInput ChangeUsername ] []
-        , label [] [ text "Password" ]
-        , input
-            [ type_ "password"
-            , value model.password
-            , onInput ChangePassword
+    div [ class "w-full max-w-md bg-white rounded-lg shadow-lg p-8" ]
+        [ Maybe.withDefault (text "")
+            (Maybe.map
+                (\msg ->
+                    div [ class "alert" ]
+                        [ div [ class "border border-red-400 rounded bg-red-100 px-4 py-3 text-red-700" ] [ text msg ]
+                        ]
+                )
+                model.message
+            )
+        , div [ class "p-4" ]
+            [ label [ class "block text-sm font-medium text-gray-700 " ] [ text "Username" ]
+            , input
+                [ class "mt-1 w-full rounded border border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                , value model.username
+                , onInput ChangeUsername
+                ]
+                []
             ]
-            []
-        , button [ onClick SendForm ] [ text "Sign in" ]
-        , Maybe.withDefault (text "") (Maybe.map (\msg -> div [ class "login-message" ] [ text msg ]) model.message)
+        , div
+            [ class "p-4" ]
+            [ label [ class "block text-sm font-medium text-gray-700" ] [ text "Password" ]
+            , input
+                [ class "mt-1 w-full rounded border border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                , type_ "password"
+                , value model.password
+                , onInput ChangePassword
+                ]
+                []
+            ]
+        , button [ class "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded", onClick SendForm ] [ text "Sign in" ]
         ]

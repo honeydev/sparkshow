@@ -1,5 +1,8 @@
 package sparkshow.db.models
 
+import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.duration._
+
 import io.circe.Decoder
 import io.circe.Encoder
 import io.circe.generic.semiauto.deriveDecoder
@@ -19,11 +22,13 @@ case class Query(
     grouped: List[String],
     aggregate: Aggregate,
     state: String,
-    retries: Int = 0,
+    retries: Int           = 0,
+    period: FiniteDuration = 60.seconds,
+    lastRun: Option[Instant],
     createdAt: Instant,
     updatedAt: Instant
 ) {
-    def toProps =
+    def toProps: QueryProperties =
         QueryProperties(
           this.id,
           this.userId,
@@ -41,8 +46,8 @@ case class Query(
 object Function {
 
     implicit val decoder: Decoder[Function] = Decoder.decodeString.emap {
-        case "sum"   => Right(Sum)
-        case "count" => Right(Count)
+        case "sum"           => Right(Sum)
+        case "count"         => Right(Count)
         case unknownFunction =>
             Left(s"Unrecognised aggregate function $unknownFunction")
     }

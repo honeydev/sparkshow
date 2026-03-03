@@ -16,6 +16,7 @@ class QueryService(
           queryRequest.columns,
           queryRequest.grouped,
           queryRequest.aggregate,
+          queryRequest.period,
           user.id
         )
     }

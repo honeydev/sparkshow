@@ -30,7 +30,7 @@ class AuthRoutes(authService: AuthService, conf: AppConf) {
                         case Some(u) =>
                             Ok(
                               LoginResponse(
-                                user = u,
+                                user  = u,
                                 token = AuthUtils
                                     .encodeToken(u, conf.jwt.secret)
                               ).asJson

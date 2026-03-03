@@ -1,5 +1,7 @@
 package sparkshow.web.data
 
+import scala.concurrent.duration.FiniteDuration
+
 import cats.data.EitherT
 import cats.effect.IO
 import io.circe.Decoder
@@ -16,7 +18,10 @@ import org.http4s.Media
 import org.http4s.MediaType
 import org.http4s.Response
 import org.http4s.Status
+import org.http4s.circe.CirceEntityEncoder._
 import org.http4s.circe._
+import sparkshow.codecs.CommonCodecs.FiniteDurationDecoder
+import sparkshow.codecs.CommonCodecs.FiniteDurationEncoder
 import sparkshow.data.Aggregate
 import sparkshow.db.models.Column
 
@@ -38,14 +43,13 @@ case class QueryRequestBody(
     sourceId: Long,
     columns: List[String],
     grouped: List[String],
+    period: FiniteDuration,
     aggregate: Aggregate
 ) derives ConfiguredCodec
 
 object QueryRequestBody {
 
     import sparkshow.db.models.Aggregate.{decoder, encoder}
-    implicit val decoder: Decoder[QueryRequestBody] =
-        deriveDecoder[QueryRequestBody]
 
     implicit val entityDecoder: EntityDecoder[IO, QueryRequestBody] =
         EntityDecoder.decodeBy[IO, QueryRequestBody](
@@ -66,8 +70,8 @@ object QueryRequestBody {
                             httpVersion: HttpVersion
                         ): Response[F] =
                             Response(Status.BadRequest, httpVersion)
-                                .withEntity("Json parse error")(
-                                  EntityEncoder.stringEncoder[F]
+                                .withEntity(
+                                  InvalidResponse(message = message)
                                 )
                     }
                 }

@@ -1,5 +1,7 @@
 package sparkshow.services
 
+import scala.concurrent.duration._
+
 import java.time.Instant
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
@@ -25,7 +27,8 @@ case class QueryProperties(
     grouped: List[String],
     aggregate: Aggregate,
     state: String,
-    retries: Int = 0
+    retries: Int           = 0,
+    period: FiniteDuration = 60.seconds
 )
 
 case class SourceProperties(
@@ -91,7 +94,7 @@ class LocalSparkMetricCalcService {
             .map(r =>
                 MetricValue(
                   label = queryProperties.grouped.mkString(", "),
-                  name = queryProperties.grouped
+                  name  = queryProperties.grouped
                       .map(r.getAs[String](_))
                       .mkString(", "),
                   value = r.getAs[Long](

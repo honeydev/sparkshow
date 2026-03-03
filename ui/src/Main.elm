@@ -5,11 +5,13 @@ import Browser.Navigation as Nav
 import Components.Navbar as Navbar
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events
+import Html.Events exposing (onClick)
 import IndexPage exposing (..)
-import Json.Encode as Encode exposing (Value)
 import Login as LoginPage
+import Msg exposing (..)
 import NotFound exposing (..)
+import Platform.Cmd as Cmd
+import Ports
 import Route exposing (Route)
 import Session exposing (..)
 import Url
@@ -45,12 +47,18 @@ type alias Model =
     { pageModel : Page
     , route : Route
     , navKey : Nav.Key
+    , session : Session
     }
 
 
 getSession : Model -> Session
 getSession model =
-    case model.pageModel of
+    pageSession model.pageModel
+
+
+pageSession : Page -> Session
+pageSession page =
+    case page of
         IndexPage m ->
             m.session
 
@@ -64,40 +72,49 @@ getSession model =
 init : Maybe String -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url key =
     let
-        -- FIXME: remove this
-        store =
-            storeSession { token = "abc" }
+        initialSession =
+            Session.sessionFromRawString flags
 
         route =
             Route.parseUrl url
 
-        page =
-            case route of
-                Route.Index ->
-                    IndexPage { session = Unauthenticated }
-
-                Route.Login ->
-                    LoginPage.init Unauthenticated |> LoginPage
-
-                Route.NotFound ->
-                    NotFoundPage
-
-        _ =
-            Debug.toString page |> Debug.log "Page"
+        ( page, session ) =
+            pageForRoute route initialSession
     in
-    ( { pageModel = page, route = route, navKey = key }
-    , store
+    ( { pageModel = page, route = route, navKey = key, session = session }
+    , Cmd.none
     )
+
+
+pageForRoute : Route -> Session -> ( Page, Session )
+pageForRoute route session =
+    case route of
+        Route.Index ->
+            ( IndexPage { session = session }, session )
+
+        Route.NotFound ->
+            ( NotFoundPage, session )
+
+        -- redirect on login page for (sign out and click on login link)
+        _ ->
+            ( LoginPage.init Unauthenticated |> LoginPage, session )
+
+
+pageWithSession : Session -> Page -> Page
+pageWithSession session page =
+    case page of
+        IndexPage m ->
+            IndexPage { m | session = session }
+
+        LoginPage m ->
+            LoginPage { m | session = session }
+
+        NotFoundPage ->
+            NotFoundPage
 
 
 
 -- UPDATE
-
-
-type Msg
-    = LinkClicked Browser.UrlRequest
-    | UrlChanged Url.Url
-    | LoginMessage LoginPage.Msg
 
 
 authHook : a -> Page -> a
@@ -132,21 +149,10 @@ update msg model =
                 route =
                     Route.parseUrl url
 
-                page =
-                    case route of
-                        Route.Index ->
-                            IndexPage { session = Unauthenticated }
-
-                        Route.Login ->
-                            LoginPage.init Unauthenticated |> LoginPage
-
-                        Route.NotFound ->
-                            NotFoundPage
-
-                _ =
-                    Debug.toString page |> Debug.log "Page"
+                ( page, session ) =
+                    pageForRoute route model.session
             in
-            ( { pageModel = page, route = route, navKey = model.navKey }, Cmd.none )
+            ( { pageModel = page, route = route, navKey = model.navKey, session = session }, Cmd.none )
 
         LinkClicked urlRequest ->
             case urlRequest of
@@ -167,11 +173,38 @@ update msg model =
                             LoginPage.init (getSession model)
 
                 ( m, cmd ) =
-                    LoginPage.update subMsg loginPageModel
+                    LoginPage.update subMsg loginPageModel model.navKey
+
+                newPageModel =
+                    LoginPage m
+
+                newSession =
+                    pageSession newPageModel
             in
-            ( { pageModel = LoginPage m, route = Route.Login, navKey = model.navKey }
+            ( { pageModel = newPageModel, route = Route.Login, navKey = model.navKey, session = newSession }
             , Cmd.map LoginMessage cmd
             )
+
+        SessionLoaded encoded ->
+            let
+                newSession =
+                    Session.sessionFromRawString <| Just encoded
+
+                updatedPage =
+                    pageWithSession newSession model.pageModel
+
+                pushOnLoginPage =
+                    case newSession of
+                        Active _ ->
+                            Cmd.none
+
+                        Unauthenticated ->
+                            Nav.pushUrl model.navKey "/login"
+            in
+            ( { model | pageModel = updatedPage, session = newSession }, pushOnLoginPage )
+
+        SignOut ->
+            ( { model | session = Unauthenticated }, Cmd.batch [ Ports.removeLocalStorageItem "session", Nav.pushUrl model.navKey "/login" ] )
 
 
 
@@ -180,7 +213,7 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-    Sub.none
+    Ports.loadSession SessionLoaded
 
 
 
@@ -189,25 +222,65 @@ subscriptions _ =
 
 view : Model -> Browser.Document Msg
 view model =
-    { title = "URL Interceptor"
+    { title = "Sparkshow"
     , body =
-        [ ul []
-            [ Navbar.build
-                [ Navbar.Link "Query" "query"
-                , Navbar.Link "Profile" "profile"
-                , Navbar.Link "Sign out" "sign-out"
-                , Navbar.Link "Login" "login"
-                ]
-            ]
-        , case model.pageModel of
-            LoginPage m ->
-                Html.map LoginMessage (LoginPage.view m)
+        let
+            mainNavElements =
+                [ Navbar.Link "Queries" "queries", Navbar.Link "Profile" "profile" ]
 
-            NotFoundPage ->
-                NotFound.view
+            ( sidebar, contentHeader, contentHeighSize ) =
+                case model.session of
+                    Active _ ->
+                        ( aside
+                            [ id "sidebar", class "fixed inset-y-0 left-0 z-30 w-64 bg-gray-900 text-white transform -translate-x-full transition-transform duration-200 ease-in-out md:translate-x-0 md:static md:inset-0" ]
+                            [ div [ class "p-6 text-xl font-bold border-b border-gray-700" ] [ text "Dashboard" ]
+                            , nav [ class "p-4 space-y-2" ]
+                                [ Navbar.authenticatedNavbar mainNavElements (Navbar.NavButton "Sign Out") ]
+                            ]
+                            |> Just
+                        , header
+                            [ class "flex items-center bg-white shadow px-4 h-16" ]
+                            [ button [ class "md:hidden text-gray-700" ]
+                                [ text "☰"
+                                ]
+                            , h1 [ class "ml-4 text-lg font-semibold" ] [ text " Contnet" ]
+                            ]
+                            |> Just
+                        , "[calc(100vh-4rem)]"
+                        )
 
-            IndexPage m ->
-                IndexPage.view m
+                    Unauthenticated ->
+                        ( Nothing, Nothing, "screen" )
+
+            content =
+                let
+                    mainContent =
+                        div [ class <| "bg-gray-100 flex items-center justify-center min-h-" ++ contentHeighSize ]
+                            [ -- div [] [ text <| Debug.toString model.session ]
+                              case model.pageModel of
+                                LoginPage m ->
+                                    Html.map LoginMessage (LoginPage.view m)
+
+                                NotFoundPage ->
+                                    NotFound.view
+
+                                IndexPage m ->
+                                    IndexPage.view m
+                            ]
+
+                    contentElements =
+                        List.filterMap identity [ contentHeader, Just mainContent ]
+                in
+                main_
+                    [ class "flex-1 flex flex-col min-h-screen" ]
+                    contentElements
+
+            all =
+                List.filterMap identity [ sidebar, Just content ]
+        in
+        [ div
+            [ class "flex h-screen" ]
+            all
         ]
     }
 
