@@ -24,11 +24,11 @@ class QueryRepository(private val transactor: Transactor[IO]) extends SQLOps {
     import SourceRepository.get
     import sparkshow.db.models.Aggregate.{decoder, encoder}
 
-    implicit val metaListString: Meta[List[String]] =
+    given metaListString: Meta[List[String]] =
         new Meta[List[String]](pgDecoderGet, pgEncoderPut)
-    implicit val aggregateMeta: Meta[Aggregate] =
+    given aggregateMeta: Meta[Aggregate] =
         new Meta[Aggregate](pgDecoderGet, pgEncoderPut)
-    implicit val instantMeta: Meta[Instant] =
+    given instantMeta: Meta[Instant] =
         Meta[Timestamp].timap(_.toInstant)(Timestamp.from)
     given periodMeta: Meta[FiniteDuration] =
         Meta[Int].timap(_.seconds)(d => d.toSeconds.toInt)
@@ -41,16 +41,26 @@ class QueryRepository(private val transactor: Transactor[IO]) extends SQLOps {
             .transact(transactor)
     }
 
-    def queries(st: List[String]): IO[List[(Query, Source)]] = {
-        val states       = st.map(v => fr"$v::query_state").intercalate(fr",")
+    def queries(
+        st: Option[List[String]],
+        period: Some[Unit]
+    ): IO[List[(Query, Source)]] = {
         val selectClause = fr"""
              SELECT * FROM queries
              INNER JOIN sources
              ON queries.source_id = sources.id
             """
-        val stateCl     = fr"state IN ($states)"
-        val periodCl = fr"COALESCE(EXTRACT(EPOCH FROM NOW() - last_run) > period, true)"
-        val whereClause = whereAndOpt(Some(stateCl), Some(periodCl))
+        val stateCl = st.map { states =>
+            val statesFragment =
+                st.map(v => fr"$v::query_state").intercalate(fr",")
+
+            fr"state IN ($statesFragment)"
+        }
+        val periodCl =
+            period.map { _ =>
+                fr"COALESCE(EXTRACT(EPOCH FROM NOW() - last_run) > period, true)"
+            }
+        val whereClause = whereAndOpt(stateCl, periodCl)
         (selectClause ++ whereClause)
             .query[(Query, Source)]
             .stream
@@ -118,7 +128,12 @@ class QueryRepository(private val transactor: Transactor[IO]) extends SQLOps {
             .transact(transactor)
     }
 
-    def update(state: QueryState, retries: Int, lastRun: Instant, id: Long): IO[Int] =
+    def update(
+        state: QueryState,
+        retries: Int,
+        lastRun: Instant,
+        id: Long
+    ): IO[Int] =
         sql"""UPDATE 
           queries
         SET 

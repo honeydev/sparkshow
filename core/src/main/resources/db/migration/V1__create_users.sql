@@ -50,7 +50,6 @@ CREATE TABLE roles_permissions (
       FOREIGN KEY(permission_id) 
         REFERENCES permissions(id)
         ON DELETE CASCADE
-
 );
 
 INSERT INTO permissions (id, name) VALUES

@@ -1,12 +1,13 @@
 package sparkshow.services
-import scala.concurrent.duration.*
+import scala.concurrent.duration._
+
 import cats.data.NonEmptyList
-import cats.effect.*
+import cats.effect._
 import cats.effect.std.Queue
-import cats.syntax.all.*
+import cats.syntax.all._
 import org.typelevel.log4cats.SelfAwareStructuredLogger
 import org.typelevel.log4cats.slf4j.Slf4jFactory
-import org.typelevel.log4cats.syntax.*
+import org.typelevel.log4cats.syntax._
 import sparkshow.data.Enqueued
 import sparkshow.data.Failed
 import sparkshow.data.New
@@ -31,7 +32,8 @@ class QueryQueueService(
     def produceQueries(queue: Queue[IO, (Query, Source)]) = {
         val enqueue = for {
             queries <- queryRepository.queries(
-              List(New.toString, WaitingRetry.toString)
+              st     = Some(List(New.toString, WaitingRetry.toString)),
+              period = Some(())
             )
             _ <- NonEmptyList
                 .fromList(queries)
@@ -82,7 +84,7 @@ class QueryQueueService(
                     } yield ()).handleErrorWith { e =>
                         for {
                             errorTime <- clock.realTime
-                            _ <-
+                            _         <-
                                 if (q.retries > MaxRetries) {
                                     queryRepository.update(
                                       Failed,
