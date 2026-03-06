@@ -24,11 +24,13 @@ import sparkshow.web.data.GetMetrics
 import sparkshow.web.data.SendMetrics
 import sparkshow.web.data.SendNothing
 import sparkshow.web.data.SendState
+import sparkshow.web.data.MetricRequest
 
 class WSRoutes(
     val metricService: MetricService,
     val metricRepo: MetricRepository
 ) {
+    import sparkshow.codecs.WSMessagesCodecs.*
 
     implicit val logging: LoggerFactory[IO]            = Slf4jFactory.create[IO]
     implicit val logger: SelfAwareStructuredLogger[IO] =
@@ -44,9 +46,12 @@ class WSRoutes(
                         .awakeEvery[IO](10.second)
                         .evalMap(_ =>
                             state match {
-                                case SendMetrics(incomeMsg) => {
+                                case SendMetrics(
+                                      GetMetrics(requiredMetrics)
+                                    ) => {
+
                                     metricRepo
-                                        .many(incomeMsg.queries)
+                                        .many(List(1, 2))
                                         .map(v =>
                                             WebSocketFrame
                                                 .Text(v.asJson.toString)

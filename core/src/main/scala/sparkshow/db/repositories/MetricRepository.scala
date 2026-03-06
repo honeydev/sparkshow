@@ -8,6 +8,7 @@ import doobie.implicits.javasql._
 import doobie.util.meta.Meta
 import doobie.util.transactor.Transactor
 import sparkshow.db.models.Metric
+import java.time.Instant
 
 class MetricRepository(val transactor: Transactor[IO]) {
     import sparkshow.codecs.MetricCodecs.*
@@ -48,7 +49,11 @@ class MetricRepository(val transactor: Transactor[IO]) {
             .transact(transactor)
     }
 
-    def many(queryIds: List[Long]): IO[List[Metric]] = {
+    def many(
+        queryIds: List[Long],
+        createdMin: Option[Instant] = None,
+        createdMax: Option[Instant] = None
+    ): IO[List[Metric]] = {
         val idsFragment = queryIds.map(v => fr"$v").intercalate(fr",")
 
         fr"""
