@@ -3,7 +3,7 @@ package sparkshow.web.data
 import java.time.Instant
 
 trait IncomeMsg
-case class GetMetrics(requiredMetrics: List[MetricRequest]) extends IncomeMsg
+case class GetMetrics(metrics: List[MetricRequest]) extends IncomeMsg
 
 sealed trait SendState
 

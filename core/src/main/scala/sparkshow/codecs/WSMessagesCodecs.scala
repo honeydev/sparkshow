@@ -9,6 +9,6 @@ object WSMessagesCodecs {
 
     given Decoder[MetricRequest] = deriveDecoder[MetricRequest]
 
-    given Decoder[GetMetrics] =
+    given getMetricDecoder: Decoder[GetMetrics] =
         deriveDecoder[GetMetrics]
 }

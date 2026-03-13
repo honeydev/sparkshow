@@ -32,6 +32,7 @@ class QueryRepository(private val transactor: Transactor[IO]) extends SQLOps {
         Meta[Timestamp].timap(_.toInstant)(Timestamp.from)
     given periodMeta: Meta[FiniteDuration] =
         Meta[Int].timap(_.seconds)(d => d.toSeconds.toInt)
+
     def all: IO[List[Query]] = {
         sql"""SELECT * FROM queries"""
             .query[Query]

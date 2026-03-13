@@ -25,6 +25,11 @@ import sparkshow.web.data.SendMetrics
 import sparkshow.web.data.SendNothing
 import sparkshow.web.data.SendState
 import sparkshow.web.data.MetricRequest
+import sparkshow.codecs.WSMessagesCodecs.getMetricDecoder
+import java.time.Instant
+import cats.effect._
+import cats.syntax.all._
+import scala.concurrent.duration.MILLISECONDS
 
 class WSRoutes(
     val metricService: MetricService,
@@ -39,7 +44,8 @@ class WSRoutes(
     def routes(ws: WebSocketBuilder2[IO]): AuthedRoutes[User, IO] = {
         AuthedRoutes
             .of[User, IO] { case authedRequest @ GET -> Root / "ws" as user =>
-                var state: SendState = SendNothing()
+                var state: SendState         = SendNothing()
+                var lastRun: Option[Instant] = None
 
                 val send: Stream[IO, WebSocketFrame] =
                     Stream
@@ -50,12 +56,19 @@ class WSRoutes(
                                       GetMetrics(requiredMetrics)
                                     ) => {
 
-                                    metricRepo
-                                        .many(List(1, 2))
+                                    println(requiredMetrics)
+
+                                    val message = metricRepo
+                                        .many(
+                                          requiredMetrics.map(_.queryId)
+                                        )
                                         .map(v =>
                                             WebSocketFrame
                                                 .Text(v.asJson.toString)
                                         )
+
+                                    message
+
                                 }
                                 case SendNothing() =>
                                     IO(WebSocketFrame.Text(""))
@@ -72,16 +85,15 @@ class WSRoutes(
                                 )
                                 parsed      <- parse(rawData)
                                 requestType <- parsed.hcursor.get[String](
-                                  "request"
+                                  "command"
                                 )
                                 newState <- {
                                     import sparkshow.codecs.WSMessagesCodecs._
-
                                     requestType match {
-                                        // {"request": "get_metrics", "entity": {"queries": [1, 2, 3]}}
+                                        // {"command": "get_metrics", "request": {"metrics": [{"queryId": 1}]}}
                                         case "get_metrics" =>
                                             parsed.hcursor
-                                                .downField("entity")
+                                                .downField("request")
                                                 .as[GetMetrics]
                                                 .map(v => data.SendMetrics(v))
                                         case "send_nothing" =>
