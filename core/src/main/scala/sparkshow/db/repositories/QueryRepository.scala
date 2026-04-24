@@ -53,7 +53,9 @@ class QueryRepository(private val transactor: Transactor[IO]) extends SQLOps {
             """
         val stateCl = st.map { states =>
             val statesFragment =
-                st.map(v => fr"$v::query_state").intercalate(fr",")
+                states
+                    .map(v => fr"$v::query_state")
+                    .intercalate(fr",")
 
             fr"state IN ($statesFragment)"
         }
