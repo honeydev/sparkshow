@@ -32,7 +32,9 @@ class QueryQueueService(
     def produceQueries(queue: Queue[IO, (Query, Source)]) = {
         val enqueue = for {
             queries <- queryRepository.queries(
-              st     = Some(List(New.toString, WaitingRetry.toString)),
+              st = Some(
+                List(New.toString, WaitingRetry.toString)
+              ),
               period = Some(())
             )
             _ <- NonEmptyList

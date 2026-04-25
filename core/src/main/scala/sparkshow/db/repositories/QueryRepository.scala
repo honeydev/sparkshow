@@ -44,7 +44,8 @@ class QueryRepository(private val transactor: Transactor[IO]) extends SQLOps {
 
     def queries(
         st: Option[List[String]],
-        period: Some[Unit]
+        period: Option[Unit]        = None,
+        lastRunPeriod: Option[Long] = None
     ): IO[List[(Query, Source)]] = {
         val selectClause = fr"""
              SELECT * FROM queries
@@ -59,11 +60,18 @@ class QueryRepository(private val transactor: Transactor[IO]) extends SQLOps {
 
             fr"state IN ($statesFragment)"
         }
+
+        val lastRunCl = lastRunPeriod
+            .map { lastRunMaxDelta =>
+                fr"NOW() - last_run > ${lastRunMaxDelta}"
+            }
+
         val periodCl =
             period.map { _ =>
                 fr"COALESCE(EXTRACT(EPOCH FROM NOW() - last_run) > period, true)"
             }
-        val whereClause = whereAndOpt(stateCl, periodCl)
+
+        val whereClause = whereAndOpt(stateCl, periodCl, lastRunCl)
         (selectClause ++ whereClause)
             .query[(Query, Source)]
             .stream
