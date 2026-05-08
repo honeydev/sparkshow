@@ -7,8 +7,8 @@ import doobie.implicits._
 import doobie.implicits.javasql._
 import doobie.util.meta.Meta
 import doobie.util.transactor.Transactor
-import sparkshow.db.models.Metric
 import java.time.Instant
+import sparkshow.db.models.Metric
 
 class MetricRepository(val transactor: Transactor[IO]) {
     import sparkshow.codecs.MetricCodecs.*

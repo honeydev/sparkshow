@@ -3,11 +3,13 @@ package sparkshow.web.routes
 import scala.concurrent.duration._
 
 import cats.effect.IO
+import cats.effect._
 import fs2.Pipe
 import fs2.Stream
 import io.circe.parser._
 import io.circe.syntax._
 import java.nio.charset.StandardCharsets
+import java.time.Instant
 import org.http4s.AuthedRoutes
 import org.http4s.dsl.io._
 import org.http4s.server.websocket.WebSocketBuilder2
@@ -16,6 +18,7 @@ import org.typelevel.log4cats._
 import org.typelevel.log4cats.slf4j.Slf4jFactory
 import org.typelevel.log4cats.syntax._
 import sparkshow.codecs.MetricCodecs._
+import sparkshow.codecs.WSMessagesCodecs.getMetricDecoder
 import sparkshow.db.models.User
 import sparkshow.db.repositories.MetricRepository
 import sparkshow.services.MetricService
@@ -24,18 +27,11 @@ import sparkshow.web.data.GetMetrics
 import sparkshow.web.data.SendMetrics
 import sparkshow.web.data.SendNothing
 import sparkshow.web.data.SendState
-import sparkshow.web.data.MetricRequest
-import sparkshow.codecs.WSMessagesCodecs.getMetricDecoder
-import java.time.Instant
-import cats.effect._
-import cats.syntax.all._
-import scala.concurrent.duration.MILLISECONDS
 
 class WSRoutes(
     val metricService: MetricService,
     val metricRepo: MetricRepository
 ) {
-    import sparkshow.codecs.WSMessagesCodecs.*
 
     implicit val logging: LoggerFactory[IO]            = Slf4jFactory.create[IO]
     implicit val logger: SelfAwareStructuredLogger[IO] =
@@ -88,7 +84,6 @@ class WSRoutes(
                                   "command"
                                 )
                                 newState <- {
-                                    import sparkshow.codecs.WSMessagesCodecs._
                                     requestType match {
                                         // {"command": "get_metrics", "request": {"metrics": [{"queryId": 1}]}}
                                         case "get_metrics" =>

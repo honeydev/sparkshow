@@ -23,6 +23,7 @@
             sbt
             scala
             postgresql
+            git
           ];
 
           shellHook = ''
@@ -30,6 +31,8 @@
             echo "Java:  $(java -version 2>&1 | head -n 1)"
             echo "sbt:   $(sbt --script-version)"
             echo "Scala: $(scala -version 2>&1 | head -n 1)"
+            export JDK_JAVA_OPTIONS='--add-opens=java.base/sun.nio.ch=ALL-UNNAMED'
+            zsh
           '';
         };
       });
