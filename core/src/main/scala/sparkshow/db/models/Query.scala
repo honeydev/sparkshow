@@ -27,7 +27,7 @@ case class Query(
     lastRun: Option[Instant],
     createdAt: Instant,
     updatedAt: Instant
-) {
+):
     def toProps: QueryProperties =
         QueryProperties(
           this.id,
@@ -41,24 +41,21 @@ case class Query(
           this.state,
           this.retries
         )
-}
 
-object Function {
+object Function:
 
-    implicit val decoder: Decoder[Function] = Decoder.decodeString.emap {
+    given decoder: Decoder[Function] = Decoder.decodeString.emap {
         case "sum"           => Right(Sum)
         case "count"         => Right(Count)
         case unknownFunction =>
             Left(s"Unrecognised aggregate function $unknownFunction")
     }
 
-    implicit val encoder: Encoder[Function] =
+    given encoder: Encoder[Function] =
         Encoder.encodeString.contramap(_.toString)
-}
 
-object Aggregate {
+object Aggregate:
     import Function.{decoder, encoder}
 
     given decoder: Decoder[Aggregate] = deriveDecoder[Aggregate]
     given encoder: Encoder[Aggregate] = deriveEncoder[Aggregate]
-}

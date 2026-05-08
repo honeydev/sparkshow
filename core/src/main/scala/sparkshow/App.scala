@@ -53,10 +53,8 @@ class AppServiceRole(
     ): Lifecycle[IO, Unit] = {
         Lifecycle.liftF(
           IO.println("Run tasks")
-              >>
-                  runQueriesTask.run
-                  >>
-                  IO.println("Start server")
+              >> runQueriesTask.run
+              >> IO.println("Start server")
         )
     }
 }
